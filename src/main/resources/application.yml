@@ -1,12 +1,12 @@
 spring:
   profiles:
-    include: secret, aws
+    include: aws
   jpa:
     properties:
       hibernate:
         format_sql: true
         show_sql: true
         hbm2ddl:
-          auto: update
+          auto: create
 logging.level:
   org.hibernate.SQL: debug
