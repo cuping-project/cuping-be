@@ -7,6 +7,6 @@ spring:
         format_sql: true
         show_sql: true
         hbm2ddl:
-          auto: create
+          auto: update
 logging.level:
   org.hibernate.SQL: debug
