@@ -1,18 +1,22 @@
 package com.cuping.cupingbe.entity;
 
-
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 
 @Entity
+@Getter
 @NoArgsConstructor
 public class Cafe {
 
-    @Id
+    @Id // 카카오맵에서 제공하는 ID를 사용하려고 GeneratedValue추가 안함.
     private Long cafeId;
+  
+    @ManyToOne
+    private Owner ownerId;
 
     @Column
     private String addressName;

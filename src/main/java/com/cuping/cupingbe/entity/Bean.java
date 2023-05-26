@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -15,6 +16,7 @@ public class Bean {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
 
     @Column
     private String beanName;
@@ -39,6 +41,12 @@ public class Bean {
 
     @Column
     private String origin;
+  
+    @OneToMany
+    private List<Cafe> cafeList;
+  
+    public void setCafeList(List<Cafe> cafeList) {
+        this.cafeList = cafeList;
 
     public Bean(String imgUrl, AdminPageRequestDto adminPageRequestDto) {
         this.beanName = adminPageRequestDto.getBeanName();
@@ -48,5 +56,6 @@ public class Bean {
         this.roastingLevel = adminPageRequestDto.getRoastingLevel();
         this.flavor = adminPageRequestDto.getFlavor();
         this.origin = adminPageRequestDto.getOrigin();
+      
     }
 }
