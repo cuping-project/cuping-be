@@ -15,4 +15,9 @@ public class Message {
         return new Message(message, data);
     }
 
+    public Message(String message) {
+        this.message = message;
+    }
+
+
 }
