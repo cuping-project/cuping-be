@@ -1,2 +1,4 @@
-package com.cuping.cupingbe.entity;public class Owner {
+package com.cuping.cupingbe.entity;
+public class Owner {
+
 }

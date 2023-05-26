@@ -1,6 +1,6 @@
 spring:
   profiles:
-    include: aws
+    include: aws,s3
   jpa:
     properties:
       hibernate:
