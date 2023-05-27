@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface BeanRepository extends JpaRepository<Bean, Long> {
 
-    @Query("")
-    public List<Bean> findBySearch(String keyword, String roastingLevel, String origin, String flavor);
+//    @Query("")
+//    public List<Bean> findBySearch(String keyword, String roastingLevel, String origin, String flavor);
 }
