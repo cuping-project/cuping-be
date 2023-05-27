@@ -22,17 +22,26 @@ public class PageService {
     private final BeanRepository beanRepository;
 
     public ResponseEntity<Message> getMainPage(Map<String, String> searchValue) {
-        String keyword = searchValue.get("keyword");
-        String roastingLevel = searchValue.get("roasting");
+        String roastingLevel = searchValue.get("roastingLevel");
         String origin = searchValue.get("origin");
         String flavor = searchValue.get("flavor");
 
-        if (keyword.isEmpty() && roastingLevel.equals(origin) && origin.equals(flavor)) {
+        if (roastingLevel.equals(origin) && origin.equals(flavor)) {
+            return new ResponseEntity<>(new Message("findAll", beanRepository.findAll()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new Message("findFilter", beanRepository.findByRoastingLevelOrOriginOrFlavor(
+                    roastingLevel, origin, flavor
+            )), HttpStatus.OK);
+        }
+    }
+
+    public ResponseEntity<Message> getSearchPage(String keyword) {
+        if (keyword.isEmpty()) {
             return new ResponseEntity<>(new Message("Success", beanRepository.findAll()), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new Message("Success", beanRepository.findBySearch(
-                    keyword, roastingLevel, origin, flavor
-            )), HttpStatus.OK);
+            return new ResponseEntity<>(new Message("Success", beanRepository.findByBeanNameOrOriginOrBeanOriginName(
+                    keyword, keyword, keyword)),
+            HttpStatus.OK);
         }
     }
 
@@ -43,7 +52,7 @@ public class PageService {
         List<Cafe> cafeList = bean.getCafeList();
         List<Cafe> returnList = new ArrayList<>();
         for (Cafe c : cafeList) {
-            if (c.getCafeAddress().contains(address))
+            if (c.getAddressName().contains(address))
                 returnList.add(c);
         }
         bean.setCafeList(returnList);
