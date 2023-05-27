@@ -22,6 +22,9 @@ public class Bean {
     private String beanName;
 
     @Column
+    private String beanOriginName;
+
+    @Column
     private String beanImage;
 
     @Column
@@ -41,12 +44,13 @@ public class Bean {
 
     @Column
     private String origin;
-  
+
     @OneToMany
     private List<Cafe> cafeList;
-  
+
     public void setCafeList(List<Cafe> cafeList) {
         this.cafeList = cafeList;
+    }
 
     public Bean(String imgUrl, AdminPageRequestDto adminPageRequestDto) {
         this.beanName = adminPageRequestDto.getBeanName();
@@ -56,6 +60,5 @@ public class Bean {
         this.roastingLevel = adminPageRequestDto.getRoastingLevel();
         this.flavor = adminPageRequestDto.getFlavor();
         this.origin = adminPageRequestDto.getOrigin();
-      
     }
 }

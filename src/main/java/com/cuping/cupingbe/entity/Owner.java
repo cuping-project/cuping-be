@@ -1,3 +1,5 @@
+package com.cuping.cupingbe.entity;
+
 import com.cuping.cupingbe.global.jwt.refreshToken.RefreshToken;
 import jakarta.persistence.*;
 import lombok.Getter;
