@@ -75,8 +75,8 @@ public class OwnerPageService {
 
                 Cafe cafe = Cafe.builder()
                         .cafeId(Long.valueOf(rowNode.path("id").asText()))
-                        .addressName(rowNode.path("road_address_name").asText())
-                        .storePhoneNumber(ownerPageRequestDto.getStoreNumber())
+                        .cafeAddress(rowNode.path("road_address_name").asText())
+                        .cafePhoneNumber(ownerPageRequestDto.getStoreNumber())
                         .cafeName(rowNode.path("place_name").asText())
                         .x(rowNode.path("x").asText())
                         .y(rowNode.path("y").asText())
@@ -87,9 +87,7 @@ public class OwnerPageService {
 
         }
 
-        Message message = new Message("가게 등록 성공");
-        ResponseEntity<Message> responseEntity = new ResponseEntity<>(message, HttpStatus.OK);
 
-        return responseEntity;
+        return new ResponseEntity<>(new Message("가게 등록 성공"), HttpStatus.OK);
     }
 }

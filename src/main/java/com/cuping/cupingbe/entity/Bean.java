@@ -22,6 +22,9 @@ public class Bean {
     private String beanName;
 
     @Column
+    private String beanOriginName;
+
+    @Column
     private String beanImage;
 
     @Column
@@ -42,12 +45,13 @@ public class Bean {
     @Column
     private String origin;
 
+
     @Column
     private String hashTag;
-  
+
     @OneToMany
     private List<Cafe> cafeList;
-  
+
     public void setCafeList(List<Cafe> cafeList) {
         this.cafeList = cafeList;
     }

@@ -37,16 +37,16 @@ public class Cafe {
     private String y;
 
     @Column
-    private Boolean permit = false;
+    private Boolean permit;
 
     @Column
     private String imageUrl;
 
     @Builder
-    public Cafe(Long cafeId, String addressName, String storePhoneNumber, String cafeName, String x, String y, String imageUrl) {
+    public Cafe(Long cafeId, String cafeAddress, String cafePhoneNumber, String cafeName, String x, String y, String imageUrl) {
         this.cafeId = cafeId;
-        this.cafeAddress = addressName;
-        this.storePhoneNumber = storePhoneNumber;
+        this.cafeAddress = cafeAddress;
+        this.storePhoneNumber = cafePhoneNumber;
         this.cafeName = cafeName;
         this.x = x;
         this.y = y;
