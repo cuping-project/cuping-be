@@ -30,3 +30,4 @@ public class PageController {
         return pageService.getDetailPage(cardId, address);
     }
 }
+

@@ -52,10 +52,11 @@ public class PageService {
         List<Cafe> cafeList = bean.getCafeList();
         List<Cafe> returnList = new ArrayList<>();
         for (Cafe c : cafeList) {
-            if (c.getAddressName().contains(address))
+            if (c.getCafeAddress().contains(address))
                 returnList.add(c);
         }
         bean.setCafeList(returnList);
         return new ResponseEntity<>(new Message("Success", bean), HttpStatus.OK);
     }
 }
+

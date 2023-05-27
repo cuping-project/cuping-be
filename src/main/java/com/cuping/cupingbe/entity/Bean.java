@@ -45,6 +45,10 @@ public class Bean {
     @Column
     private String origin;
 
+
+    @Column
+    private String hashTag;
+
     @OneToMany
     private List<Cafe> cafeList;
 
@@ -60,5 +64,6 @@ public class Bean {
         this.roastingLevel = adminPageRequestDto.getRoastingLevel();
         this.flavor = adminPageRequestDto.getFlavor();
         this.origin = adminPageRequestDto.getOrigin();
+        this.hashTag = adminPageRequestDto.getHashTag();
     }
 }

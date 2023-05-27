@@ -13,5 +13,6 @@ public class AdminPageRequestDto {
     private String roastingLevel;
     private String flavor;
     private String origin;
+    private String hashTag;
 
 }

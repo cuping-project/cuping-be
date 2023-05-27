@@ -13,6 +13,7 @@ public class Owner {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @OneToOne
     private RefreshToken refreshTokenId;
     private String ownerId;
