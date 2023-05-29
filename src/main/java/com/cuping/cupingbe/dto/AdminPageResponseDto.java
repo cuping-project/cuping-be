@@ -1,10 +1,7 @@
 package com.cuping.cupingbe.dto;
 
 import com.cuping.cupingbe.entity.Cafe;
-import com.cuping.cupingbe.entity.Owner;
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+
 import lombok.Getter;
 
 @Getter
