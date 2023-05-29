@@ -17,7 +17,6 @@ public class Bean {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @Column
     private String beanName;
 
@@ -30,8 +29,8 @@ public class Bean {
     @Column
     private String beanSummary;
 
-//    @Column
-//    private List<hashTag> hashTagList = ArrayList<>();
+    @Column
+    private String hashTag;
 
     @Column
     private String beanInfo;
@@ -45,17 +44,6 @@ public class Bean {
     @Column
     private String origin;
 
-
-    @Column
-    private String hashTag;
-
-    @OneToMany
-    private List<Cafe> cafeList;
-
-    public void setCafeList(List<Cafe> cafeList) {
-        this.cafeList = cafeList;
-    }
-
     public Bean(String imgUrl, AdminPageRequestDto adminPageRequestDto) {
         this.beanName = adminPageRequestDto.getBeanName();
         this.beanImage = imgUrl;
@@ -65,5 +53,6 @@ public class Bean {
         this.flavor = adminPageRequestDto.getFlavor();
         this.origin = adminPageRequestDto.getOrigin();
         this.hashTag = adminPageRequestDto.getHashTag();
+        this.beanOriginName = this.beanName + this.origin;
     }
 }

@@ -38,20 +38,16 @@ public class User {
 	@Column(nullable = true)
 	private Long kakaoid;
 
-
 	@Column(nullable = true)
 	private String email;
 
 	@Column(nullable = true)
 	private String profile_image;
 
-
 	@Column(nullable = true)
 	private String username;
 
-
 	//일반 회원가입
-
 	public User(String userId,String password,String nickname,UserRoleEnum role){
 		this.userId = userId;
 		this.password =password;
@@ -76,11 +72,11 @@ public class User {
 		this.profile_image = profile_image;
 
 	}
+
 	public User kakaoIdUpdate(Long kakaoid) {
 		this.kakaoid = kakaoid;
 		return this;
 	}
-
 
 	public User(MemberSignupRequest memberSignupRequest){
 		this.userId = memberSignupRequest.getUserId();
