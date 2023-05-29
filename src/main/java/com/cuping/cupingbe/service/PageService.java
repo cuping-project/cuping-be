@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -49,11 +48,10 @@ public class PageService {
 
     public ResponseEntity<Message> getDetailPage(Long cardId, String address) {
         Bean bean = beanRepository.findById(cardId).orElseThrow(
-                () -> new CustomException(ErrorCode.INVALID_BEANS)
+            () -> new CustomException(ErrorCode.INVALID_BEANS)
         );
         List<Cafe> cafeList = cafeRepository.findByBeanAndCafeAddressContaining(bean, address);
-        return new ResponseEntity<>(new Message("Success",
-                new DetailPageResponseDto(bean, cafeList)), HttpStatus.OK);
+        return new ResponseEntity<>(new Message("Success", new DetailPageResponseDto(bean, cafeList)), HttpStatus.OK);
     }
 }
 

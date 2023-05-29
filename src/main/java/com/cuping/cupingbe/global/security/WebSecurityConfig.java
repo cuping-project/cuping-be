@@ -91,8 +91,8 @@ public class WebSecurityConfig {
             .and().addFilterBefore(new JwtAuthFilter(jwtUtil,userRepository), UsernamePasswordAuthenticationFilter.class)
             .cors();
 
-        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterAfter(jwtAuthFilter, ExceptionTranslationFilter.class);
+        // http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        //     .addFilterAfter(jwtAuthFilter, ExceptionTranslationFilter.class);
 
         return http.build();
     }
