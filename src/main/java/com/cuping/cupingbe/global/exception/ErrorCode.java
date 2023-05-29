@@ -22,6 +22,7 @@ public enum ErrorCode {
     INVALID_BEANS(HttpStatus.BAD_REQUEST, "존재하지 않는 원두입니다."),
     UNFORMED_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호 형식과 일치하지 않습니다."),
     DUPLICATE_BEAN(HttpStatus.BAD_REQUEST, "이미 등록된 원두입니다."),
+    DUPLICATE_CAFE(HttpStatus.BAD_REQUEST, "이미 등록된 카페입니다."),
     UNREGISTER_BEAN(HttpStatus.BAD_REQUEST, "등록되지 않은 원두입니다."),
     UNREGISTER_CAFE(HttpStatus.BAD_REQUEST, "등록되지 않은 카페입니다."),
     NONEXISTENT_COMMENT(HttpStatus.BAD_REQUEST, "해당 댓글이 존재하지 않습니다."),
