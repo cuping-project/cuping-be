@@ -75,7 +75,6 @@ public class OwnerPageService {
             String imgUrl = s3Uploader.upload(ownerPageRequestDto.getImage());
 
                 Cafe cafe = Cafe.builder()
-                        .cafeId(Long.valueOf(rowNode.path("id").asText()))
                         .cafeAddress(rowNode.path("road_address_name").asText())
                         .cafePhoneNumber(ownerPageRequestDto.getStoreNumber())
                         .cafeName(rowNode.path("place_name").asText())
