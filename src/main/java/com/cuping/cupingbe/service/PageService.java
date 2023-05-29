@@ -1,5 +1,6 @@
 package com.cuping.cupingbe.service;
 
+import com.cuping.cupingbe.dto.DetailPageResponseDto;
 import com.cuping.cupingbe.entity.Cafe;
 import com.cuping.cupingbe.global.exception.CustomException;
 import com.cuping.cupingbe.global.exception.ErrorCode;
@@ -7,8 +8,6 @@ import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.repository.BeanRepository;
 import com.cuping.cupingbe.repository.CafeRepository;
-import com.cuping.cupingbe.dto.DetailPageResponseDto;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,8 +41,7 @@ public class PageService {
         if (keyword.isEmpty()) {
             return new ResponseEntity<>(new Message("Success", beanRepository.findAll()), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(new Message("Success", beanRepository.findByBeanNameOrOriginOrBeanOriginName(
-                    keyword, keyword, keyword)),
+            return new ResponseEntity<>(new Message("Success", beanRepository.findByBeanOriginNameContaining(keyword)),
             HttpStatus.OK);
         }
     }
@@ -53,8 +51,7 @@ public class PageService {
             () -> new CustomException(ErrorCode.INVALID_BEANS)
         );
         List<Cafe> cafeList = cafeRepository.findByBeanAndCafeAddressContaining(bean, address);
-        return new ResponseEntity<>(new Message("Success",
-            new DetailPageResponseDto(bean, cafeList)), HttpStatus.OK);
+        return new ResponseEntity<>(new Message("Success", new DetailPageResponseDto(bean, cafeList)), HttpStatus.OK);
     }
 }
 

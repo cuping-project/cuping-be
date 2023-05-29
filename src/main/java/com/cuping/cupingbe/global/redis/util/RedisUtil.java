@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -24,8 +25,8 @@ public class RedisUtil {
         set(key, o, minutes);
     }
 
-    public Object get(String key) {
-        return redisTemplate.opsForValue().get(key);
+    public Optional<Object> get(String key) {
+        return Optional.ofNullable(redisTemplate.opsForValue().get(key));
     }
 
     public boolean delete(String key) {

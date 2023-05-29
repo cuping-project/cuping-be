@@ -1,5 +1,6 @@
 package com.cuping.cupingbe.repository;
 
+import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Cafe;
 import com.cuping.cupingbe.entity.Bean;
 import org.springframework.data.jpa.repository.JpaRepository;

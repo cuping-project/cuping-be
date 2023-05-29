@@ -132,7 +132,7 @@ public class JwtUtil {
 
 		String userId = claims.getId();
 		String refreshToken = redisUtil.get(userId).toString();
-		return refreshToken.equals("") && token.equals(refreshToken);
+		return !refreshToken.isEmpty() && token.equals(refreshToken);
 	}
 
 	public long getExpirationTime(String token) {
@@ -148,6 +148,4 @@ public class JwtUtil {
 		long diff = (expirationDate.getTime() - now.getTime()) / 1000;
 		return diff;
 	}
-
-
 }

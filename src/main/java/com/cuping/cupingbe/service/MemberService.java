@@ -67,13 +67,16 @@ public class MemberService {
 		} else if(type.equals("admin")) {
 			String userId = memberSignupRequest.getUserId();
 			String password = passwordEncoder.encode(memberSignupRequest.getPassword());
-			String adminKey = memberSignupRequest.getAdminToken();
+			String nickname = memberSignupRequest.getNickname();
+			String adminKey = memberSignupRequest.getAdminKey();
 			UserRoleEnum role = UserRoleEnum.ADMIN;
 
 			if (userRepository.findByUserId(userId).isPresent())
 				throw new CustomException(ErrorCode.DUPLICATE_IDENTIFIER);
+			if (userRepository.findByNickname(nickname).isPresent())
+				throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
 			if (jwtUtil.checkAdminKey(adminKey)) {
-				userRepository.save(new User(userId,password,role));
+				userRepository.save(new User(userId, password, nickname, role));
 				return new ResponseEntity<>(new Message("admin 회원가입 성공", null), HttpStatus.OK);
 			} else {
 				throw new CustomException(ErrorCode.INVALID_ADMIN_KEY);
@@ -95,7 +98,7 @@ public class MemberService {
 		}
 
 		TokenDto tokenDto = jwtUtil.creatAllToken(userId, user.getRole());
-		if (redisUtil.get(userId).equals("")) {
+		if (redisUtil.get(userId).isEmpty()) {
 			redisUtil.set(userId, tokenDto.getRefreshToken(), JwtUtil.REFRESH_TIME);
 			// redis용량 아끼기
 			if (!redisUtil.getBlackList(userId).equals(""))

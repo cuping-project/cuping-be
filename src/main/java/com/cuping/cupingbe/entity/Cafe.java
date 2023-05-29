@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-
 @Entity
 @Getter
 @NoArgsConstructor
@@ -15,7 +13,6 @@ public class Cafe {
     @Id // 카카오맵에서 제공하는 ID를 사용하려고 GeneratedValue추가 안함.
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
-  
     @ManyToOne
     @JoinColumn(name = "OWNER_ID")
     private User owner;

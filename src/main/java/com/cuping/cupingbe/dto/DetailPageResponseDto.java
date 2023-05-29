@@ -9,11 +9,11 @@ import java.util.List;
 @Getter
 public class DetailPageResponseDto {
 
-	private final Bean bean;
-	private final List<Cafe> cafeList;
+    private final Bean bean;
+    private final List<Cafe> cafeList;
 
-	public DetailPageResponseDto(Bean bean, List<Cafe> cafeList) {
-		this.bean = bean;
-		this.cafeList = cafeList;
-	}
+    public DetailPageResponseDto(Bean bean, List<Cafe> cafeList) {
+        this.bean = bean;
+        this.cafeList = cafeList;
+    }
 }
