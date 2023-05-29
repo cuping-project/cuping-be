@@ -14,6 +14,7 @@ public enum ErrorCode {
     // 400
     INVALID_TOKEN(HttpStatus.BAD_REQUEST, "토큰이 유효하지 않습니다."),
     DUPLICATE_IDENTIFIER(HttpStatus.BAD_REQUEST, "중복된 아이디 입니다."),
+    DUPLICATE_NICKNAME(HttpStatus.BAD_REQUEST,"중복된 닉네임 입니다."),
     INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     BLANK_PARAMETER(HttpStatus.BAD_REQUEST, "해당 내용은 필수 입력 값 입니다."),
     INVALID_ADMIN_KEY(HttpStatus.BAD_REQUEST, "admin_key를 확인해주세요."),

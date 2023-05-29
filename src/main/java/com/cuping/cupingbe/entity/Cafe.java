@@ -12,24 +12,23 @@ public class Cafe {
 
     @Id // 카카오맵에서 제공하는 ID를 사용하려고 GeneratedValue추가 안함.
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long cafeId;
+    private Long Id;
+    @ManyToOne
+    @JoinColumn(name = "OWNER_ID")
+    private User owner;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id")
-    private Owner owner;
+    @JoinColumn(name = "BEAN_ID")
+    private Bean bean;
 
     @Column
     private String cafeAddress;
 
     @Column
-    private String storePhoneNumber;
+    private String cafePhoneNumber;
 
     @Column
     private String cafeName;
-
-    @ManyToOne
-    @JoinColumn(name = "bean_id")
-    private Bean bean;
 
     @Column
     private String x;
@@ -44,10 +43,9 @@ public class Cafe {
     private String imageUrl;
 
     @Builder
-    public Cafe(Long cafeId, String cafeAddress, String cafePhoneNumber, String cafeName, String x, String y, String imageUrl) {
-        this.cafeId = cafeId;
+    public Cafe (String cafeAddress, String cafePhoneNumber, String cafeName, String x, String y, String imageUrl) {
         this.cafeAddress = cafeAddress;
-        this.storePhoneNumber = cafePhoneNumber;
+        this.cafePhoneNumber = cafePhoneNumber;
         this.cafeName = cafeName;
         this.x = x;
         this.y = y;

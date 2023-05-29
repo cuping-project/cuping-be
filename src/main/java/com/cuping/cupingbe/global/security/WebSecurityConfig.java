@@ -1,78 +1,103 @@
-//package com.cuping.cupingbe.global.security;
-//
-//
-////import com.cuping.cupingbe.global.exception.CustomAuthenticationEntryPoint;
-//import com.cuping.cupingbe.global.jwt.JwtAuthFilter;
-//import com.cuping.cupingbe.global.jwt.JwtUtil;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.Configuration;
-//import org.springframework.http.HttpMethod;
-//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-//import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-//import org.springframework.security.config.http.SessionCreationPolicy;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-//import org.springframework.security.crypto.password.PasswordEncoder;
-//import org.springframework.security.web.SecurityFilterChain;
-//import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-//import org.springframework.web.cors.CorsConfiguration;
-//import org.springframework.web.cors.CorsConfigurationSource;
-//import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-//
-//@Configuration
-//@RequiredArgsConstructor
-//@EnableWebSecurity
-//public class WebSecurityConfig {
-//    private final JwtUtil jwtUtil;
-//
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
-//
-////    @Bean
-////    public WebSecurityCustomizer webSecurityCustomizer() {
-////        // h2-console 사용 및 resources 접근 허용 설정
-////        return web -> web.ignoring()
-////                //h2 콘솔
-////                .requestMatchers(PathRequest.toH2Console())
-////                //static 파일들
-////                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-////                //Swagger (필요할까요?)
-////                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**");
-////    }
-//
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http.csrf().disable();
-//
-//        // 기본 설정인 Session 방식은 사용하지 않고 JWT 방식을 사용하기 위한 설정
-//        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//
-//        http.authorizeHttpRequests()
-//                //회원가입, 로그인페이지, 메인 페이지
-//                .requestMatchers("/members/login").permitAll()
-//                .requestMatchers("/members/signup").permitAll()
-//                .requestMatchers("/emails/**").permitAll()
-//                .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
-//
-//                .anyRequest().authenticated()
-//                // JWT 인증/인가를 사용하기 위한 설정
-//                .and().addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
-//
-//        // 이 설정을 해주지 않으면 밑의 cors가 적용되지 않는다
-//        http.cors();
-//
-//        //로그아웃 기능
-//        http.logout()
-//                .logoutUrl("/members/logout")
-//                .logoutSuccessUrl("/posts")
-//                .deleteCookies(JwtUtil.ACCESS_TOKEN, JwtUtil.REFRESH_TOKEN);
-//
-//        return http.build();
-//    }
-//
-////      이렇게 Spring Security만 사용해서 CORS를 적용할 수 있습니다
+package com.cuping.cupingbe.global.security;
+
+
+//import com.cuping.cupingbe.global.exception.CustomAuthenticationEntryPoint;
+import com.cuping.cupingbe.global.jwt.JwtAuthFilter;
+import com.cuping.cupingbe.global.jwt.JwtUtil;
+import com.cuping.cupingbe.repository.UserRepository;
+
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.CorsUtils;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+
+@Configuration
+@RequiredArgsConstructor
+@EnableWebSecurity
+public class WebSecurityConfig {
+
+    private final JwtAuthFilter jwtAuthFilter;
+    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
+
+
+    private static final String[] PERMIT_URL_ARRAY = {
+        /* swagger v2 */
+        "/v2/api-docs",
+        "/swagger-resources",
+        "/swagger-resources/**",
+        "/configuration/ui",
+        "/configuration/security",
+        "/swagger-ui.html",
+        "/webjars/**",
+        /* swagger v3 */
+        "/v3/api-docs/**",
+        "/swagger-ui/**"
+    };
+
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+            .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
+            .and().ignoring().requestMatchers(PERMIT_URL_ARRAY);
+    }
+
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf().disable();
+
+        // 기본 설정인 Session 방식은 사용하지 않고 JWT 방식을 사용하기 위한 설정
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+        http.authorizeRequests()
+            // login 없이 허용하는 페이지
+            //                .requestMatchers("/api/posts/**").permitAll()
+            .requestMatchers("/**").permitAll()
+            // .requestMatchers("/signup").permitAll()
+            // .requestMatchers("/login").permitAll()
+            // .requestMatchers( "/api/posts/**").permitAll()
+            // .requestMatchers(HttpMethod.GET, "/api/read/**").permitAll()
+            .requestMatchers(PERMIT_URL_ARRAY).permitAll()
+            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+
+            // 어떤 요청이든 '인증'
+            .anyRequest().authenticated()
+            // JWT 인증/인가를 사용하기 위한 설정
+            .and().addFilterBefore(new JwtAuthFilter(jwtUtil,userRepository), UsernamePasswordAuthenticationFilter.class)
+            .cors();
+
+        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(jwtAuthFilter, ExceptionTranslationFilter.class);
+
+        return http.build();
+    }
+
+//      이렇게 Spring Security만 사용해서 CORS를 적용할 수 있습니다
 //    @Bean
 //    public CorsConfigurationSource corsConfigurationSource(){
 //
@@ -105,6 +130,6 @@
 //
 //        return source;
 //    }
-//
-//
-//}
+
+
+}
