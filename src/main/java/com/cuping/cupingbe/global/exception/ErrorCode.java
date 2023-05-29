@@ -26,6 +26,7 @@ public enum ErrorCode {
     UNREGISTER_BEAN(HttpStatus.BAD_REQUEST, "등록되지 않은 원두입니다."),
     UNREGISTER_CAFE(HttpStatus.BAD_REQUEST, "등록되지 않은 카페입니다."),
     NONEXISTENT_COMMENT(HttpStatus.BAD_REQUEST, "해당 댓글이 존재하지 않습니다."),
+    INVALID_TYPE(HttpStatus.BAD_REQUEST, "type을 확인해주세요."),
 
     // 401
     UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),

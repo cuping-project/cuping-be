@@ -3,7 +3,6 @@ package com.cuping.cupingbe.global.jwt;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -16,7 +15,6 @@ import com.cuping.cupingbe.dto.TokenDto;
 import com.cuping.cupingbe.entity.UserRoleEnum;
 import com.cuping.cupingbe.global.redis.util.RedisUtil;
 import com.cuping.cupingbe.global.security.UserDetailsServiceImpl;
-import com.cuping.cupingbe.repository.RefreshTokenRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -27,7 +25,6 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -39,20 +36,19 @@ public class JwtUtil {
 	public static final String AUTHORIZATION_HEADER = "Authorization";
 	public static final String AUTHORIZATION_KEY = "auth";
 	private static final String BEARER_PREFIX = "Bearer ";
-	// private static final long TOKEN_TIME = 60 * 60 * 1000L;
 	private final UserDetailsServiceImpl userDetailsService;
 
 	public static final String ACCESS_KEY = "ACCESS_KEY";
 	public static final String REFRESH_KEY = "REFRESH_KEY";
-	private static final long ACCESS_TIME = 60 * 60 * 1000L;
-	private static final long REFRESH_TIME = 60 * 60 * 24 * 1000L;
+	public static final long ACCESS_TIME = 60 * 60 * 1000L;
+	public static final long REFRESH_TIME = 60 * 60 * 24 * 1000L;
 
 
 	@Value("${jwt.secret.key}")
 	private String secretKey;
 	private Key key;
 	private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
-	private final RefreshTokenRepository refreshTokenRepository;
+
 	private final RedisUtil redisUtil;
 
 	public TokenDto creatAllToken(String username, UserRoleEnum userRole){
@@ -75,6 +71,12 @@ public class JwtUtil {
 		return null;
 	}
 
+	public boolean checkAdminKey(String adminKey) {
+		if (secretKey.equals(adminKey))
+			return true;
+		else
+			return false;
+	}
 	// 토큰 생성
 	public String createToken(String username, UserRoleEnum role, String tokenName) {
 		Date date = new Date();
@@ -123,11 +125,14 @@ public class JwtUtil {
 	//RefreshToken 검증
 	public boolean refreshTokenValid(String token) {
 		if (!validateToken(token)) return false;
-		Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUserid(getUserInfoFromToken(token));
-		return refreshToken.isPresent() && token.equals(refreshToken.get().getRefreshToken().substring(7));
-	}
-	public void setHeaderAccessToken(HttpServletResponse response, String accessToken) {
-		response.setHeader(ACCESS_KEY, accessToken);
+		Claims claims = Jwts.parser()
+			.setSigningKey(secretKey)
+			.parseClaimsJws(token)
+			.getBody();
+
+		String userId = claims.getId();
+		String refreshToken = redisUtil.get(userId).toString();
+		return refreshToken.equals("") && token.equals(refreshToken);
 	}
 
 	public long getExpirationTime(String token) {
