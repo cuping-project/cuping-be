@@ -5,18 +5,18 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-
 @Entity
 @Getter
 @NoArgsConstructor
 public class Cafe {
 
     @Id // 카카오맵에서 제공하는 ID를 사용하려고 GeneratedValue추가 안함.
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cafeId;
-  
+
     @ManyToOne
-    private Owner ownerId;
+    @JoinColumn(name = "owner_id")
+    private Owner owner;
 
     @Column
     private String cafeAddress;
@@ -27,8 +27,9 @@ public class Cafe {
     @Column
     private String cafeName;
 
-//    @Column
-//    private List<bean> beanList = ArrayList;
+    @ManyToOne
+    @JoinColumn(name = "bean_id")
+    private Bean bean;
 
     @Column
     private String x;

@@ -45,19 +45,19 @@ public class Bean {
     @Column
     private String origin;
 
-
     @Column
     private String hashTag;
 
-    @OneToMany
-    private List<Cafe> cafeList;
+//    @OneToMany(mappedBy = "bean")
+//    private List<Cafe> cafeList = new ArrayList<>();
 
-    public void setCafeList(List<Cafe> cafeList) {
-        this.cafeList = cafeList;
-    }
+//    public void setCafeList(List<Cafe> cafeList) {
+//        this.cafeList = cafeList;
+//    }
 
     public Bean(String imgUrl, AdminPageRequestDto adminPageRequestDto) {
         this.beanName = adminPageRequestDto.getBeanName();
+        this.beanOriginName = adminPageRequestDto.getOrigin() + adminPageRequestDto.getBeanName();
         this.beanImage = imgUrl;
         this.beanSummary = adminPageRequestDto.getBeanSummary();
         this.beanInfo = adminPageRequestDto.getBeanInfo();

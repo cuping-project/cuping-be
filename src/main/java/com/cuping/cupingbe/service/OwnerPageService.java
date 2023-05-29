@@ -2,6 +2,7 @@ package com.cuping.cupingbe.service;
 
 import com.cuping.cupingbe.dto.OwnerPageRequestDto;
 import com.cuping.cupingbe.entity.Cafe;
+import com.cuping.cupingbe.global.exception.CustomException;
 import com.cuping.cupingbe.global.exception.ErrorCode;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.CafeRepository;
@@ -68,7 +69,7 @@ public class OwnerPageService {
         for (JsonNode rowNode : documents) { // 데이터를 가져와서 Cafe 엔티티로 매핑하는 작업
             long cafeId = rowNode.path("id").asLong();
             if (cafeRepository.findById(cafeId).isPresent()) {
-                throw new Exception(ErrorCode.DUPLICATE_CAFE.getDetail());
+                throw new CustomException(ErrorCode.DUPLICATE_CAFE);
             }
             //사업자 등록증 SC저장
             String imgUrl = s3Uploader.upload(ownerPageRequestDto.getImage());

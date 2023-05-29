@@ -1,6 +1,6 @@
 package com.cuping.cupingbe.entity;
 
-import com.cuping.cupingbe.global.jwt.refreshToken.RefreshToken;
+//import com.cuping.cupingbe.global.jwt.refreshToken.RefreshToken;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,8 +14,8 @@ public class Owner {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    private RefreshToken refreshTokenId;
+//    @OneToOne
+//    private RefreshToken refreshTokenId;
     private String ownerId;
     private String nickname;
     private String password;
