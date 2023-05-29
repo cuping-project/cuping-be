@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @WebFilter(urlPatterns = "/**")
 @Slf4j
 public class JwtAuthFilter extends OncePerRequestFilter {
+
 	private final JwtUtil jwtUtil;
 	private final UserRepository userRepository;
 
@@ -38,7 +39,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		String access_token = jwtUtil.resolveToken(request, jwtUtil.ACCESS_KEY);
 		String refresh_token = jwtUtil.resolveToken(request, jwtUtil.REFRESH_KEY);
 		// 토큰이 존재하면 유효성 검사를 수행하고, 유효하지 않은 경우 예외 처리
-		if(access_token == null){
+		if(access_token == null && refresh_token == null) {
 			filterChain.doFilter(request, response);
 		} else {
 			if (jwtUtil.validateToken(access_token)) {
@@ -51,13 +52,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 				//새로운 ACCESS TOKEN 발급
 				String newAccessToken = jwtUtil.createToken(username, user.getRole(), "Access");
 				//Header에 ACCESS TOKEN 추가
-				jwtUtil.setHeaderAccessToken(response, newAccessToken);
+				response.setHeader(JwtUtil.ACCESS_KEY, newAccessToken);
 				setAuthentication(username);
-			} else if (refresh_token == null) {
-				jwtExceptionHandler(response, "AccessToken Expired.", HttpStatus.BAD_REQUEST.value());
-				return;
 			} else {
-				jwtExceptionHandler(response, "RefreshToken Expired.", HttpStatus.BAD_REQUEST.value());
+				jwtExceptionHandler(response, "Token Expired.", HttpStatus.BAD_REQUEST.value());
 				return;
 			}
 			filterChain.doFilter(request, response);

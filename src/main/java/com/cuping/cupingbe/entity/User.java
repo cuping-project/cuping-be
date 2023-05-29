@@ -25,7 +25,7 @@ public class User {
 	@Column(nullable = false)
 	private String userId;
 
-	@Column(nullable = true)
+	@Column(nullable = false)
 	private String nickname;
 
 	@Column(nullable = false)
@@ -36,7 +36,7 @@ public class User {
 	private UserRoleEnum role;
 
 	@Column(nullable = true)
-	private Long kakaoid;
+	private Long kakaoId;
 
 	@Column(nullable = true)
 	private String email;
@@ -45,7 +45,7 @@ public class User {
 	private String profile_image;
 
 	@Column(nullable = true)
-	private String username;
+	private String kakaoName;
 
 	//일반 회원가입
 	public User(String userId,String password,String nickname,UserRoleEnum role){
@@ -62,19 +62,19 @@ public class User {
 	}
 
 	//카카오 생성자
-	public User(String userId, String password, String username, UserRoleEnum role, Long kakaoid, String email, String profile_image) {
+	public User(String userId, String password, String kakaoName, UserRoleEnum role, Long kakaoId, String email, String profile_image) {
 		this.userId = userId;
 		this.password = password;
-		this.username = username;
+		this.kakaoName = kakaoName;
 		this.role = role;
-		this.kakaoid = kakaoid;
+		this.kakaoId = kakaoId;
 		this.email = email;
 		this.profile_image = profile_image;
 
 	}
 
-	public User kakaoIdUpdate(Long kakaoid) {
-		this.kakaoid = kakaoid;
+	public User kakaoIdUpdate(Long kakaoId) {
+		this.kakaoId = kakaoId;
 		return this;
 	}
 

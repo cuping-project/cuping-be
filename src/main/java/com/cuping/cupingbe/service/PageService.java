@@ -6,12 +6,14 @@ import com.cuping.cupingbe.global.exception.ErrorCode;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.repository.BeanRepository;
+import com.cuping.cupingbe.repository.CafeRepository;
+import com.cuping.cupingbe.dto.DetailPageResponseDto;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +22,7 @@ import java.util.Map;
 public class PageService {
 
     private final BeanRepository beanRepository;
+    private final CafeRepository cafeRepository;
 
     public ResponseEntity<Message> getMainPage(Map<String, String> searchValue) {
         String roastingLevel = searchValue.get("roastingLevel");
@@ -47,16 +50,11 @@ public class PageService {
 
     public ResponseEntity<Message> getDetailPage(Long cardId, String address) {
         Bean bean = beanRepository.findById(cardId).orElseThrow(
-                () -> new CustomException(ErrorCode.INVALID_BEANS)
+            () -> new CustomException(ErrorCode.INVALID_BEANS)
         );
-        List<Cafe> cafeList = bean.getCafeList();
-        List<Cafe> returnList = new ArrayList<>();
-        for (Cafe c : cafeList) {
-            if (c.getCafeAddress().contains(address))
-                returnList.add(c);
-        }
-        bean.setCafeList(returnList);
-        return new ResponseEntity<>(new Message("Success", bean), HttpStatus.OK);
+        List<Cafe> cafeList = cafeRepository.findByBeanAndCafeAddressContaining(bean, address);
+        return new ResponseEntity<>(new Message("Success",
+            new DetailPageResponseDto(bean, cafeList)), HttpStatus.OK);
     }
 }
 
