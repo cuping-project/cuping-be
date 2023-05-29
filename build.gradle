@@ -12,6 +12,11 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+        exclude group: 'ch.qos.logback', module: 'logback-classic'
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
+    }
 }
 
 repositories {
@@ -23,10 +28,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
     // security
-//    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
     // web application 개발용
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
     // lombok
     compileOnly 'org.projectlombok:lombok'
@@ -42,6 +48,17 @@ dependencies {
 
     // redis
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '2.4.10'
+
+    //log4j
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+
+    // sentry
+    implementation 'io.sentry:sentry-logback:1.7.30'
+
+    compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
+    runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
+
 }
 
 tasks.named('test') {
