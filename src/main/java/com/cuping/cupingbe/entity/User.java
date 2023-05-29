@@ -47,18 +47,12 @@ public class User {
 	@Column(nullable = true)
 	private String kakaoName;
 
-	//일반 회원가입
+	//일반, 관리자 회원가입
 	public User(String userId,String password,String nickname,UserRoleEnum role){
 		this.userId = userId;
 		this.password =password;
 		this.nickname = nickname;
 		this.role =role;
-	}
-
-	public User(String userId,String password,UserRoleEnum role){
-		this.userId =userId;
-		this.password =password;
-		this.role = role;
 	}
 
 	//카카오 생성자
