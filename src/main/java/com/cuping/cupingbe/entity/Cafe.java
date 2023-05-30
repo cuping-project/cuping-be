@@ -43,7 +43,8 @@ public class Cafe {
     private String imageUrl;
 
     @Builder
-    public Cafe (String cafeAddress, String cafePhoneNumber, String cafeName, String x, String y, String imageUrl) {
+    public Cafe (User owner, String cafeAddress, String cafePhoneNumber, String cafeName, String x, String y, String imageUrl) {
+        this.owner = owner;
         this.cafeAddress = cafeAddress;
         this.cafePhoneNumber = cafePhoneNumber;
         this.cafeName = cafeName;
@@ -57,4 +58,7 @@ public class Cafe {
     }
 
 
+    public void setBean(Bean bean) {
+        this.bean = bean;
+    }
 }
