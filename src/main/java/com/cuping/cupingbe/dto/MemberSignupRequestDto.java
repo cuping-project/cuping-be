@@ -8,13 +8,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @NoArgsConstructor
-public class MemberSignupRequest {
+public class MemberSignupRequestDto {
 
 	private String userId;
 
 	private String password;
-
-	private boolean admin = false;
 
 	private String adminKey;
 
@@ -22,19 +20,11 @@ public class MemberSignupRequest {
 
 	private UserRoleEnum role;
 
-	private String ownerId;
-
-
 	private String storeName;
 
 	private String storeAddress;
 
 	private String storeNumber;
 
-	private MultipartFile image;
-
-
-
-
-
+	private MultipartFile authImage;
 }
