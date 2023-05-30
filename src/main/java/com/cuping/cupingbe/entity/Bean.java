@@ -1,10 +1,9 @@
 package com.cuping.cupingbe.entity;
 
+import com.cuping.cupingbe.dto.AdminPageRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Entity
 @Getter
@@ -14,18 +13,44 @@ public class Bean {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToMany
-    private List<Cafe> cafeList;
+
+    @Column
     private String beanName;
-    private String beanImageUrl; // binarycode
+
+    @Column
+    private String beanOriginName;
+
+    @Column
+    private String beanImage;
+
+    @Column
     private String beanSummary;
+
+    @Column
+    private String hashTag;
+
+    @Column
     private String beanInfo;
-    private String hastTag;
+
+    @Column
     private String roastingLevel;
+
+    @Column
     private String flavor;
+
+    @Column
     private String origin;
 
-    public void setCafeList(List<Cafe> cafeList) {
-        this.cafeList = cafeList;
+    public Bean(String imgUrl, AdminPageRequestDto adminPageRequestDto) {
+        this.beanName = adminPageRequestDto.getBeanName();
+        this.beanOriginName = adminPageRequestDto.getOrigin() + adminPageRequestDto.getBeanName();
+        this.beanImage = imgUrl;
+        this.beanSummary = adminPageRequestDto.getBeanSummary();
+        this.beanInfo = adminPageRequestDto.getBeanInfo();
+        this.roastingLevel = adminPageRequestDto.getRoastingLevel();
+        this.flavor = adminPageRequestDto.getFlavor();
+        this.origin = adminPageRequestDto.getOrigin();
+        this.hashTag = adminPageRequestDto.getHashTag();
+        this.beanOriginName = this.beanName + this.origin;
     }
 }
