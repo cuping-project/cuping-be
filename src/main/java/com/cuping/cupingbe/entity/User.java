@@ -1,6 +1,6 @@
 package com.cuping.cupingbe.entity;
 
-import com.cuping.cupingbe.dto.MemberSignupRequest;
+import com.cuping.cupingbe.dto.MemberSignupRequestDto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,7 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 @Getter
 @NoArgsConstructor
@@ -75,9 +74,9 @@ public class User {
 		return this;
 	}
 
-	public User(MemberSignupRequest memberSignupRequest){
-		this.userId = memberSignupRequest.getUserId();
-		this.password = memberSignupRequest.getPassword();
+	public User(MemberSignupRequestDto memberSignupRequestDto){
+		this.userId = memberSignupRequestDto.getUserId();
+		this.password = memberSignupRequestDto.getPassword();
 	}
 
 }
