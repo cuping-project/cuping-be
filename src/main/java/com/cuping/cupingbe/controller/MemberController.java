@@ -2,10 +2,7 @@ package com.cuping.cupingbe.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.cuping.cupingbe.dto.MemberLoginRequestDto;
 import com.cuping.cupingbe.dto.MemberSignupRequest;
@@ -19,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/users")
 public class MemberController {
 
 	private final MemberService memberService;
@@ -38,6 +36,4 @@ public class MemberController {
 	public ResponseEntity<Message>logout(@AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletResponse response) {
 		return memberService.logout(userDetails.getUser(), response);
 	}
-
-
 }
