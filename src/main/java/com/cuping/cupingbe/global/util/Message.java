@@ -1,6 +1,7 @@
 package com.cuping.cupingbe.global.util;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
