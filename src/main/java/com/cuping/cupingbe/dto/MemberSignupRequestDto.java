@@ -2,27 +2,23 @@ package com.cuping.cupingbe.dto;
 
 import com.cuping.cupingbe.entity.UserRoleEnum;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
+@Data
 @Getter
 @NoArgsConstructor
-public class MemberSignupRequest {
+public class MemberSignupRequestDto {
 
 	private String userId;
 
 	private String password;
 
-	private boolean admin = false;
-
 	private String adminKey;
 
 	private String nickname;
-
-	private UserRoleEnum role;
-
-	private String ownerId;
-
 
 	private String storeName;
 
@@ -30,10 +26,5 @@ public class MemberSignupRequest {
 
 	private String storeNumber;
 
-	private String image;
-
-
-
-
-
+	private MultipartFile authImage;
 }

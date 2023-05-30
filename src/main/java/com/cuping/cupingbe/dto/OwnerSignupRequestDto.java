@@ -1,17 +1,19 @@
 package com.cuping.cupingbe.dto;
 
-import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+@Data
 @Getter
-@Setter
-@AllArgsConstructor
-public class OwnerPageRequestDto {
+public class OwnerSignupRequestDto {
 
+    private String userId;
+    private String password;
+    private String nickname;
     private String storeName;
     private String storeAddress;
     private String storeNumber;
     private MultipartFile authImage;
+
 }

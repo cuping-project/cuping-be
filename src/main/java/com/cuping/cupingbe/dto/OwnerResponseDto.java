@@ -5,6 +5,8 @@ import com.cuping.cupingbe.entity.Cafe;
 import com.cuping.cupingbe.entity.User;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 public class OwnerResponseDto {
 
 
@@ -17,7 +19,7 @@ public class OwnerResponseDto {
     private String x;
     private String y;
     private Boolean permit;
-    public OwnerResponseDto(Cafe cafe) {
+    public OwnerResponseDto(Cafe cafe, List<Bean> beans) {
         this.Id = cafe.getId();
         this.owner = cafe.getOwner();
         this.bean = cafe.getBean();
