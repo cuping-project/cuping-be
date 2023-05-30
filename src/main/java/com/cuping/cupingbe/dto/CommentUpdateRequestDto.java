@@ -1,13 +1,13 @@
 package com.cuping.cupingbe.dto;
 
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
+import lombok.Setter;
 
 @Getter
+@Setter
 @RequiredArgsConstructor
-public class CommentRequestDto {
+public class CommentUpdateRequestDto {
     private Long id;
     private String content;
     private String userId;
