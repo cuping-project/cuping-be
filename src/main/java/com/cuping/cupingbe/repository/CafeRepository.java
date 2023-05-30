@@ -13,4 +13,6 @@ public interface CafeRepository extends JpaRepository<Cafe, Long> {
     List<Cafe> findAllByPermit(boolean b);
     List<Cafe> findByBeanAndCafeAddressContaining(Bean bean, String address);
     Cafe findByOwnerId(Long ownerId);
+    //사장페이지 카페 조회
+    List<Cafe> findAllByOwnerId(Long id);
 }

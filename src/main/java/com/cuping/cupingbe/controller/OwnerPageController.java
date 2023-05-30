@@ -1,6 +1,7 @@
 package com.cuping.cupingbe.controller;
 
 import com.cuping.cupingbe.dto.OwnerPageRequestDto;
+import com.cuping.cupingbe.dto.OwnerResponseDto;
 import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Cafe;
 import com.cuping.cupingbe.global.security.UserDetailsImpl;
@@ -15,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,9 +37,9 @@ public class OwnerPageController {
         return ownerPageService.deleteCafe(cafeid, userDetails);
     }
 
-//    //(사장님 페이지) 사장님이 소유한 카페 가져오기
-//    @GetMapping("/ownerpage")
-//    public ResponseEntity<> getCafe(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-//        return ownerPageService.getCafe(userDetails);
-//    }
+    //(사장님 페이지) 사장님이 소유한 카페 가져오기
+    @GetMapping("/ownerpage")
+    public List<OwnerResponseDto> getCafe(@AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
+        return ownerPageService.getCafe(userDetails);
+    }
 }

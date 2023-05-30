@@ -1,6 +1,7 @@
 package com.cuping.cupingbe.service;
 
 import com.cuping.cupingbe.dto.OwnerPageRequestDto;
+import com.cuping.cupingbe.dto.OwnerResponseDto;
 import com.cuping.cupingbe.entity.Cafe;
 import com.cuping.cupingbe.entity.UserRoleEnum;
 import com.cuping.cupingbe.global.exception.CustomException;
@@ -25,6 +26,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -134,15 +137,20 @@ public class OwnerPageService {
         }
     }
 
-//    public ResponseEntity getCafe(UserDetailsImpl userDetails) {
-//      List<Cafe> cafeList = cafeRepository.findById(userDetails.getUser().getId());
-//        if(cafeList == null) {
-//            throw new Exception(ErrorCode.UNREGISTER_CAFE.getDetail());
-//        }
-//        List<OwnerResponseDto> ownerResponseDtoList = new ArrayList();
-//        for(Cafe cafe : cafeList){
-//            ownerResponseDtoList.add(new OwnerResponseDto(cafe));
-//        }
-//        return OwnerResponseDtoList;
-//    }
+    //사장페이지 카페 조회
+    public List<OwnerResponseDto> getCafe(UserDetailsImpl userDetails) throws Exception {
+      List<Cafe> cafeList = cafeRepository.findAllByOwnerId(userDetails.getUser().getId());
+        if(cafeList == null) {
+            throw new Exception(ErrorCode.UNREGISTER_CAFE.getDetail());
+        }
+        List<OwnerResponseDto> ownerResponseDtoList = new ArrayList();
+        for(Cafe cafe : cafeList){
+            if(cafe.getPermit() == true) {
+                ownerResponseDtoList.add(new OwnerResponseDto(cafe));
+            }
+        }
+        return ownerResponseDtoList;
+    }
+
+
 }
