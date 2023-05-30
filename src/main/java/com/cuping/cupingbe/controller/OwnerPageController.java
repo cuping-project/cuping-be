@@ -46,7 +46,7 @@ public class OwnerPageController {
 
     //(사장페이지) 카페에 원두 추가
     @PostMapping("/ownerpage/resister/bean/{cafeid}")
-    public ResponseEntity<Message> addBeanByCafe(@RequestBody AddBeanByCafeRequestDto addBeanByCafeRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return ownerPageService.addBeanByCafe(addBeanByCafeRequestDto, userDetails);
+    public ResponseEntity<Message> addBeanByCafe(@PathVariable Long cafeid ,@RequestBody AddBeanByCafeRequestDto addBeanByCafeRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ownerPageService.addBeanByCafe(cafeid, addBeanByCafeRequestDto, userDetails);
     }
 }
