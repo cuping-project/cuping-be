@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.cuping.cupingbe.dto.MemberLoginRequestDto;
-import com.cuping.cupingbe.dto.MemberSignupRequest;
+import com.cuping.cupingbe.dto.MemberSignupRequestDto;
 import com.cuping.cupingbe.dto.TokenDto;
 import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.entity.UserRoleEnum;
@@ -36,12 +36,12 @@ public class MemberService {
 	private final JwtUtil jwtUtil;
 	private final RedisUtil redisUtil;
 
-	public ResponseEntity<Message> signup(String type, MemberSignupRequest memberSignupRequest) throws Exception {
+	public ResponseEntity<Message> signup(String type, MemberSignupRequestDto memberSignupRequestDto) throws Exception {
 
 		if(type.equals("user") || type.equals("owner")){
-			String userId = memberSignupRequest.getUserId();
-			String password = passwordEncoder.encode(memberSignupRequest.getPassword());
-			String nickname = memberSignupRequest.getNickname();
+			String userId = memberSignupRequestDto.getUserId();
+			String password = passwordEncoder.encode(memberSignupRequestDto.getPassword());
+			String nickname = memberSignupRequestDto.getNickname();
 			// if문 안에서는 UserRoleEnum이 선언이 안됨.
 			UserRoleEnum role;
 			if (type.equals("user"))
@@ -59,19 +59,19 @@ public class MemberService {
 			if (type.equals("user"))
 				return new ResponseEntity<>(new Message("user 회원가입 성공", null), HttpStatus.OK);
 
-			String storeName = memberSignupRequest.getStoreName();
-			String storeAddress = memberSignupRequest.getStoreAddress();
-			String storeNumber = memberSignupRequest.getStoreNumber();
-			MultipartFile image = memberSignupRequest.getImage();
+			String storeName = memberSignupRequestDto.getStoreName();
+			String storeAddress = memberSignupRequestDto.getStoreAddress();
+			String storeNumber = memberSignupRequestDto.getStoreNumber();
+			MultipartFile authImage = memberSignupRequestDto.getAuthImage();
 
-			ownerPageService.createCafe(new OwnerPageRequestDto(storeName, storeAddress, storeNumber, image), user);
+			ownerPageService.createCafe(new OwnerPageRequestDto(storeName, storeAddress, storeNumber, authImage), user);
 			return new ResponseEntity<>(new Message("owner 회원가입 성공", null), HttpStatus.OK);
 
 		} else if(type.equals("admin")) {
-			String userId = memberSignupRequest.getUserId();
-			String password = passwordEncoder.encode(memberSignupRequest.getPassword());
-			String nickname = memberSignupRequest.getNickname();
-			String adminKey = memberSignupRequest.getAdminKey();
+			String userId = memberSignupRequestDto.getUserId();
+			String password = passwordEncoder.encode(memberSignupRequestDto.getPassword());
+			String nickname = memberSignupRequestDto.getNickname();
+			String adminKey = memberSignupRequestDto.getAdminKey();
 			UserRoleEnum role = UserRoleEnum.ADMIN;
 
 			if (userRepository.findByUserId(userId).isPresent())
@@ -87,6 +87,32 @@ public class MemberService {
 		} else {
 			throw new CustomException(ErrorCode.INVALID_TYPE);
 		}
+	}
+
+	public ResponseEntity<Message> ownerSignup(MemberSignupRequestDto memberSignupRequestDto) throws Exception {
+
+		String userId = memberSignupRequestDto.getUserId();
+		String password = passwordEncoder.encode(memberSignupRequestDto.getPassword());
+		String nickname = memberSignupRequestDto.getNickname();
+		// if문 안에서는 UserRoleEnum이 선언이 안됨.
+
+		UserRoleEnum role = UserRoleEnum.OWNER;
+
+		if (userRepository.findByUserId(userId).isPresent())
+			throw new CustomException(ErrorCode.DUPLICATE_IDENTIFIER);
+		if (userRepository.findByNickname(nickname).isPresent())
+			throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+
+		User user = new User(userId, password, nickname, role);
+		userRepository.save(user);
+
+		String storeName = memberSignupRequestDto.getStoreName();
+		String storeAddress = memberSignupRequestDto.getStoreAddress();
+		String storeNumber = memberSignupRequestDto.getStoreNumber();
+		MultipartFile authImage = memberSignupRequestDto.getAuthImage();
+
+		ownerPageService.createCafe(new OwnerPageRequestDto(storeName, storeAddress, storeNumber, authImage), user);
+		return new ResponseEntity<>(new Message("owner 회원가입 성공", null), HttpStatus.OK);
 	}
 
 	public ResponseEntity<Message> login(MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response){
