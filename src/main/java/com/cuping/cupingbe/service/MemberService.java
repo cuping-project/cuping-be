@@ -119,8 +119,9 @@ public class MemberService {
 			throw new CustomException(ErrorCode.USER_NOT_FOUND);
 
 		Long expireTime = jwtUtil.getExpirationTime(refreshToken);
-		redisUtil.setBlackList(userId, refreshToken, expireTime);
 		redisUtil.delete(userId);
+		redisUtil.setBlackList(userId, refreshToken, expireTime);
+
 
 		return new ResponseEntity<>(new Message("로그아웃 성공", null), HttpStatus.OK);
 	}
