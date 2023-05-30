@@ -94,8 +94,6 @@ public class JwtUtil {
 
 	// 토큰 검증
 	public boolean validateToken(String token) {
-		if(redisUtil.hasKeyBlackList(token))
-			return false;
 		try {
 			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
 			return true;
@@ -125,27 +123,29 @@ public class JwtUtil {
 	//RefreshToken 검증
 	public boolean refreshTokenValid(String token) {
 		if (!validateToken(token)) return false;
-		Claims claims = Jwts.parser()
-			.setSigningKey(secretKey)
-			.parseClaimsJws(token)
-			.getBody();
+		Claims claims = Jwts.parserBuilder()
+				.setSigningKey(secretKey)
+				.build()
+				.parseClaimsJws(token)
+				.getBody();
 
 		String userId = claims.getId();
+		if(redisUtil.hasKeyBlackList(userId)) return false;
 		String refreshToken = redisUtil.get(userId).toString();
 		return !refreshToken.isEmpty() && token.equals(refreshToken);
 	}
 
 	public long getExpirationTime(String token) {
 		// 토큰에서 만료 시간 정보를 추출
-		Claims claims = Jwts.parser()
-			.setSigningKey(secretKey)
-			.parseClaimsJws(token)
-			.getBody();
-
+		Claims claims = Jwts.parserBuilder()
+				.setSigningKey(secretKey)
+				.build()
+				.parseClaimsJws(token)
+				.getBody();
 		// 현재 시간과 만료 시간의 차이를 계산하여 반환
 		Date expirationDate = claims.getExpiration();
 		Date now = new Date();
-		long diff = (expirationDate.getTime() - now.getTime()) / 1000;
-		return diff;
+
+		return (expirationDate.getTime() - now.getTime()) / 1000L;
 	}
 }

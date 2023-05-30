@@ -100,9 +100,6 @@ public class MemberService {
 		TokenDto tokenDto = jwtUtil.creatAllToken(userId, user.getRole());
 		if (redisUtil.get(userId).isEmpty()) {
 			redisUtil.set(userId, tokenDto.getRefreshToken(), JwtUtil.REFRESH_TIME);
-			// redis용량 아끼기
-			if (!redisUtil.getBlackList(userId).equals(""))
-				redisUtil.deleteBlackList(userId);
 		} else {
 			redisUtil.update(userId, tokenDto.getRefreshToken(), JwtUtil.REFRESH_TIME);
 		}
@@ -115,7 +112,11 @@ public class MemberService {
 	public ResponseEntity<Message> logout(User user,HttpServletResponse response){
 
 		String userId = user.getUserId();
-		String refreshToken = redisUtil.get(userId).toString();
+		String refreshToken;
+		if (redisUtil.get(userId).isPresent())
+			refreshToken = redisUtil.get(userId).get().toString().substring(7);
+		else
+			throw new CustomException(ErrorCode.USER_NOT_FOUND);
 
 		Long expireTime = jwtUtil.getExpirationTime(refreshToken);
 		redisUtil.setBlackList(userId, refreshToken, expireTime);

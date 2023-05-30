@@ -4,7 +4,10 @@ import com.cuping.cupingbe.dto.AdminPageRequestDto;
 import com.cuping.cupingbe.dto.AdminPageResponseDto;
 import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Cafe;
+import com.cuping.cupingbe.entity.UserRoleEnum;
+import com.cuping.cupingbe.global.exception.CustomException;
 import com.cuping.cupingbe.global.exception.ErrorCode;
+import com.cuping.cupingbe.global.security.UserDetailsImpl;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.BeanRepository;
 import com.cuping.cupingbe.repository.CafeRepository;
@@ -29,36 +32,59 @@ public class AdminPageService {
 
     //(관리자페이지)원두 등록하기
     @Transactional
-    public ResponseEntity<Message> createBean(AdminPageRequestDto adminPageRequestDto) throws IOException {
-        String imgUrl = s3Uploader.upload(adminPageRequestDto.getImage());
-        Bean bean = new Bean(imgUrl, adminPageRequestDto);
-        beanRepository.save(bean);
-        Message message = new Message("가게 등록 성공");
-        ResponseEntity<Message> responseEntity = new ResponseEntity<>(message, HttpStatus.OK);
-        return responseEntity;
+    public ResponseEntity<Message> createBean(AdminPageRequestDto adminPageRequestDto, UserDetailsImpl userDetails) throws IOException {
+
+        //관리자 권한이 있는지 확인
+        UserRoleEnum userRoleEnum = userDetails.getUser().getRole();
+        System.out.println("role = " + userRoleEnum);
+        if (userRoleEnum != UserRoleEnum.ADMIN) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
+        } else {
+            String imgUrl = s3Uploader.upload(adminPageRequestDto.getImage());
+            Bean bean = new Bean(imgUrl, adminPageRequestDto);
+            beanRepository.save(bean);
+            Message message = new Message("원두 등록 성공");
+            ResponseEntity<Message> responseEntity = new ResponseEntity<>(message, HttpStatus.OK);
+            return responseEntity;
+        }
     }
 
     //(관리자페이지)승인되지 않은 카페 전체 조회
     @Transactional
-    public List<AdminPageResponseDto> getPermitCafe() {
-        List<Cafe> cafeList = cafeRepository.findAllByPermit(false);
-        List<AdminPageResponseDto> adminPageResponseDtoList = new ArrayList();
-        for(Cafe cafe : cafeList){
-            adminPageResponseDtoList.add(new AdminPageResponseDto(cafe));
+    public List<AdminPageResponseDto> getPermitCafe(UserDetailsImpl userDetails) {
+        //관리자 권한이 있는지 확인
+        UserRoleEnum userRoleEnum = userDetails.getUser().getRole();
+        System.out.println("role = " + userRoleEnum);
+        if (userRoleEnum != UserRoleEnum.ADMIN) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
+        } else {
+            List<Cafe> cafeList = cafeRepository.findAllByPermit(false);
+            List<AdminPageResponseDto> adminPageResponseDtoList = new ArrayList();
+            for (Cafe cafe : cafeList) {
+                adminPageResponseDtoList.add(new AdminPageResponseDto(cafe));
+            }
+            return adminPageResponseDtoList;
         }
-        return adminPageResponseDtoList;
     }
 
     //(관리자페이지)카페 승인
     @Transactional
-    public ResponseEntity<Message> permitCafe(Long cafeId) {
-        Cafe cafe = cafeRepository.findById(cafeId).orElseThrow(
-                () -> new IllegalArgumentException(ErrorCode.UNREGISTER_CAFE.getDetail())
-        );
-        cafe.setPermit(true);
-        cafeRepository.save(cafe);
-        Message message = new Message("가게 승인 성공");
-        ResponseEntity<Message> responseEntity = new ResponseEntity<>(message, HttpStatus.OK);
-        return responseEntity;
+    public ResponseEntity<Message> permitCafe(Long cafeId, UserDetailsImpl userDetails) {
+
+        //관리자 권한이 있는지 확인
+        UserRoleEnum userRoleEnum = userDetails.getUser().getRole();
+        System.out.println("role = " + userRoleEnum);
+        if (userRoleEnum != UserRoleEnum.ADMIN) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
+        } else {
+            Cafe cafe = cafeRepository.findById(cafeId).orElseThrow(
+                    () -> new IllegalArgumentException(ErrorCode.UNREGISTER_CAFE.getDetail())
+            );
+            cafe.setPermit(true);
+            cafeRepository.save(cafe);
+            Message message = new Message("가게 승인 성공");
+            ResponseEntity<Message> responseEntity = new ResponseEntity<>(message, HttpStatus.OK);
+            return responseEntity;
+        }
     }
 }
