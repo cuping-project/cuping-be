@@ -1,5 +1,6 @@
 package com.cuping.cupingbe.service;
 
+import com.cuping.cupingbe.dto.OwnerPageRequestDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +22,7 @@ import com.cuping.cupingbe.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -29,11 +31,12 @@ import lombok.extern.slf4j.Slf4j;
 public class MemberService {
 
 	private final UserRepository userRepository;
+	private final OwnerPageService ownerPageService;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtil;
 	private final RedisUtil redisUtil;
 
-	public ResponseEntity<Message> signup(String type, MemberSignupRequest memberSignupRequest){
+	public ResponseEntity<Message> signup(String type, MemberSignupRequest memberSignupRequest) throws Exception {
 
 		if(type.equals("user") || type.equals("owner")){
 			String userId = memberSignupRequest.getUserId();
@@ -51,17 +54,17 @@ public class MemberService {
 			if (userRepository.findByNickname(nickname).isPresent())
 				throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
 
-			userRepository.save(new User(userId,password,nickname,role));
+			User user = new User(userId, password, nickname, role);
+			userRepository.save(user);
 			if (type.equals("user"))
 				return new ResponseEntity<>(new Message("user 회원가입 성공", null), HttpStatus.OK);
 
 			String storeName = memberSignupRequest.getStoreName();
 			String storeAddress = memberSignupRequest.getStoreAddress();
 			String storeNumber = memberSignupRequest.getStoreNumber();
-			String image = memberSignupRequest.getImage();
+			MultipartFile image = memberSignupRequest.getImage();
 
-			// cafeCreate메서드 완성되면 추가.
-
+			ownerPageService.createCafe(new OwnerPageRequestDto(storeName, storeAddress, storeNumber, image), user);
 			return new ResponseEntity<>(new Message("owner 회원가입 성공", null), HttpStatus.OK);
 
 		} else if(type.equals("admin")) {
@@ -119,8 +122,9 @@ public class MemberService {
 			throw new CustomException(ErrorCode.USER_NOT_FOUND);
 
 		Long expireTime = jwtUtil.getExpirationTime(refreshToken);
-		redisUtil.setBlackList(userId, refreshToken, expireTime);
 		redisUtil.delete(userId);
+		redisUtil.setBlackList(userId, refreshToken, expireTime);
+
 
 		return new ResponseEntity<>(new Message("로그아웃 성공", null), HttpStatus.OK);
 	}
