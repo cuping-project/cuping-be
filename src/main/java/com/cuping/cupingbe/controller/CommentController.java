@@ -22,9 +22,9 @@ public class CommentController {
     private final CommentService commentService;
 
     //댓글 작성
-    @PostMapping("/comment")
-    public ResponseEntity<CommentResponseDto> addComment(@RequestBody CommentRequestDto commentRequestDto, @AuthenticationPrincipal User user){
-        return commentService.addComment(commentRequestDto, user);
+    @PostMapping("/comment/{beanId}")
+    public ResponseEntity<CommentResponseDto> addComment(@PathVariable Long beanId, @RequestBody CommentRequestDto commentRequestDto, @AuthenticationPrincipal User user){
+        return commentService.addComment(beanId, commentRequestDto, user);
     }
 
     //댓글 수정

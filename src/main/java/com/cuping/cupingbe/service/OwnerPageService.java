@@ -93,9 +93,9 @@ public class OwnerPageService {
 
                 Cafe cafe = Cafe.builder()
                         .owner(userDetails.getUser())
-                        .cafeAddress(rowNode.path("road_address_name").asText())
+                        .cafeAddress(ownerPageRequestDto.getStoreAddress())
                         .cafePhoneNumber(ownerPageRequestDto.getStoreNumber())
-                        .cafeName(rowNode.path("place_name").asText())
+                        .cafeName(ownerPageRequestDto.getStoreName())
                         .x(rowNode.path("x").asText())
                         .y(rowNode.path("y").asText())
                         .imageUrl(imgUrl)

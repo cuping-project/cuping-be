@@ -4,10 +4,12 @@ import com.cuping.cupingbe.dto.CommentDeleteRequestDto;
 import com.cuping.cupingbe.dto.CommentRequestDto;
 import com.cuping.cupingbe.dto.CommentResponseDto;
 import com.cuping.cupingbe.dto.CommentUpdateRequestDto;
+import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Comment;
 import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.entity.UserRoleEnum;
 import com.cuping.cupingbe.global.exception.ErrorCode;
+import com.cuping.cupingbe.repository.BeanRepository;
 import com.cuping.cupingbe.repository.CommentRepository;
 import com.cuping.cupingbe.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -23,11 +25,14 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final BeanRepository beanRepository;
 
     //댓글 작성
     @Transactional
-    public ResponseEntity<CommentResponseDto> addComment(CommentRequestDto commentRequestDto, User user) {
-        Comment comment = new Comment(commentRequestDto, user);
+    public ResponseEntity<CommentResponseDto> addComment(Long beanId, CommentRequestDto commentRequestDto, User user) {
+        Bean bean = beanRepository.findById(beanId)
+                .orElseThrow(() -> new IllegalArgumentException("원두를 찾지 못했습니다."));
+        Comment comment = new Comment(commentRequestDto, user, bean);
         commentRepository.save(comment);
         return new ResponseEntity<>(new CommentResponseDto(comment), HttpStatus.CREATED);
     }

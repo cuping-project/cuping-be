@@ -21,14 +21,19 @@ public class Comment {
     @Column
     private String username;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="User_id", nullable = false)
     private User user;
 
-    public Comment(CommentRequestDto commentRequestDto, User user) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bean_id")
+    private Bean bean;
+
+    public Comment(CommentRequestDto commentRequestDto, User user, Bean bean) {
         this.content = commentRequestDto.getContent();
         this.username = user.getUserId();
         this.user = user;
+        this.bean = bean;
     }
 
     public void updateContent(String content) {
