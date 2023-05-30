@@ -57,7 +57,7 @@ public class OwnerPageService {
             userRepository.findByUserId(user.getUserId()).orElseThrow(
                     () -> new CustomException(ErrorCode.USER_NOT_FOUND)
             );
-            String query = ownerPageRequestDto.getStoreAddress() + ownerPageRequestDto.getStoreName();
+            String query = ownerPageRequestDto.getStoreAddress();
             byte[] bytes = query.getBytes(StandardCharsets.UTF_8);
             ByteBuffer buffer = ByteBuffer.wrap(bytes);
             String encode = StandardCharsets.UTF_8.decode(buffer).toString();
@@ -66,13 +66,12 @@ public class OwnerPageService {
                     .fromUriString("https://dapi.kakao.com")
                     .path("/v2/local/search/keyword.json")
                     .queryParam("query", encode)
-                    .queryParam("size", 15)
+                    .queryParam("size", 1)
                     .encode()
                     .build()
                     .toUri();
 
             RestTemplate restTemplate = new RestTemplate();
-
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "KakaoAK " + "49244bfa76b071b6bad74b2441b968d7");
             RequestEntity<Void> req = RequestEntity
@@ -91,7 +90,6 @@ public class OwnerPageService {
                 }
                 //사업자 등록증 SC저장
                 String imgUrl = s3Uploader.upload(ownerPageRequestDto.getAuthImage());
-
                 Cafe cafe = Cafe.builder()
                         .owner(user)
                         .cafeAddress(ownerPageRequestDto.getStoreAddress())
@@ -101,12 +99,8 @@ public class OwnerPageService {
                         .y(rowNode.path("y").asText())
                         .imageUrl(imgUrl)
                         .build();
-
                 cafeRepository.save(cafe);
-
             }
-
-
             return new ResponseEntity<>(new Message("가게 등록 성공"), HttpStatus.OK);
         }
     }
