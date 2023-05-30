@@ -106,6 +106,16 @@ public class OwnerPageService {
     //카페 삭제
     public ResponseEntity<Message> deleteCafe(Long cafeId, UserDetailsImpl userDetails) throws Exception {
 
+        //사용자 권환 확인 (ADMUN인지 아닌지)
+        UserRoleEnum userRoleEnum2 = userDetails.getUser().getRole();
+        System.out.println("role = " + userRoleEnum2);
+        if (userRoleEnum2 == UserRoleEnum.ADMIN) {
+            cafeRepository.findById(cafeId).orElseThrow(
+                    () -> new Exception(ErrorCode.UNREGISTER_CAFE.getDetail())
+            );
+            cafeRepository.deleteById(cafeId);
+            return new ResponseEntity<>(new Message("카페가 삭제 되었습니다."), HttpStatus.OK);
+        }
         //사장 권한이 있는지 확인
         UserRoleEnum userRoleEnum = userDetails.getUser().getRole();
         System.out.println("role = " + userRoleEnum);
@@ -115,9 +125,10 @@ public class OwnerPageService {
             cafeRepository.findById(cafeId).orElseThrow(
                     () -> new Exception(ErrorCode.UNREGISTER_CAFE.getDetail())
             );
-//        cafeRepository.findByOwnerId(Owner.getOwnerId).orElseThrow(
-//                () -> new Exception(ErrorCode.USER_NOT_FOUND.getDetail())
-//        );
+        Cafe cafe = cafeRepository.findByOwnerId(userDetails.getUser().getId());
+            if (cafe == null) {
+                    throw  new Exception(ErrorCode.USER_NOT_FOUND.getDetail());
+            }
             cafeRepository.deleteById(cafeId);
             return new ResponseEntity<>(new Message("카페가 삭제 되었습니다."), HttpStatus.OK);
         }
