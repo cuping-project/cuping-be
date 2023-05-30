@@ -1,5 +1,6 @@
 package com.cuping.cupingbe.controller;
 
+import com.cuping.cupingbe.dto.AddBeanByCafeRequestDto;
 import com.cuping.cupingbe.dto.OwnerPageRequestDto;
 import com.cuping.cupingbe.dto.OwnerResponseDto;
 import com.cuping.cupingbe.entity.Bean;
@@ -41,5 +42,11 @@ public class OwnerPageController {
     @GetMapping("/ownerpage")
     public List<OwnerResponseDto> getCafe(@AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
         return ownerPageService.getCafe(userDetails);
+    }
+
+    //(사장페이지) 카페에 원두 추가
+    @PostMapping("/ownerpage/resister/bean/{cafeid}")
+    public ResponseEntity<Message> addBeanByCafe(@RequestBody AddBeanByCafeRequestDto addBeanByCafeRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ownerPageService.addBeanByCafe(addBeanByCafeRequestDto, userDetails);
     }
 }

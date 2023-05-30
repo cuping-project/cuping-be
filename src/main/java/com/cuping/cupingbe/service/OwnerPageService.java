@@ -1,13 +1,16 @@
 package com.cuping.cupingbe.service;
 
+import com.cuping.cupingbe.dto.AddBeanByCafeRequestDto;
 import com.cuping.cupingbe.dto.OwnerPageRequestDto;
 import com.cuping.cupingbe.dto.OwnerResponseDto;
+import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Cafe;
 import com.cuping.cupingbe.entity.UserRoleEnum;
 import com.cuping.cupingbe.global.exception.CustomException;
 import com.cuping.cupingbe.global.exception.ErrorCode;
 import com.cuping.cupingbe.global.security.UserDetailsImpl;
 import com.cuping.cupingbe.global.util.Message;
+import com.cuping.cupingbe.repository.BeanRepository;
 import com.cuping.cupingbe.repository.CafeRepository;
 import com.cuping.cupingbe.repository.UserRepository;
 import com.cuping.cupingbe.s3.S3Uploader;
@@ -37,6 +40,7 @@ public class OwnerPageService {
     private final ObjectMapper objectMapper;
     private final S3Uploader s3Uploader;
     private final UserRepository userRepository;
+    private final BeanRepository beanRepository;
 
     //카페 등록 요청
     @Transactional
@@ -150,6 +154,20 @@ public class OwnerPageService {
             }
         }
         return ownerResponseDtoList;
+    }
+
+    //(사장페이지) 카페에 원두 등록
+    public ResponseEntity<Message> addBeanByCafe(AddBeanByCafeRequestDto addBeanByCafeRequestDto, UserDetailsImpl userDetails) {
+        UserRoleEnum userRoleEnum = userDetails.getUser().getRole();
+        System.out.println("role = " + userRoleEnum);
+        if (userRoleEnum != UserRoleEnum.OWNER) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
+        } else {
+            Cafe cafe = cafeRepository.findByOwnerId(userDetails.getUser().getId());
+            Bean bean =  beanRepository.findBybeanName(addBeanByCafeRequestDto.getBeanName());
+            cafe.setBean(bean);
+            return new ResponseEntity<>(new Message("카페에 원두가 등록 되었습니다."), HttpStatus.OK);
+        }
     }
 
 

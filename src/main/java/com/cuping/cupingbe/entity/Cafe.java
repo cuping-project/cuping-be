@@ -1,6 +1,5 @@
 package com.cuping.cupingbe.entity;
 
-import com.amazonaws.services.s3.model.Owner;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -59,4 +58,7 @@ public class Cafe {
     }
 
 
+    public void setBean(Bean bean) {
+        this.bean = bean;
+    }
 }
