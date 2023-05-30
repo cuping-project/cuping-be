@@ -43,7 +43,7 @@ public class AdminPageService {
             String imgUrl = s3Uploader.upload(adminPageRequestDto.getImage());
             Bean bean = new Bean(imgUrl, adminPageRequestDto);
             beanRepository.save(bean);
-            Message message = new Message("가게 등록 성공");
+            Message message = new Message("원두 등록 성공");
             ResponseEntity<Message> responseEntity = new ResponseEntity<>(message, HttpStatus.OK);
             return responseEntity;
         }
