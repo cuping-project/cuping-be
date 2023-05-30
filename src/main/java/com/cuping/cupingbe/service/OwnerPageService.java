@@ -32,6 +32,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -85,8 +86,7 @@ public class OwnerPageService {
             JsonNode documents = jsonNode.path("documents");
 
             for (JsonNode rowNode : documents) { // 데이터를 가져와서 Cafe 엔티티로 매핑하는 작업
-                long cafeId = rowNode.path("id").asLong();
-                if (cafeRepository.findById(cafeId).isPresent()) {      // 여기 id로 비교하지말고 cafe이름으로 비교하게 끔 수정
+                if (cafeRepository.findBycafeName(ownerPageRequestDto.getStoreName()).isPresent()) {      // 여기 id로 비교하지말고 cafe이름으로 비교하게 끔 수정
                     throw new CustomException(ErrorCode.DUPLICATE_CAFE);
                 }
                 //사업자 등록증 SC저장
@@ -151,7 +151,7 @@ public class OwnerPageService {
         List<OwnerResponseDto> ownerResponseDtoList = new ArrayList();
         for(Cafe cafe : cafeList){
             if(cafe.getPermit() == true) {        //cafe에 bean리스트 추가해서 반환해주기(Post 댓글 반환 참조)
-//                cafeRepository.findallByBean_id()
+//                cafe
 //                ownerResponseDtoList.add(new OwnerResponseDto(cafe));
             }
         }
@@ -159,19 +159,24 @@ public class OwnerPageService {
     }
 
     //(사장페이지) 카페에 원두 등록
-    public ResponseEntity<Message> addBeanByCafe(AddBeanByCafeRequestDto addBeanByCafeRequestDto, UserDetailsImpl userDetails) {
+    public ResponseEntity<Message> addBeanByCafe(Long cafeid, AddBeanByCafeRequestDto addBeanByCafeRequestDto, UserDetailsImpl userDetails) {
         UserRoleEnum userRoleEnum = userDetails.getUser().getRole();
         System.out.println("role = " + userRoleEnum);
         if (userRoleEnum != UserRoleEnum.OWNER) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
         } else {
-            Cafe cafe = cafeRepository.findByOwnerId(userDetails.getUser().getId());
-            Bean bean =  beanRepository.findBybeanName(addBeanByCafeRequestDto.getBeanName());
-            cafe.setBean(bean);
-            cafeRepository.save(cafe);// 이러면 원두를 저장할때마다 cafe데이터가 하나씩 늘어나나?
-            return new ResponseEntity<>(new Message("카페에 원두가 등록 되었습니다."), HttpStatus.OK);
+            Cafe cafe = cafeRepository.findById(cafeid).orElseThrow(
+                    () -> new CustomException(ErrorCode.UNREGISTER_CAFE)
+            );
+            Bean bean = beanRepository.findBybeanName(addBeanByCafeRequestDto.getBeanName());
+            if (bean == null) throw new CustomException(ErrorCode.UNREGISTER_BEAN);
+
+            Cafe newCafe = new Cafe(userDetails.getUser(), cafe.getCafeAddress(), cafe.getCafePhoneNumber(), cafe.getCafeName(), cafe.getX(), cafe.getY(), cafe.getImageUrl(), bean);
+            cafeRepository.save(newCafe);
+                return new ResponseEntity<>(new Message("카페에 원두가 등록되었습니다."), HttpStatus.OK);
+            }
         }
-    }
+
 
 
 }
