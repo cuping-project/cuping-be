@@ -37,6 +37,9 @@ public class User {
 	@Column(nullable = true)
 	private Long kakaoId;
 
+
+
+
 	@Column(nullable = true)
 	private String email;
 
