@@ -8,6 +8,7 @@ import com.cuping.cupingbe.global.exception.ErrorCode;
 import com.cuping.cupingbe.global.security.UserDetailsImpl;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.CafeRepository;
+import com.cuping.cupingbe.repository.UserRepository;
 import com.cuping.cupingbe.s3.S3Uploader;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,6 +33,7 @@ public class OwnerPageService {
     private final CafeRepository cafeRepository;
     private final ObjectMapper objectMapper;
     private final S3Uploader s3Uploader;
+    private final UserRepository userRepository;
 
     //카페 등록 요청
     @Transactional
@@ -43,7 +45,9 @@ public class OwnerPageService {
         if (userRoleEnum != UserRoleEnum.OWNER) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
         } else {
-
+            userRepository.findByUserId(userDetails.getUser().getUserId()).orElseThrow(
+                    () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+            );
             String query = ownerPageRequestDto.getStoreAddress() + ownerPageRequestDto.getStoreName();
             byte[] bytes = query.getBytes(StandardCharsets.UTF_8);
             ByteBuffer buffer = ByteBuffer.wrap(bytes);
@@ -81,6 +85,7 @@ public class OwnerPageService {
                 String imgUrl = s3Uploader.upload(ownerPageRequestDto.getImage());
 
                 Cafe cafe = Cafe.builder()
+                        .owner(userDetails.getUser())
                         .cafeAddress(rowNode.path("road_address_name").asText())
                         .cafePhoneNumber(ownerPageRequestDto.getStoreNumber())
                         .cafeName(rowNode.path("place_name").asText())
@@ -98,6 +103,7 @@ public class OwnerPageService {
         }
     }
 
+    //카페 삭제
     public ResponseEntity<Message> deleteCafe(Long cafeId, UserDetailsImpl userDetails) throws Exception {
 
         //사장 권한이 있는지 확인

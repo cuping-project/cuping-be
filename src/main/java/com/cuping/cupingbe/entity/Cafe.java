@@ -1,5 +1,6 @@
 package com.cuping.cupingbe.entity;
 
+import com.amazonaws.services.s3.model.Owner;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,7 +44,8 @@ public class Cafe {
     private String imageUrl;
 
     @Builder
-    public Cafe (String cafeAddress, String cafePhoneNumber, String cafeName, String x, String y, String imageUrl) {
+    public Cafe (User owner, String cafeAddress, String cafePhoneNumber, String cafeName, String x, String y, String imageUrl) {
+        this.owner = owner;
         this.cafeAddress = cafeAddress;
         this.cafePhoneNumber = cafePhoneNumber;
         this.cafeName = cafeName;
