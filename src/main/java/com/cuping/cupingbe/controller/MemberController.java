@@ -22,7 +22,7 @@ public class MemberController {
 	private final MemberService memberService;
 
 	@PostMapping("/signup/{type}")
-	public ResponseEntity<Message> signup(@PathVariable String type,  @RequestBody MemberSignupRequest memberSignupRequest){
+	public ResponseEntity<Message> signup(@PathVariable String type,  @RequestBody MemberSignupRequest memberSignupRequest) throws Exception {
 		return memberService.signup(type, memberSignupRequest);
 	}
 
