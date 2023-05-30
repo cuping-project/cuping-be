@@ -29,7 +29,7 @@ public class OwnerPageController {
     //카페 승인 요청
     @PostMapping(value = "/ownerpage/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Message> createCafe(@ModelAttribute OwnerPageRequestDto ownerPageRequestDto,@AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
-        return ownerPageService.createCafe(ownerPageRequestDto, userDetails);
+        return ownerPageService.createCafe(ownerPageRequestDto, userDetails.getUser());
     }
 
     //(사장님 페이지)카페 삭제

@@ -4,6 +4,7 @@ import com.cuping.cupingbe.entity.UserRoleEnum;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @NoArgsConstructor
@@ -30,7 +31,7 @@ public class MemberSignupRequest {
 
 	private String storeNumber;
 
-	private String image;
+	private MultipartFile image;
 
 
 
