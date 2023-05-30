@@ -5,6 +5,7 @@ import com.cuping.cupingbe.dto.AdminPageResponseDto;
 import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Cafe;
 import com.cuping.cupingbe.global.exception.ErrorCode;
+import com.cuping.cupingbe.global.security.UserDetailsImpl;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.BeanRepository;
 import com.cuping.cupingbe.repository.CafeRepository;
@@ -29,7 +30,7 @@ public class AdminPageService {
 
     //(관리자페이지)원두 등록하기
     @Transactional
-    public ResponseEntity<Message> createBean(AdminPageRequestDto adminPageRequestDto) throws IOException {
+    public ResponseEntity<Message> createBean(AdminPageRequestDto adminPageRequestDto, UserDetailsImpl userDetails) throws IOException {
         String imgUrl = s3Uploader.upload(adminPageRequestDto.getImage());
         Bean bean = new Bean(imgUrl, adminPageRequestDto);
         beanRepository.save(bean);
@@ -40,7 +41,7 @@ public class AdminPageService {
 
     //(관리자페이지)승인되지 않은 카페 전체 조회
     @Transactional
-    public List<AdminPageResponseDto> getPermitCafe() {
+    public List<AdminPageResponseDto> getPermitCafe(UserDetailsImpl userDetails) {
         List<Cafe> cafeList = cafeRepository.findAllByPermit(false);
         List<AdminPageResponseDto> adminPageResponseDtoList = new ArrayList();
         for(Cafe cafe : cafeList){
@@ -51,7 +52,7 @@ public class AdminPageService {
 
     //(관리자페이지)카페 승인
     @Transactional
-    public ResponseEntity<Message> permitCafe(Long cafeId) {
+    public ResponseEntity<Message> permitCafe(Long cafeId, UserDetailsImpl userDetails) {
         Cafe cafe = cafeRepository.findById(cafeId).orElseThrow(
                 () -> new IllegalArgumentException(ErrorCode.UNREGISTER_CAFE.getDetail())
         );
