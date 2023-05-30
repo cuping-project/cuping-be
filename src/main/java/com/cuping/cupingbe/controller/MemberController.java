@@ -15,6 +15,8 @@ import com.cuping.cupingbe.global.util.Message;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -28,14 +30,21 @@ public class MemberController {
 	}
 
 	@PostMapping( "/signup/owner")
-	public ResponseEntity<Message> ownerSignup(@ModelAttribute OwnerSignupRequestDto ownerSignupRequestDto) throws Exception {
-		return memberService.ownerSignup(ownerSignupRequestDto);
+	public ResponseEntity<Message> ownerSignup(@ModelAttribute MemberSignupRequestDto memberSignupRequestDto) throws Exception {
+		return memberService.signup("owner", memberSignupRequestDto);
 	}
 
+	@GetMapping("/checkId")
+	public ResponseEntity<Message> checkId(@RequestBody Map<String, String> userId) {
+		return memberService.checkId(userId);
+	}
+	@GetMapping("/checkNickname")
+	public ResponseEntity<Message> checkNickname(@RequestBody Map<String, String> nickname) {
+		return memberService.checkNickname(nickname);
+	}
 	@PostMapping("/login")
 	public ResponseEntity<Message> login(@RequestBody MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response) {
 		return memberService.login(memberLoginRequestDto,response);
-
 	}
 
 	@PostMapping("/logout")

@@ -2,10 +2,12 @@ package com.cuping.cupingbe.dto;
 
 import com.cuping.cupingbe.entity.UserRoleEnum;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+@Data
 @Getter
 @NoArgsConstructor
 public class MemberSignupRequestDto {
@@ -17,8 +19,6 @@ public class MemberSignupRequestDto {
 	private String adminKey;
 
 	private String nickname;
-
-	private UserRoleEnum role;
 
 	private String storeName;
 
