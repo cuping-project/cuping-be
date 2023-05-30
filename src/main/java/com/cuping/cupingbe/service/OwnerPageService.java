@@ -85,7 +85,7 @@ public class OwnerPageService {
             JsonNode documents = jsonNode.path("documents");
 
             for (JsonNode rowNode : documents) { // 데이터를 가져와서 Cafe 엔티티로 매핑하는 작업
-                if (cafeRepository.findBycafeName(ownerPageRequestDto.getStoreName()).isPresent()) {      // 여기 id로 비교하지말고 cafe이름으로 비교하게 끔 수정
+                if (cafeRepository.findBycafeName(ownerPageRequestDto.getStoreName()).isPresent()) {
                     throw new CustomException(ErrorCode.DUPLICATE_CAFE);
                 }
                 //사업자 등록증 SC저장
