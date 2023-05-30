@@ -86,7 +86,7 @@ public class OwnerPageService {
 
             for (JsonNode rowNode : documents) { // 데이터를 가져와서 Cafe 엔티티로 매핑하는 작업
                 long cafeId = rowNode.path("id").asLong();
-                if (cafeRepository.findById(cafeId).isPresent()) {
+                if (cafeRepository.findById(cafeId).isPresent()) {      // 여기 id로 비교하지말고 cafe이름으로 비교하게 끔 수정
                     throw new CustomException(ErrorCode.DUPLICATE_CAFE);
                 }
                 //사업자 등록증 SC저장
@@ -150,8 +150,9 @@ public class OwnerPageService {
         }
         List<OwnerResponseDto> ownerResponseDtoList = new ArrayList();
         for(Cafe cafe : cafeList){
-            if(cafe.getPermit() == true) {
-                ownerResponseDtoList.add(new OwnerResponseDto(cafe));
+            if(cafe.getPermit() == true) {        //cafe에 bean리스트 추가해서 반환해주기(Post 댓글 반환 참조)
+//                cafeRepository.findallByBean_id()
+//                ownerResponseDtoList.add(new OwnerResponseDto(cafe));
             }
         }
         return ownerResponseDtoList;
@@ -167,6 +168,7 @@ public class OwnerPageService {
             Cafe cafe = cafeRepository.findByOwnerId(userDetails.getUser().getId());
             Bean bean =  beanRepository.findBybeanName(addBeanByCafeRequestDto.getBeanName());
             cafe.setBean(bean);
+            cafeRepository.save(cafe);// 이러면 원두를 저장할때마다 cafe데이터가 하나씩 늘어나나?
             return new ResponseEntity<>(new Message("카페에 원두가 등록 되었습니다."), HttpStatus.OK);
         }
     }

@@ -1,15 +1,12 @@
 package com.cuping.cupingbe.service;
 
-import com.cuping.cupingbe.dto.OwnerPageRequestDto;
+import com.cuping.cupingbe.dto.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cuping.cupingbe.dto.MemberLoginRequestDto;
-import com.cuping.cupingbe.dto.MemberSignupRequestDto;
-import com.cuping.cupingbe.dto.TokenDto;
 import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.entity.UserRoleEnum;
 import com.cuping.cupingbe.global.exception.CustomException;
@@ -89,7 +86,7 @@ public class MemberService {
 		}
 	}
 
-	public ResponseEntity<Message> ownerSignup(MemberSignupRequestDto memberSignupRequestDto) throws Exception {
+	public ResponseEntity<Message> ownerSignup(OwnerSignupRequestDto memberSignupRequestDto) throws Exception {
 
 		String userId = memberSignupRequestDto.getUserId();
 		String password = passwordEncoder.encode(memberSignupRequestDto.getPassword());
@@ -119,7 +116,7 @@ public class MemberService {
 		String userId = memberLoginRequestDto.getUserId();
 
 		User user = userRepository.findByUserId(userId).orElseThrow(
-			() -> new CustomException(ErrorCode.INVALID_ID_PASSWORD)
+				() -> new CustomException(ErrorCode.INVALID_ID_PASSWORD)
 		);
 
 		if(!passwordEncoder.matches(memberLoginRequestDto.getPassword(), user.getPassword())) {

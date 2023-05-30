@@ -1,5 +1,7 @@
 package com.cuping.cupingbe.controller;
 
+import com.cuping.cupingbe.dto.OwnerSignupRequestDto;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,9 +27,9 @@ public class MemberController {
 		return memberService.signup(type, memberSignupRequestDto);
 	}
 
-	@PostMapping("/signup/owner")
-	public ResponseEntity<Message> ownerSignup(@ModelAttribute MemberSignupRequestDto memberSignupRequestDto) throws Exception {
-		return memberService.ownerSignup(memberSignupRequestDto);
+	@PostMapping( "/signup/owner")
+	public ResponseEntity<Message> ownerSignup(@ModelAttribute OwnerSignupRequestDto ownerSignupRequestDto) throws Exception {
+		return memberService.ownerSignup(ownerSignupRequestDto);
 	}
 
 	@PostMapping("/login")
