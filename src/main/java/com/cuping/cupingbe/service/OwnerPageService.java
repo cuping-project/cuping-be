@@ -5,6 +5,7 @@ import com.cuping.cupingbe.dto.OwnerPageRequestDto;
 import com.cuping.cupingbe.dto.OwnerResponseDto;
 import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Cafe;
+import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.entity.UserRoleEnum;
 import com.cuping.cupingbe.global.exception.CustomException;
 import com.cuping.cupingbe.global.exception.ErrorCode;
@@ -44,15 +45,15 @@ public class OwnerPageService {
 
     //카페 등록 요청
     @Transactional
-    public ResponseEntity<Message> createCafe(OwnerPageRequestDto ownerPageRequestDto, UserDetailsImpl userDetails) throws Exception {
+    public ResponseEntity<Message> createCafe(OwnerPageRequestDto ownerPageRequestDto, User user) throws Exception {
 
         //사장 권한이 있는지 확인
-        UserRoleEnum userRoleEnum = userDetails.getUser().getRole();
+        UserRoleEnum userRoleEnum = user.getRole();
         System.out.println("role = " + userRoleEnum);
         if (userRoleEnum != UserRoleEnum.OWNER) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
         } else {
-            userRepository.findByUserId(userDetails.getUser().getUserId()).orElseThrow(
+            userRepository.findByUserId(user.getUserId()).orElseThrow(
                     () -> new CustomException(ErrorCode.USER_NOT_FOUND)
             );
             String query = ownerPageRequestDto.getStoreAddress() + ownerPageRequestDto.getStoreName();
@@ -89,10 +90,10 @@ public class OwnerPageService {
                     throw new CustomException(ErrorCode.DUPLICATE_CAFE);
                 }
                 //사업자 등록증 SC저장
-                String imgUrl = s3Uploader.upload(ownerPageRequestDto.getImage());
+                String imgUrl = s3Uploader.upload(ownerPageRequestDto.getAuthImage());
 
                 Cafe cafe = Cafe.builder()
-                        .owner(userDetails.getUser())
+                        .owner(user)
                         .cafeAddress(ownerPageRequestDto.getStoreAddress())
                         .cafePhoneNumber(ownerPageRequestDto.getStoreNumber())
                         .cafeName(ownerPageRequestDto.getStoreName())
@@ -143,7 +144,7 @@ public class OwnerPageService {
 
     //사장페이지 카페 조회
     public List<OwnerResponseDto> getCafe(UserDetailsImpl userDetails) throws Exception {
-      List<Cafe> cafeList = cafeRepository.findAllByOwnerId(userDetails.getUser().getId());
+        List<Cafe> cafeList = cafeRepository.findAllByOwnerId(userDetails.getUser().getId());
         if(cafeList == null) {
             throw new Exception(ErrorCode.UNREGISTER_CAFE.getDetail());
         }
