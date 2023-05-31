@@ -3,6 +3,7 @@ package com.cuping.cupingbe.controller;
 import com.cuping.cupingbe.dto.AddBeanByCafeRequestDto;
 import com.cuping.cupingbe.dto.OwnerPageRequestDto;
 import com.cuping.cupingbe.dto.OwnerResponseDto;
+import com.cuping.cupingbe.dto.OwnerResponseTotalDto;
 import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Cafe;
 import com.cuping.cupingbe.global.security.UserDetailsImpl;
@@ -35,18 +36,18 @@ public class OwnerPageController {
     //(사장님 페이지)카페 삭제
     @DeleteMapping("/ownerpage/resister/{cafeid}")
     public ResponseEntity<Message> deleteCafe(@PathVariable Long cafeid, @AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
-        return ownerPageService.deleteCafe(cafeid, userDetails);
+        return ownerPageService.deleteCafe(cafeid, userDetails.getUser());
     }
 
     //(사장님 페이지) 사장님이 소유한 카페 가져오기
     @GetMapping("/ownerpage")
-    public List<OwnerResponseDto> getCafe(@AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
-        return ownerPageService.getCafe(userDetails);
+    public OwnerResponseTotalDto getCafe(@AuthenticationPrincipal UserDetailsImpl userDetails) throws Exception {
+        return ownerPageService.getCafe(userDetails.getUser());
     }
 
     //(사장페이지) 카페에 원두 추가
     @PostMapping("/ownerpage/resister/bean/{cafeid}")
     public ResponseEntity<Message> addBeanByCafe(@PathVariable Long cafeid ,@RequestBody AddBeanByCafeRequestDto addBeanByCafeRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return ownerPageService.addBeanByCafe(cafeid, addBeanByCafeRequestDto, userDetails);
+        return ownerPageService.addBeanByCafe(cafeid, addBeanByCafeRequestDto, userDetails.getUser());
     }
 }

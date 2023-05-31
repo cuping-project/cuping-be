@@ -54,7 +54,7 @@ public class Cafe {
     }
 
 
-    public Cafe (User owner, String cafeAddress, String cafePhoneNumber, String cafeName, String x, String y, String imageUrl, Bean bean) {
+    public Cafe (User owner, String cafeAddress, String cafePhoneNumber, String cafeName, String x, String y, String imageUrl, Boolean permit,Bean bean) {
         this.owner = owner;
         this.cafeAddress = cafeAddress;
         this.cafePhoneNumber = cafePhoneNumber;
@@ -62,6 +62,7 @@ public class Cafe {
         this.x = x;
         this.y = y;
         this.imageUrl = imageUrl;
+        this.permit = permit;
         this.bean = bean;
     }
 
