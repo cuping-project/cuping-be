@@ -1,5 +1,7 @@
 package com.cuping.cupingbe.controller;
 
+import com.cuping.cupingbe.dto.OwnerSignupRequestDto;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +15,8 @@ import com.cuping.cupingbe.global.util.Message;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -25,15 +29,22 @@ public class MemberController {
 		return memberService.signup(type, memberSignupRequestDto);
 	}
 
-	@PostMapping("/signup/owner")
+	@PostMapping( "/signup/owner")
 	public ResponseEntity<Message> ownerSignup(@ModelAttribute MemberSignupRequestDto memberSignupRequestDto) throws Exception {
-		return memberService.ownerSignup(memberSignupRequestDto);
+		return memberService.signup("owner", memberSignupRequestDto);
 	}
 
+	@GetMapping("/checkId")
+	public ResponseEntity<Message> checkId(@RequestBody Map<String, String> userId) {
+		return memberService.checkId(userId);
+	}
+	@GetMapping("/checkNickname")
+	public ResponseEntity<Message> checkNickname(@RequestBody Map<String, String> nickname) {
+		return memberService.checkNickname(nickname);
+	}
 	@PostMapping("/login")
 	public ResponseEntity<Message> login(@RequestBody MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response) {
 		return memberService.login(memberLoginRequestDto,response);
-
 	}
 
 	@PostMapping("/logout")

@@ -15,4 +15,5 @@ public interface CafeRepository extends JpaRepository<Cafe, Long> {
     Cafe findByOwnerId(Long ownerId);
     //사장페이지 카페 조회
     List<Cafe> findAllByOwnerId(Long id);
+    Optional<Object> findByCafeAddress(String storeAddress);
 }

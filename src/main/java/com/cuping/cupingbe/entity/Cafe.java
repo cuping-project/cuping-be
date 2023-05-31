@@ -37,7 +37,7 @@ public class Cafe {
     private String y;
 
     @Column
-    private Boolean permit;
+    private Boolean permit = false;
 
     @Column
     private String imageUrl;
@@ -51,6 +51,18 @@ public class Cafe {
         this.x = x;
         this.y = y;
         this.imageUrl = imageUrl;
+    }
+
+
+    public Cafe (User owner, String cafeAddress, String cafePhoneNumber, String cafeName, String x, String y, String imageUrl, Bean bean) {
+        this.owner = owner;
+        this.cafeAddress = cafeAddress;
+        this.cafePhoneNumber = cafePhoneNumber;
+        this.cafeName = cafeName;
+        this.x = x;
+        this.y = y;
+        this.imageUrl = imageUrl;
+        this.bean = bean;
     }
 
     public void setPermit(boolean b) {

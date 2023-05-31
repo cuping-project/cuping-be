@@ -1,15 +1,12 @@
 package com.cuping.cupingbe.service;
 
-import com.cuping.cupingbe.dto.OwnerPageRequestDto;
+import com.cuping.cupingbe.dto.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cuping.cupingbe.dto.MemberLoginRequestDto;
-import com.cuping.cupingbe.dto.MemberSignupRequestDto;
-import com.cuping.cupingbe.dto.TokenDto;
 import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.entity.UserRoleEnum;
 import com.cuping.cupingbe.global.exception.CustomException;
@@ -23,6 +20,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -38,94 +37,51 @@ public class MemberService {
 
 	public ResponseEntity<Message> signup(String type, MemberSignupRequestDto memberSignupRequestDto) throws Exception {
 
-		if(type.equals("user") || type.equals("owner")){
-			String userId = memberSignupRequestDto.getUserId();
-			String password = passwordEncoder.encode(memberSignupRequestDto.getPassword());
-			String nickname = memberSignupRequestDto.getNickname();
-			// if문 안에서는 UserRoleEnum이 선언이 안됨.
-			UserRoleEnum role;
-			if (type.equals("user"))
-				role = UserRoleEnum.USER;
-			else
-				role = UserRoleEnum.OWNER;
-
-			if (userRepository.findByUserId(userId).isPresent())
-				throw new CustomException(ErrorCode.DUPLICATE_IDENTIFIER);
-			if (userRepository.findByNickname(nickname).isPresent())
-				throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
-
-			User user = new User(userId, password, nickname, role);
-			userRepository.save(user);
-			if (type.equals("user"))
-				return new ResponseEntity<>(new Message("user 회원가입 성공", null), HttpStatus.OK);
-
-			String storeName = memberSignupRequestDto.getStoreName();
-			String storeAddress = memberSignupRequestDto.getStoreAddress();
-			String storeNumber = memberSignupRequestDto.getStoreNumber();
-			MultipartFile authImage = memberSignupRequestDto.getAuthImage();
-
-			ownerPageService.createCafe(new OwnerPageRequestDto(storeName, storeAddress, storeNumber, authImage), user);
-			return new ResponseEntity<>(new Message("owner 회원가입 성공", null), HttpStatus.OK);
-
-		} else if(type.equals("admin")) {
-			String userId = memberSignupRequestDto.getUserId();
-			String password = passwordEncoder.encode(memberSignupRequestDto.getPassword());
-			String nickname = memberSignupRequestDto.getNickname();
-			String adminKey = memberSignupRequestDto.getAdminKey();
-			UserRoleEnum role = UserRoleEnum.ADMIN;
-
-			if (userRepository.findByUserId(userId).isPresent())
-				throw new CustomException(ErrorCode.DUPLICATE_IDENTIFIER);
-			if (userRepository.findByNickname(nickname).isPresent())
-				throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
-			if (jwtUtil.checkAdminKey(adminKey)) {
-				userRepository.save(new User(userId, password, nickname, role));
-				return new ResponseEntity<>(new Message("admin 회원가입 성공", null), HttpStatus.OK);
-			} else {
+		UserRoleEnum role;
+		if (type.equals("user")) {
+			role = UserRoleEnum.USER;
+		} else if (type.equals("admin")) {
+			role = UserRoleEnum.ADMIN;
+			if (!jwtUtil.checkAdminKey(memberSignupRequestDto.getAdminKey()))
 				throw new CustomException(ErrorCode.INVALID_ADMIN_KEY);
-			}
+		} else if (type.equals("owner")) {
+			role = UserRoleEnum.OWNER;
 		} else {
 			throw new CustomException(ErrorCode.INVALID_TYPE);
 		}
+		User user = new User(memberSignupRequestDto.getUserId(),
+				passwordEncoder.encode(memberSignupRequestDto.getPassword()),
+				memberSignupRequestDto.getNickname(), role);
+		userRepository.save(user);
+		if (type.equals("owner")) {
+			ownerPageService.createCafe(new OwnerPageRequestDto(memberSignupRequestDto.getStoreName()
+					, memberSignupRequestDto.getStoreAddress(), memberSignupRequestDto.getStoreNumber()
+					, memberSignupRequestDto.getAuthImage()), user);
+		}
+		return new ResponseEntity<>(new Message("회원가입 성공", null), HttpStatus.OK);
 	}
 
-	public ResponseEntity<Message> ownerSignup(MemberSignupRequestDto memberSignupRequestDto) throws Exception {
-
-		String userId = memberSignupRequestDto.getUserId();
-		String password = passwordEncoder.encode(memberSignupRequestDto.getPassword());
-		String nickname = memberSignupRequestDto.getNickname();
-		// if문 안에서는 UserRoleEnum이 선언이 안됨.
-
-		UserRoleEnum role = UserRoleEnum.OWNER;
-
-		if (userRepository.findByUserId(userId).isPresent())
+	public ResponseEntity<Message> checkId(Map<String, String> userId) {
+		if (userRepository.findByUserId(userId.get("userId")).isPresent())
 			throw new CustomException(ErrorCode.DUPLICATE_IDENTIFIER);
-		if (userRepository.findByNickname(nickname).isPresent())
-			throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
+		return new ResponseEntity<>(new Message("사용가능한 아이디입니다.", null), HttpStatus.OK);
+	}
 
-		User user = new User(userId, password, nickname, role);
-		userRepository.save(user);
-
-		String storeName = memberSignupRequestDto.getStoreName();
-		String storeAddress = memberSignupRequestDto.getStoreAddress();
-		String storeNumber = memberSignupRequestDto.getStoreNumber();
-		MultipartFile authImage = memberSignupRequestDto.getAuthImage();
-
-		ownerPageService.createCafe(new OwnerPageRequestDto(storeName, storeAddress, storeNumber, authImage), user);
-		return new ResponseEntity<>(new Message("owner 회원가입 성공", null), HttpStatus.OK);
+	public ResponseEntity<Message> checkNickname(Map<String, String> nickname) {
+		if (userRepository.findByUserId(nickname.get("nickname")).isPresent())
+			throw new CustomException(ErrorCode.DUPLICATE_IDENTIFIER);
+		return new ResponseEntity<>(new Message("사용가능한 닉네임입니다.", null), HttpStatus.OK);
 	}
 
 	public ResponseEntity<Message> login(MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response){
 		String userId = memberLoginRequestDto.getUserId();
 
 		User user = userRepository.findByUserId(userId).orElseThrow(
-			() -> new CustomException(ErrorCode.INVALID_ID_PASSWORD)
+				() -> new CustomException(ErrorCode.INVALID_ID_PASSWORD)
 		);
-
 		if(!passwordEncoder.matches(memberLoginRequestDto.getPassword(), user.getPassword())) {
 			throw new CustomException(ErrorCode.INVALID_ID_PASSWORD);
 		}
-
 		TokenDto tokenDto = jwtUtil.creatAllToken(userId, user.getRole());
 		if (redisUtil.get(userId).isEmpty()) {
 			redisUtil.set(userId, tokenDto.getRefreshToken(), JwtUtil.REFRESH_TIME);
@@ -134,7 +90,6 @@ public class MemberService {
 		}
 		response.addHeader(JwtUtil.ACCESS_KEY,tokenDto.getAccessToken());
 		response.addHeader(JwtUtil.REFRESH_KEY,tokenDto.getRefreshToken());
-
 		return new ResponseEntity<>(new Message("로그인 성공", null), HttpStatus.OK);
 	}
 
@@ -146,12 +101,9 @@ public class MemberService {
 			refreshToken = redisUtil.get(userId).get().toString().substring(7);
 		else
 			throw new CustomException(ErrorCode.USER_NOT_FOUND);
-
 		Long expireTime = jwtUtil.getExpirationTime(refreshToken);
 		redisUtil.delete(userId);
 		redisUtil.setBlackList(userId, refreshToken, expireTime);
-
-
 		return new ResponseEntity<>(new Message("로그아웃 성공", null), HttpStatus.OK);
 	}
 }
