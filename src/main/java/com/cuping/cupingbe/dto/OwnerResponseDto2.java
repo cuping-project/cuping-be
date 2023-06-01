@@ -2,17 +2,14 @@ package com.cuping.cupingbe.dto;
 
 import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Cafe;
-import com.cuping.cupingbe.entity.User;
-import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class OwnerResponseDto {
+public class OwnerResponseDto2 {
     private Long Id;
     private String cafeAddress;
     private String cafePhoneNumber;
@@ -20,8 +17,9 @@ public class OwnerResponseDto {
     private String x;
     private String y;
     private Boolean permit;
-    private List<Bean> beans;
-    public OwnerResponseDto(Cafe cafe) {
+    private Bean bean;
+
+    public OwnerResponseDto2(Cafe cafe, Bean bean) {
         this.Id = cafe.getId();
         this.cafeAddress = cafe.getCafeAddress();
         this.cafePhoneNumber = cafe.getCafePhoneNumber();
@@ -29,12 +27,6 @@ public class OwnerResponseDto {
         this.x = cafe.getX();
         this.y = cafe.getY();
         this.permit = cafe.getPermit();
-    }
-
-    public List<Bean> getBeans() {
-        if (beans == null) {
-            beans = new ArrayList<>();
-        }
-        return beans;
+        this.bean = bean;
     }
 }

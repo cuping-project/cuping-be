@@ -77,10 +77,10 @@ public class MemberService {
 		String userId = memberLoginRequestDto.getUserId();
 
 		User user = userRepository.findByUserId(userId).orElseThrow(
-				() -> new CustomException(ErrorCode.INVALID_ID_PASSWORD)
+				() -> new CustomException(ErrorCode.INVALID_ID)
 		);
 		if(!passwordEncoder.matches(memberLoginRequestDto.getPassword(), user.getPassword())) {
-			throw new CustomException(ErrorCode.INVALID_ID_PASSWORD);
+			throw new CustomException(ErrorCode.INVALID_PASSWORD);
 		}
 		TokenDto tokenDto = jwtUtil.creatAllToken(userId, user.getRole());
 		if (redisUtil.get(userId).isEmpty()) {
