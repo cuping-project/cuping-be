@@ -65,7 +65,7 @@ public class KakaoService {
 		body.add("grant_type", "authorization_code");
 		body.add("client_id", "826134c9ef39a5b494d322490e0e3abe");
 		body.add("client_secret", "FVhCXvvHBKp8IhcvLIUy3exbWHiHIzMK");
-		body.add("redirect_uri", "http://13.209.106.144:8080/oauth/kakao");
+		body.add("redirect_uri", "http://13.209.106.144:8080/users/oauth/kakao");
 		body.add("code", code);
 
 		HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
