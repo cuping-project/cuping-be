@@ -23,8 +23,8 @@ public class CommentController {
 
     //댓글 작성
     @PostMapping("/comment/{beanId}")
-    public ResponseEntity<CommentResponseDto> addComment(@PathVariable Long beanId, @RequestBody CommentRequestDto commentRequestDto, @AuthenticationPrincipal User user){
-        return commentService.addComment(beanId, commentRequestDto, user);
+    public ResponseEntity<CommentResponseDto> addComment(@PathVariable Long beanId, @RequestBody CommentRequestDto commentRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return commentService.addComment(beanId, commentRequestDto, userDetails.getUser());
     }
 
     //댓글 수정
@@ -36,9 +36,9 @@ public class CommentController {
 
     //댓글 삭제
     @DeleteMapping("/comment/{id}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Long id, @AuthenticationPrincipal User user){
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
         CommentDeleteRequestDto commentDeleteRequestDto = new CommentDeleteRequestDto();
         commentDeleteRequestDto.setId(id);
-        return commentService.deleteComment(commentDeleteRequestDto, user);
+        return commentService.deleteComment(commentDeleteRequestDto, userDetails.getUser());
     }
 }

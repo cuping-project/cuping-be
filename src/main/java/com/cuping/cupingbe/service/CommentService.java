@@ -8,6 +8,7 @@ import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Comment;
 import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.entity.UserRoleEnum;
+import com.cuping.cupingbe.global.exception.CustomException;
 import com.cuping.cupingbe.global.exception.ErrorCode;
 import com.cuping.cupingbe.repository.BeanRepository;
 import com.cuping.cupingbe.repository.CommentRepository;
@@ -31,20 +32,21 @@ public class CommentService {
     @Transactional
     public ResponseEntity<CommentResponseDto> addComment(Long beanId, CommentRequestDto commentRequestDto, User user) {
         Bean bean = beanRepository.findById(beanId)
-                .orElseThrow(() -> new IllegalArgumentException("원두를 찾지 못했습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_BEANS));
         Comment comment = new Comment(commentRequestDto, user, bean);
         commentRepository.save(comment);
         return new ResponseEntity<>(new CommentResponseDto(comment), HttpStatus.CREATED);
     }
 
+
     //댓글 수정
     @Transactional
     public ResponseEntity<CommentResponseDto> updateComment(CommentUpdateRequestDto requestDto, User user) {
         Comment comment = commentRepository.findById(requestDto.getId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_COMMENT));
 
         if (!comment.getUser().equals(user) && !user.getRole().equals(UserRoleEnum.ADMIN)) {
-            throw new IllegalArgumentException("댓글을 수정할 권한이 없습니다.");
+            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
         }
 
         comment.updateContent(requestDto.getContent());
@@ -55,10 +57,10 @@ public class CommentService {
     @Transactional
     public ResponseEntity<Void> deleteComment(CommentDeleteRequestDto requestDto, User user) {
         Comment comment = commentRepository.findById(requestDto.getId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_COMMENT));
 
         if (!comment.getUser().equals(user) && !user.getRole().equals(UserRoleEnum.ADMIN)) {
-            throw new IllegalArgumentException("댓글을 삭제할 권한이 없습니다.");
+            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
         }
 
         commentRepository.delete(comment);
