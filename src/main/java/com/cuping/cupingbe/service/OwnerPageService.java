@@ -101,6 +101,7 @@ public class OwnerPageService {
     }
 
     //카페 삭제
+    @Transactional
     public ResponseEntity<Message> deleteCafe(Long cafeId, User user) throws Exception {
 
         //사용자 권환 확인 (ADMUN인지 아닌지)
@@ -132,6 +133,7 @@ public class OwnerPageService {
     }
 
     //사장페이지 카페 조회
+    @Transactional
     public OwnerResponseTotalDto getCafe(User user) throws Exception {
         UserRoleEnum userRoleEnum = user.getRole();
         System.out.println("role = " + userRoleEnum);
@@ -191,6 +193,7 @@ public class OwnerPageService {
 
 
     //(사장페이지) 카페에 원두 등록
+    @Transactional
     public ResponseEntity<Message> addBeanByCafe(Long cafeid, AddBeanByCafeRequestDto addBeanByCafeRequestDto, User user) {
         UserRoleEnum userRoleEnum = user.getRole();
         System.out.println("role = " + userRoleEnum);
@@ -210,6 +213,7 @@ public class OwnerPageService {
         }
 
     //(사장페이지) 카페에 등록된 원두 삭제
+    @Transactional
     public ResponseEntity<Message> deleteBeanByCafe(DeleteBeanByCafeRequestDto deleteBeanByCafeRequestDto, User user) {
         UserRoleEnum userRoleEnum = user.getRole();
         System.out.println("role = " + userRoleEnum);
