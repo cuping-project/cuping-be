@@ -4,6 +4,7 @@ import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Cafe;
 import com.cuping.cupingbe.entity.Bean;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,8 +17,6 @@ public interface CafeRepository extends JpaRepository<Cafe, Long> {
     //사장페이지 카페 조회
     List<Cafe> findAllByOwnerId(Long id);
     Optional<Object> findByCafeAddress(String storeAddress);
-
-    Cafe findByCafeName(String key);
-
-    List<Cafe> findAllByCafeName(String cafeName);
+    //사장페이지 카페에 등록된 원두 삭제
+    Cafe findByCafeNameAndBeanIdAndOwnerId(String cafeName, Long id, Long userId);
 }

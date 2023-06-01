@@ -162,18 +162,21 @@ public class OwnerPageService {
             List<OwnerResponseDto> ownerResponseDtoList = new ArrayList<>(cafeMap.values());
 
             List<Cafe> cafeList2 = cafeRepository.findAllByOwnerId(user.getId());
+            if (cafeList2 == null) {
+                throw new Exception(ErrorCode.UNREGISTER_CAFE.getDetail());
+            }
             List<OwnerResponseDto2> ownerResponseDto2List = new ArrayList<>();
             for (Cafe cafe : cafeList2) {
                 if (cafe.getPermit()) {
-                    boolean isDuplicate = false;
+                    boolean temp = false;
                     if (cafe.getBean() == null) {
                         for (OwnerResponseDto dto : ownerResponseDtoList) {
                             if (cafe.getCafeName().equals(dto.getCafeName())) {
-                                isDuplicate = true;
+                                temp = true;
                                 break;
                             }
                         }
-                        if (!isDuplicate) {
+                        if (!temp) {
                             ownerResponseDto2List.add(new OwnerResponseDto2(cafe, cafe.getBean()));
                         }
                     }
@@ -205,4 +208,24 @@ public class OwnerPageService {
                 return new ResponseEntity<>(new Message("카페에 원두가 등록되었습니다."), HttpStatus.OK);
             }
         }
+
+    //(사장페이지) 카페에 등록된 원두 삭제
+    public ResponseEntity<Message> deleteBeanByCafe(DeleteBeanByCafeRequestDto deleteBeanByCafeRequestDto, User user) {
+        UserRoleEnum userRoleEnum = user.getRole();
+        System.out.println("role = " + userRoleEnum);
+        if (userRoleEnum != UserRoleEnum.OWNER) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
+        } else {
+            Bean bean = beanRepository.findBybeanName(deleteBeanByCafeRequestDto.getBeanName());
+            if (bean == null) {
+                throw new CustomException(ErrorCode.UNREGISTER_BEAN);
+            }
+           Cafe cafe = cafeRepository.findByCafeNameAndBeanIdAndOwnerId(deleteBeanByCafeRequestDto.getCafeName(), bean.getId(), user.getId());
+           if (cafe == null) {
+               throw new CustomException(ErrorCode.UNREGISTER_BEAN);
+           }
+           cafeRepository.delete(cafe);
+        }
+        return new ResponseEntity<>(new Message("원두 삭제 성공", null), HttpStatus.OK);
+    }
 }
