@@ -1,5 +1,7 @@
 package com.cuping.cupingbe.controller;
 
+import com.cuping.cupingbe.global.util.Message;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,8 +17,8 @@ import lombok.AllArgsConstructor;
 
 	private final KakaoService kakaoService;
 
-	@GetMapping("/oauth/kakao")
-	public String kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+	@GetMapping("/users/oauth/kakao")
+	public ResponseEntity<Message> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
 		return kakaoService.kakaoLogin(code, response);
 	}
 }
