@@ -46,7 +46,6 @@ public class Bean {
 
     public Bean(String imgUrl, AdminPageRequestDto adminPageRequestDto) {
         this.beanName = adminPageRequestDto.getBeanName();
-        this.beanOriginName = adminPageRequestDto.getOrigin() + adminPageRequestDto.getBeanName();
         this.beanImage = imgUrl;
         this.beanSummary = adminPageRequestDto.getBeanSummary();
         this.beanInfo = adminPageRequestDto.getBeanInfo();

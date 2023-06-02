@@ -3,10 +3,9 @@ package com.cuping.cupingbe.service;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import com.cuping.cupingbe.global.util.Message;
+import org.apache.el.parser.Token;
+import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -38,35 +37,24 @@ public class KakaoService {
 	private final JwtUtil jwtUtil;
 	private final RedisUtil redisUtil;
 
-	public String kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+	public ResponseEntity<Message> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
 
 		TokenDto tokenDto = getToken(code);
+		KakaoUserInfoDto kakaoUserInfo = getKakaoUserInfo(tokenDto.getAccessToken());
+		User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
+		String userId = kakaoUser.getUserId();
 
+		tokenDto = jwtUtil.creatAllToken(userId, kakaoUser.getRole());
 		String access_token = tokenDto.getAccessToken();
 		String refresh_token = tokenDto.getRefreshToken();
-
-		KakaoUserInfoDto kakaoUserInfo = getKakaoUserInfo(access_token);
-
-		User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
-
-		if (kakaoUser == null) {
-			tokenDto = jwtUtil.creatAllToken(kakaoUser.getUserId(), kakaoUser.getRole());
-
-			if (redisUtil.get(kakaoUser.getUserId()).isEmpty()) {
-				redisUtil.set(kakaoUser.getUserId(), tokenDto.getRefreshToken(), JwtUtil.REFRESH_TIME);
-				// redis용량 아끼기
-				if (!redisUtil.getBlackList(kakaoUser.getUserId()).equals(""))
-					redisUtil.deleteBlackList(kakaoUser.getUserId());
-			} else {
-				redisUtil.update(kakaoUser.getUserId(), tokenDto.getRefreshToken(), JwtUtil.REFRESH_TIME);
-			}
-
+		if (redisUtil.get(userId).isEmpty()) {
+			redisUtil.set(userId, refresh_token, JwtUtil.REFRESH_TIME);
+		} else {
+			redisUtil.update(userId, refresh_token, JwtUtil.REFRESH_TIME);
 		}
-
-		response.addHeader(JwtUtil.ACCESS_KEY, "Bearer " + tokenDto.getAccessToken());
-		response.addHeader(JwtUtil.REFRESH_KEY, "Bearer " + tokenDto.getRefreshToken());
-
-		return "로그인 성공";
+		response.addHeader(JwtUtil.ACCESS_KEY, "Bearer " + access_token);
+		response.addHeader(JwtUtil.REFRESH_KEY, "Bearer " + refresh_token);
+		return new ResponseEntity<>(new Message("카카오 로그인 성공.", null), HttpStatus.OK);
 	}
 
 	private TokenDto getToken(String code) throws JsonProcessingException {
@@ -77,7 +65,7 @@ public class KakaoService {
 		body.add("grant_type", "authorization_code");
 		body.add("client_id", "826134c9ef39a5b494d322490e0e3abe");
 		body.add("client_secret", "FVhCXvvHBKp8IhcvLIUy3exbWHiHIzMK");
-		body.add("redirect_uri", "http://localhost:8080/oauth/kakao");
+		body.add("redirect_uri", "http://13.209.106.144:8080/oauth/kakao");
 		body.add("code", code);
 
 		HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
@@ -137,15 +125,11 @@ public class KakaoService {
 			} else {
 				String password = UUID.randomUUID().toString();
 				String encodedPassword = passwordEncoder.encode(password);
-
 				String email = kakaoUserInfo.getEmail();
-
 				String image_url = kakaoUserInfo.getProfile_image();
-
-				kakaoUser = new User("", encodedPassword, kakaoUserInfo.getNickname(), UserRoleEnum.USER, kakaoId,
+				kakaoUser = new User(kakaoId.toString(), encodedPassword, kakaoUserInfo.getNickname(), UserRoleEnum.USER, kakaoId,
 					email, image_url);
 			}
-
 			userRepository.save(kakaoUser);
 		}
 		return kakaoUser;
