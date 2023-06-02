@@ -39,4 +39,10 @@ public class AdminPageController {
         return adminPageService.permitCafe(cafeId,userDetails);
     }
 
+    //(관리자페이지)원두 삭제
+    @DeleteMapping("/admin/bean/{beanId}")
+    public ResponseEntity<Message> deleteBean(@PathVariable Long beanId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return adminPageService.deleteBean(beanId, userDetails);
+    }
+
 }
