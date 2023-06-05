@@ -39,17 +39,11 @@ public class User {
 	@Column(nullable = true)
 	private Long kakaoId;
 
-
-
-
 	@Column(nullable = true)
 	private String email;
 
 	@Column(nullable = true)
 	private String profile_image;
-
-	// @Column(nullable =false)
-	// private String kakaoName;
 
 	//일반, 관리자 회원가입
 	public User(String userId,String password,String nickname,UserRoleEnum role){

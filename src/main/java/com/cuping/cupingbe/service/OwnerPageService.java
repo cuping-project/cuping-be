@@ -15,6 +15,7 @@ import com.cuping.cupingbe.s3.S3Uploader;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
@@ -25,10 +26,9 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OwnerPageService {
@@ -43,193 +43,122 @@ public class OwnerPageService {
     @Transactional
     public ResponseEntity<Message> createCafe(OwnerPageRequestDto ownerPageRequestDto, User user) throws Exception {
 
-        //사장 권한이 있는지 확인
-        UserRoleEnum userRoleEnum = user.getRole();
-        System.out.println("role = " + userRoleEnum);
-        if (userRoleEnum != UserRoleEnum.OWNER) {
+        checkCreateCafe(user, ownerPageRequestDto.getStoreAddress());
+        URI uri = UriComponentsBuilder
+                .fromUriString("https://dapi.kakao.com")
+                .path("/v2/local/search/keyword.json")
+                .queryParam("query", ownerPageRequestDto.getStoreAddress())
+                .queryParam("size", 1)
+                .encode()
+                .build()
+                .toUri();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "KakaoAK " + "49244bfa76b071b6bad74b2441b968d7");
+        RequestEntity<Void> req = RequestEntity
+                .get(uri)
+                .headers(headers)
+                .build();
+
+        JsonNode documents = objectMapper.readTree(new RestTemplate()
+                .exchange(req, String.class).getBody()).path("documents");
+
+        //사업자 등록증 SC저장
+        String imgUrl = s3Uploader.upload(ownerPageRequestDto.getAuthImage());
+        String x = documents.get(0).path("x").asText();
+        String y = documents.get(0).path("y").asText();
+        cafeRepository.save(new Cafe(user, ownerPageRequestDto, x, y, imgUrl));
+
+        return new ResponseEntity<>(new Message("가게 등록 성공"), HttpStatus.OK);
+    }
+
+    public void checkCreateCafe(User user, String storeAddress) {
+        userRepository.findByUserId(user.getUserId()).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+        );
+        if (user.getRole() != UserRoleEnum.OWNER)
             throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
-        } else {
-            userRepository.findByUserId(user.getUserId()).orElseThrow(
-                    () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-            );
-            String query = ownerPageRequestDto.getStoreAddress();
-            byte[] bytes = query.getBytes(StandardCharsets.UTF_8);
-            ByteBuffer buffer = ByteBuffer.wrap(bytes);
-            String encode = StandardCharsets.UTF_8.decode(buffer).toString();
-
-            URI uri = UriComponentsBuilder
-                    .fromUriString("https://dapi.kakao.com")
-                    .path("/v2/local/search/keyword.json")
-                    .queryParam("query", encode)
-                    .queryParam("size", 1)
-                    .encode()
-                    .build()
-                    .toUri();
-
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "KakaoAK " + "49244bfa76b071b6bad74b2441b968d7");
-            RequestEntity<Void> req = RequestEntity
-                    .get(uri)
-                    .headers(headers)
-                    .build();
-            ResponseEntity<String> result = restTemplate.exchange(req, String.class);
-            String jsonResponse = result.getBody();
-
-            JsonNode jsonNode = objectMapper.readTree(jsonResponse);
-            JsonNode documents = jsonNode.path("documents");
-
-            for (JsonNode rowNode : documents) { // 데이터를 가져와서 Cafe 엔티티로 매핑하는 작업
-                if (cafeRepository.findByCafeAddress(ownerPageRequestDto.getStoreAddress()).isPresent()) {
-                    throw new CustomException(ErrorCode.DUPLICATE_CAFE);
-                }
-                //사업자 등록증 SC저장
-                String imgUrl = s3Uploader.upload(ownerPageRequestDto.getAuthImage());
-                Cafe cafe = Cafe.builder()
-                        .owner(user)
-                        .cafeAddress(ownerPageRequestDto.getStoreAddress())
-                        .cafePhoneNumber(ownerPageRequestDto.getStoreNumber())
-                        .cafeName(ownerPageRequestDto.getStoreName())
-                        .x(rowNode.path("x").asText())
-                        .y(rowNode.path("y").asText())
-                        .imageUrl(imgUrl)
-                        .build();
-                cafeRepository.save(cafe);
-            }
-            return new ResponseEntity<>(new Message("가게 등록 성공"), HttpStatus.OK);
-        }
+        if (cafeRepository.findByCafeAddress(storeAddress).isPresent())
+            throw new CustomException(ErrorCode.DUPLICATE_CAFE);
     }
 
     //카페 삭제
     @Transactional
     public ResponseEntity<Message> deleteCafe(Long cafeId, User user) throws Exception {
 
-        //사용자 권환 확인 (ADMUN인지 아닌지)
-        UserRoleEnum userRoleEnum2 = user.getRole();
-        System.out.println("role = " + userRoleEnum2);
-        if (userRoleEnum2 == UserRoleEnum.ADMIN) {
-            cafeRepository.findById(cafeId).orElseThrow(
-                    () -> new Exception(ErrorCode.UNREGISTER_CAFE.getDetail())
-            );
-            cafeRepository.deleteById(cafeId);
-            return new ResponseEntity<>(new Message("카페가 삭제 되었습니다."), HttpStatus.OK);
-        }
-        //사장 권한이 있는지 확인
-        UserRoleEnum userRoleEnum = user.getRole();
-        System.out.println("role = " + userRoleEnum);
-        if (userRoleEnum != UserRoleEnum.OWNER) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
-        } else {
-            cafeRepository.findById(cafeId).orElseThrow(
-                    () -> new Exception(ErrorCode.UNREGISTER_CAFE.getDetail())
-            );
-        Cafe cafe = cafeRepository.findByOwnerId(user.getId());
-            if (cafe == null) {
-                    throw  new Exception(ErrorCode.USER_NOT_FOUND.getDetail());
+        UserRoleEnum role = user.getRole();
+        if (role.equals(UserRoleEnum.OWNER) || role.equals(UserRoleEnum.ADMIN)) {
+            userRepository.findByUserId(user.getUserId()).orElseThrow(() ->
+                    new CustomException(ErrorCode.USER_NOT_FOUND));
+            cafeRepository.findById(cafeId).orElseThrow(() ->
+                    new CustomException(ErrorCode.UNREGISTER_CAFE));
+            if (role.equals(UserRoleEnum.OWNER)) {
+                cafeRepository.findByOwnerIdAndId(user.getId(), cafeId).orElseThrow(() ->
+                        new CustomException(ErrorCode.UNAUTHORIZED_OWNER));
             }
             cafeRepository.deleteById(cafeId);
-            return new ResponseEntity<>(new Message("카페가 삭제 되었습니다."), HttpStatus.OK);
         }
+        return new ResponseEntity<>(new Message("카페가 삭제 되었습니다."), HttpStatus.OK);
     }
 
     //사장페이지 카페 조회
-    @Transactional
-    public OwnerResponseTotalDto getCafe(User user) throws Exception {
-        UserRoleEnum userRoleEnum = user.getRole();
-        System.out.println("role = " + userRoleEnum);
-        if (userRoleEnum != UserRoleEnum.OWNER) {
+    public ResponseEntity<Message> getCafe(User user) {
+
+        if (user.getRole() != UserRoleEnum.OWNER) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
-        } else {
-            List<Cafe> cafeList = cafeRepository.findAllByOwnerId(user.getId());
-            if (cafeList == null) {
-                throw new Exception(ErrorCode.UNREGISTER_CAFE.getDetail());
-            }
-            Map<String, OwnerResponseDto> cafeMap = new HashMap<>();
-            for (Cafe cafe : cafeList) {
-                if (cafe.getPermit()) {
-                    if (cafe.getBean() != null) {
-                        String cafeName = cafe.getCafeName();
-                        OwnerResponseDto ownerResponseDto = cafeMap.get(cafeName);
-                        if (ownerResponseDto == null) {
-                            ownerResponseDto = new OwnerResponseDto(cafe);
-                            cafeMap.put(cafeName, ownerResponseDto);
-                        }
-                        Bean bean = cafe.getBean();
-                        if (bean != null) {
-                            ownerResponseDto.getBeans().add(bean);
-                        }
-                    }
-                }
-            }
-            List<OwnerResponseDto> ownerResponseDtoList = new ArrayList<>(cafeMap.values());
-
-            List<Cafe> cafeList2 = cafeRepository.findAllByOwnerId(user.getId());
-            if (cafeList2 == null) {
-                throw new Exception(ErrorCode.UNREGISTER_CAFE.getDetail());
-            }
-            List<OwnerResponseDto2> ownerResponseDto2List = new ArrayList<>();
-            for (Cafe cafe : cafeList2) {
-                if (cafe.getPermit()) {
-                    boolean temp = false;
-                    if (cafe.getBean() == null) {
-                        for (OwnerResponseDto dto : ownerResponseDtoList) {
-                            if (cafe.getCafeName().equals(dto.getCafeName())) {
-                                temp = true;
-                                break;
-                            }
-                        }
-                        if (!temp) {
-                            ownerResponseDto2List.add(new OwnerResponseDto2(cafe, cafe.getBean()));
-                        }
-                    }
-                }
-            }
-
-            OwnerResponseTotalDto ownerResponseTotalDto = new OwnerResponseTotalDto(ownerResponseDtoList, ownerResponseDto2List);
-            return ownerResponseTotalDto;
         }
+        List<Cafe> cafeList = cafeRepository.findAllByOwnerId(user.getId());
+        if (cafeList == null) {
+            throw new CustomException(ErrorCode.CAFE_NOT_FOUND);
+        }
+
+        Map<String, OwnerResponseDto> cafeMap = new HashMap<>();
+        for (Cafe cafe : cafeList) {
+            String cafeAddress = cafe.getCafeAddress();
+            OwnerResponseDto ownerResponseDto = cafeMap.get(cafeAddress);
+            if (ownerResponseDto == null) {
+                ownerResponseDto = new OwnerResponseDto(cafe);
+                cafeMap.put(cafeAddress, ownerResponseDto);
+            }
+            Bean bean = cafe.getBean();
+            if (bean != null) {
+                ownerResponseDto.getBeans().add(bean);
+            }
+        }
+        return new ResponseEntity<>(new Message("사장 카페 조회.", cafeMap), HttpStatus.OK);
     }
 
-
-
     //(사장페이지) 카페에 원두 등록
-    @Transactional
-    public ResponseEntity<Message> addBeanByCafe(Long cafeid, AddBeanByCafeRequestDto addBeanByCafeRequestDto, User user) {
-        UserRoleEnum userRoleEnum = user.getRole();
-        System.out.println("role = " + userRoleEnum);
-        if (userRoleEnum != UserRoleEnum.OWNER) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
-        } else {
-            Cafe cafe = cafeRepository.findById(cafeid).orElseThrow(
-                    () -> new CustomException(ErrorCode.UNREGISTER_CAFE)
-            );
-            Bean bean = beanRepository.findBybeanName(addBeanByCafeRequestDto.getBeanName());
-            if (bean == null) throw new CustomException(ErrorCode.UNREGISTER_BEAN);
+    public ResponseEntity<Message> addBeanByCafe(BeanByCafeRequestDto requestDto, User user) {
 
-            Cafe newCafe = new Cafe(user, cafe.getCafeAddress(), cafe.getCafePhoneNumber(), cafe.getCafeName(), cafe.getX(), cafe.getY(), cafe.getImageUrl(), cafe.getPermit(), bean);
-            cafeRepository.save(newCafe);
-                return new ResponseEntity<>(new Message("카페에 원두가 등록되었습니다."), HttpStatus.OK);
-            }
+        if (!user.getRole().equals(UserRoleEnum.OWNER)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
+        }
+        Bean bean = beanRepository.findByBeanOriginNameAndRoastingLevel(
+                requestDto.getBeanOrigin() + requestDto.getBeanName(), requestDto.getBeanRoastingLevel()).orElseThrow(() ->
+                new CustomException(ErrorCode.UNREGISTER_BEAN));
+
+        Cafe cafe = cafeRepository.findFirstByCafeAddressAndOwnerId(requestDto.getCafeAddress(), user.getId()).orElseThrow(() ->
+                new CustomException(ErrorCode.UNREGISTER_CAFE));
+
+        cafeRepository.save(new Cafe(user, cafe, bean));
+            return new ResponseEntity<>(new Message("카페에 원두가 등록되었습니다.", null), HttpStatus.OK);
         }
 
     //(사장페이지) 카페에 등록된 원두 삭제
-    @Transactional
-    public ResponseEntity<Message> deleteBeanByCafe(DeleteBeanByCafeRequestDto deleteBeanByCafeRequestDto, User user) {
-        UserRoleEnum userRoleEnum = user.getRole();
-        System.out.println("role = " + userRoleEnum);
-        if (userRoleEnum != UserRoleEnum.OWNER) {
+    public ResponseEntity<Message> deleteBeanByCafe(BeanByCafeRequestDto requestDto, User user) {
+
+        if (!user.getRole().equals(UserRoleEnum.OWNER)) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
-        } else {
-            Bean bean = beanRepository.findBybeanName(deleteBeanByCafeRequestDto.getBeanName());
-            if (bean == null) {
-                throw new CustomException(ErrorCode.UNREGISTER_BEAN);
-            }
-           Cafe cafe = cafeRepository.findByCafeNameAndBeanIdAndOwnerId(deleteBeanByCafeRequestDto.getCafeName(), bean.getId(), user.getId());
-           if (cafe == null) {
-               throw new CustomException(ErrorCode.UNREGISTER_BEAN);
-           }
-           cafeRepository.delete(cafe);
         }
+        Bean bean = beanRepository.findByBeanOriginNameAndRoastingLevel(
+                requestDto.getBeanOrigin() + requestDto.getBeanName(), requestDto.getBeanRoastingLevel()).orElseThrow(() ->
+                new CustomException(ErrorCode.UNREGISTER_BEAN));
+
+        Cafe cafe = cafeRepository.findByCafeAddressAndBeanIdAndOwnerId(requestDto.getCafeAddress(), bean.getId(), user.getId()).orElseThrow(() ->
+                new CustomException(ErrorCode.UNREGISTER_CAFE));
+
+        cafeRepository.delete(cafe);
         return new ResponseEntity<>(new Message("원두 삭제 성공", null), HttpStatus.OK);
     }
 }

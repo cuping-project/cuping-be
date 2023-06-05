@@ -12,11 +12,11 @@ import java.util.Optional;
 public interface CafeRepository extends JpaRepository<Cafe, Long> {
     //승인되지 않은 카페 전체 조회
     List<Cafe> findAllByPermit(boolean b);
-    List<Cafe> findByBeanAndCafeAddressContaining(Bean bean, String address);
-    Cafe findByOwnerId(Long ownerId);
+    List<Cafe> findByBeanAndCafeAddressContaining(Bean bean, String cafeAddress);
     //사장페이지 카페 조회
     List<Cafe> findAllByOwnerId(Long id);
-    Optional<Object> findByCafeAddress(String storeAddress);
-    //사장페이지 카페에 등록된 원두 삭제
-    Cafe findByCafeNameAndBeanIdAndOwnerId(String cafeName, Long id, Long userId);
+    Optional<Cafe> findByCafeAddress(String cafeAddress);
+    Optional<Cafe> findFirstByCafeAddressAndOwnerId(String cafeAddress, Long userId);
+    Optional<Cafe> findByCafeAddressAndBeanIdAndOwnerId(String cafeAddress, Long beanId, Long userId);
+    Optional<Cafe> findByOwnerIdAndId(Long ownerId, Long cafeId);
 }

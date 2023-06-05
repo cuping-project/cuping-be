@@ -1,6 +1,7 @@
 package com.cuping.cupingbe.service;
 
 import com.cuping.cupingbe.dto.*;
+import jakarta.servlet.http.Cookie;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -61,16 +62,16 @@ public class MemberService {
 		return new ResponseEntity<>(new Message("회원가입 성공", null), HttpStatus.OK);
 	}
 
-	public ResponseEntity<Message> checkId(Map<String, String> userId) {
+	public ResponseEntity<Message> duplicateCheckId(Map<String, String> userId) {
 		if (userRepository.findByUserId(userId.get("userId")).isPresent())
 			throw new CustomException(ErrorCode.DUPLICATE_IDENTIFIER);
-		return new ResponseEntity<>(new Message("사용가능한 아이디입니다.", null), HttpStatus.OK);
+		return new ResponseEntity<>(new Message("사용 가능한 아이디입니다.", null), HttpStatus.OK);
 	}
 
-	public ResponseEntity<Message> checkNickname(Map<String, String> nickname) {
-		if (userRepository.findByUserId(nickname.get("nickname")).isPresent())
+	public ResponseEntity<Message> duplicateCheckNickname(Map<String, String> nickname) {
+		if (userRepository.findByNickname(nickname.get("nickname")).isPresent())
 			throw new CustomException(ErrorCode.DUPLICATE_IDENTIFIER);
-		return new ResponseEntity<>(new Message("사용가능한 닉네임입니다.", null), HttpStatus.OK);
+		return new ResponseEntity<>(new Message("사용 가능한 닉네임입니다.", null), HttpStatus.OK);
 	}
 
 	public ResponseEntity<Message> login(MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response){

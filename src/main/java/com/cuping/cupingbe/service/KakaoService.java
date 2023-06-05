@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.cuping.cupingbe.global.util.Message;
+import jakarta.servlet.http.Cookie;
 import org.apache.el.parser.Token;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,13 +38,15 @@ public class KakaoService {
 	private final JwtUtil jwtUtil;
 	private final RedisUtil redisUtil;
 
-	public ResponseEntity<Message> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+	public void kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
 
 		TokenDto tokenDto = getToken(code);
 		KakaoUserInfoDto kakaoUserInfo = getKakaoUserInfo(tokenDto.getAccessToken());
 		User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
 		String userId = kakaoUser.getUserId();
 
+		if (userId != null)
+			throw new IllegalArgumentException();
 		tokenDto = jwtUtil.creatAllToken(userId, kakaoUser.getRole());
 		String access_token = tokenDto.getAccessToken();
 		String refresh_token = tokenDto.getRefreshToken();
@@ -52,9 +55,10 @@ public class KakaoService {
 		} else {
 			redisUtil.update(userId, refresh_token, JwtUtil.REFRESH_TIME);
 		}
-		response.addHeader(JwtUtil.ACCESS_KEY, "Bearer " + access_token);
-		response.addHeader(JwtUtil.REFRESH_KEY, "Bearer " + refresh_token);
-		return new ResponseEntity<>(new Message("카카오 로그인 성공.", null), HttpStatus.OK);
+		Cookie accessCookie = jwtUtil.createCookie(JwtUtil.ACCESS_KEY, access_token);
+		Cookie refreshCookie = jwtUtil.createCookie(JwtUtil.REFRESH_KEY, refresh_token);
+		response.addCookie(accessCookie);
+		response.addCookie(refreshCookie);
 	}
 
 	private TokenDto getToken(String code) throws JsonProcessingException {
@@ -65,7 +69,8 @@ public class KakaoService {
 		body.add("grant_type", "authorization_code");
 		body.add("client_id", "826134c9ef39a5b494d322490e0e3abe");
 		body.add("client_secret", "FVhCXvvHBKp8IhcvLIUy3exbWHiHIzMK");
-		body.add("redirect_uri", "http://13.209.106.144:8080/oauth/kakao");
+		body.add("redirect_uri", "http://13.209.106.144:8080/users/oauth/kakao");
+//		body.add("redirect_uri", "http://localhost:8080/oauth/kakao");
 		body.add("code", code);
 
 		HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
@@ -123,6 +128,7 @@ public class KakaoService {
 				kakaoUser = sameEmailUser;
 				kakaoUser = kakaoUser.kakaoIdUpdate(kakaoId);
 			} else {
+				// 이메일에
 				String password = UUID.randomUUID().toString();
 				String encodedPassword = passwordEncoder.encode(password);
 				String email = kakaoUserInfo.getEmail();

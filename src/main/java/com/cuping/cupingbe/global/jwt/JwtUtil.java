@@ -4,6 +4,9 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
+import com.cuping.cupingbe.global.exception.CustomException;
+import com.cuping.cupingbe.global.exception.ErrorCode;
+import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,11 +40,10 @@ public class JwtUtil {
 	public static final String AUTHORIZATION_KEY = "auth";
 	private static final String BEARER_PREFIX = "Bearer ";
 	private final UserDetailsServiceImpl userDetailsService;
-
 	public static final String ACCESS_KEY = "ACCESS_KEY";
 	public static final String REFRESH_KEY = "REFRESH_KEY";
-	public static final long ACCESS_TIME = 60 * 60 * 1000L;
-	public static final long REFRESH_TIME = 60 * 60 * 24 * 1000L;
+	public static final long ACCESS_TIME = 60 * 30 * 1000L;
+	public static final long REFRESH_TIME = 60 * 60 * 24 * 14 * 1000L;
 
 
 	@Value("${jwt.secret.key}")
@@ -77,16 +79,17 @@ public class JwtUtil {
 		else
 			return false;
 	}
+
 	// 토큰 생성
 	public String createToken(String username, UserRoleEnum role, String tokenName) {
 		Date date = new Date();
-		long tokenType = tokenName.equals("Access") ? ACCESS_TIME : REFRESH_TIME;
+		long tokenTime = tokenName.equals("Access") ? ACCESS_TIME : REFRESH_TIME;
 
 		return BEARER_PREFIX +
 			Jwts.builder()
 				.setSubject(username)
 				.claim(AUTHORIZATION_KEY, role)
-				.setExpiration(new Date(date.getTime() + tokenType))
+				.setExpiration(new Date(date.getTime() + tokenTime))
 				.setIssuedAt(date)
 				.signWith(key, signatureAlgorithm)
 				.compact();
@@ -147,5 +150,13 @@ public class JwtUtil {
 		Date now = new Date();
 		long diff = (expirationDate.getTime() - now.getTime()) / 1000;
 		return diff;
+	}
+
+	public Cookie createCookie(String name, String value) {
+		long tokenTime = name.equals(ACCESS_KEY) ? ACCESS_TIME : REFRESH_TIME;
+		Cookie cookie = new Cookie(name, value.replace("", "%"));
+		cookie.setPath("/");
+		cookie.setMaxAge((int)tokenTime);
+		return cookie;
 	}
 }
