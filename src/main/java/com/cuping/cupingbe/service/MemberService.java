@@ -38,17 +38,7 @@ public class MemberService {
 
 	public ResponseEntity<Message> signup(String type, MemberSignupRequestDto requestDto) throws Exception {
 
-		UserRoleEnum role;
-		switch (type) {
-			case "user" -> role = UserRoleEnum.USER;
-			case "admin" -> {
-				role = UserRoleEnum.ADMIN;
-				if (!jwtUtil.checkAdminKey(requestDto.getAdminKey()))
-					throw new CustomException(ErrorCode.INVALID_ADMIN_KEY);
-			}
-			case "owner" -> role = UserRoleEnum.OWNER;
-			default -> throw new CustomException(ErrorCode.INVALID_TYPE);
-		}
+		UserRoleEnum role = checkType(type, requestDto.getAdminKey());
 		User user = new User(requestDto.getUserId(),
 				passwordEncoder.encode(requestDto.getPassword()),
 				requestDto.getNickname(), role);
@@ -59,6 +49,21 @@ public class MemberService {
 					, requestDto.getAuthImage()), user);
 		}
 		return new ResponseEntity<>(new Message("회원가입 성공", null), HttpStatus.OK);
+	}
+
+	public UserRoleEnum checkType(String type, String adminKey) {
+		UserRoleEnum role;
+		switch (type) {
+			case "user" -> role = UserRoleEnum.USER;
+			case "admin" -> {
+				role = UserRoleEnum.ADMIN;
+				if (!jwtUtil.checkAdminKey(adminKey))
+					throw new CustomException(ErrorCode.INVALID_ADMIN_KEY);
+			}
+			case "owner" -> role = UserRoleEnum.OWNER;
+			default -> throw new CustomException(ErrorCode.INVALID_TYPE);
+		}
+		return role;
 	}
 
 	public ResponseEntity<Message> duplicateCheckId(Map<String, String> userId) {
