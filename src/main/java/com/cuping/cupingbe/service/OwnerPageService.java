@@ -83,6 +83,7 @@ public class OwnerPageService {
     }
 
     //카페 삭제
+    @Transactional
     public ResponseEntity<Message> deleteCafe(Long cafeId, User user) throws Exception {
 
         UserRoleEnum role = user.getRole();
@@ -142,7 +143,6 @@ public class OwnerPageService {
 
         cafeRepository.save(new Cafe(user, cafe, bean));
             return new ResponseEntity<>(new Message("카페에 원두가 등록되었습니다.", null), HttpStatus.OK);
-
         }
 
     //(사장페이지) 카페에 등록된 원두 삭제

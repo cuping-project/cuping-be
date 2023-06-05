@@ -87,4 +87,22 @@ public class AdminPageService {
             return responseEntity;
         }
     }
+
+    @Transactional
+    public ResponseEntity<Message> deleteBean(Long beanId, UserDetailsImpl userDetails) {
+        //관리자 권한이 있는지 확인
+        UserRoleEnum userRoleEnum = userDetails.getUser().getRole();
+        System.out.println("role = " + userRoleEnum);
+        if (userRoleEnum != UserRoleEnum.ADMIN) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
+        } else {
+           Bean bean = beanRepository.findById(beanId).orElseThrow(
+                    () ->  new CustomException(ErrorCode.UNREGISTER_BEAN)
+            );
+            beanRepository.delete(bean);
+            Message message = new Message("원두 삭제 성공");
+            ResponseEntity<Message> responseEntity = new ResponseEntity<>(message, HttpStatus.OK);
+            return responseEntity;
+        }
+    }
 }
