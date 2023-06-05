@@ -60,7 +60,9 @@ public class WebSecurityConfig {
             "/users/checkId",
             "/users/checkNickname",
             "/users/oauth/kakao",
-            "/main"
+            "/main/beans",
+            "/main/beans/search",
+            "/main/bean/{cardId}"
     };
 
 
