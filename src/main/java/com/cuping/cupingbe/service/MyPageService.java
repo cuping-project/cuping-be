@@ -1,16 +1,16 @@
 package com.cuping.cupingbe.service;
 
-import com.cuping.cupingbe.dto.MypageDto;
+import com.cuping.cupingbe.dto.MyPageDto;
 import com.cuping.cupingbe.dto.UserUpdateRequestDto;
 import com.cuping.cupingbe.entity.Likes;
 import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.global.exception.CustomException;
 import com.cuping.cupingbe.global.exception.ErrorCode;
+import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.LikesRepository;
 import com.cuping.cupingbe.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,14 +28,7 @@ public class MyPageService {
     private LikesRepository likesRepository;
     private PasswordEncoder passwordEncoder;
 
-    public ResponseEntity<MypageDto> getUserById(String userId) {
-        User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new NoSuchElementException("유저를 찾지 못하였습니다."));
-        MypageDto myPageDTO = new MypageDto();
-
-        myPageDTO.setUserId(user.getUserId());
-        myPageDTO.setNickname(user.getNickname());
-        myPageDTO.setPassword(user.getPassword());
+    public ResponseEntity<Message> getUserById(User user) {
 
         // 유저가 누른 좋아요를 갖고옴
         List<Likes> likes = likesRepository.findAllByUser(user);
@@ -45,15 +37,12 @@ public class MyPageService {
                 .filter(Likes::isLikeStatus)
                 .map(like -> like.getBean().getId())
                 .collect(Collectors.toList());
-        myPageDTO.setHeartList(heartList);
-
-        return new ResponseEntity<>(myPageDTO, HttpStatus.OK);
+        MyPageDto myPageDto = new MyPageDto(user, heartList);
+        return new ResponseEntity<>(new Message("마이페이지.", myPageDto), HttpStatus.OK);
     }
 
     @Transactional
-    public void updateUser(String userId, UserUpdateRequestDto requestDto) {
-        User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new NoSuchElementException("유저를 찾지 못하였습니다."));
+    public void updateUser(User user, UserUpdateRequestDto requestDto) {
 
         // 현재 비밀번호 확인
         String currentPassword = requestDto.getCurrentPassword();

@@ -36,28 +36,27 @@ public class MemberService {
 	private final JwtUtil jwtUtil;
 	private final RedisUtil redisUtil;
 
-	public ResponseEntity<Message> signup(String type, MemberSignupRequestDto memberSignupRequestDto) throws Exception {
+	public ResponseEntity<Message> signup(String type, MemberSignupRequestDto requestDto) throws Exception {
 
 		UserRoleEnum role;
-		if (type.equals("user")) {
-			role = UserRoleEnum.USER;
-		} else if (type.equals("admin")) {
-			role = UserRoleEnum.ADMIN;
-			if (!jwtUtil.checkAdminKey(memberSignupRequestDto.getAdminKey()))
-				throw new CustomException(ErrorCode.INVALID_ADMIN_KEY);
-		} else if (type.equals("owner")) {
-			role = UserRoleEnum.OWNER;
-		} else {
-			throw new CustomException(ErrorCode.INVALID_TYPE);
+		switch (type) {
+			case "user" -> role = UserRoleEnum.USER;
+			case "admin" -> {
+				role = UserRoleEnum.ADMIN;
+				if (!jwtUtil.checkAdminKey(requestDto.getAdminKey()))
+					throw new CustomException(ErrorCode.INVALID_ADMIN_KEY);
+			}
+			case "owner" -> role = UserRoleEnum.OWNER;
+			default -> throw new CustomException(ErrorCode.INVALID_TYPE);
 		}
-		User user = new User(memberSignupRequestDto.getUserId(),
-				passwordEncoder.encode(memberSignupRequestDto.getPassword()),
-				memberSignupRequestDto.getNickname(), role);
+		User user = new User(requestDto.getUserId(),
+				passwordEncoder.encode(requestDto.getPassword()),
+				requestDto.getNickname(), role);
 		userRepository.save(user);
 		if (type.equals("owner")) {
-			ownerPageService.createCafe(new OwnerPageRequestDto(memberSignupRequestDto.getStoreName()
-					, memberSignupRequestDto.getStoreAddress(), memberSignupRequestDto.getStoreNumber()
-					, memberSignupRequestDto.getAuthImage()), user);
+			ownerPageService.createCafe(new OwnerPageRequestDto(requestDto.getStoreName()
+					, requestDto.getStoreAddress(), requestDto.getStoreNumber()
+					, requestDto.getAuthImage()), user);
 		}
 		return new ResponseEntity<>(new Message("회원가입 성공", null), HttpStatus.OK);
 	}
@@ -70,7 +69,7 @@ public class MemberService {
 
 	public ResponseEntity<Message> duplicateCheckNickname(Map<String, String> nickname) {
 		if (userRepository.findByNickname(nickname.get("nickname")).isPresent())
-			throw new CustomException(ErrorCode.DUPLICATE_IDENTIFIER);
+			throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
 		return new ResponseEntity<>(new Message("사용 가능한 닉네임입니다.", null), HttpStatus.OK);
 	}
 
