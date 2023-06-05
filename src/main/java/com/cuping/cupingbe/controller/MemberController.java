@@ -34,11 +34,11 @@ public class MemberController {
 		return memberService.signup("owner", memberSignupRequestDto);
 	}
 
-	@GetMapping("/checkId")
+	@PostMapping("/checkId")
 	public ResponseEntity<Message> checkId(@RequestBody Map<String, String> userId) {
 		return memberService.duplicateCheckId(userId);
 	}
-	@GetMapping("/checkNickname")
+	@PostMapping("/checkNickname")
 	public ResponseEntity<Message> checkNickname(@RequestBody Map<String, String> nickname) {
 		return memberService.duplicateCheckNickname(nickname);
 	}
