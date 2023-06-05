@@ -13,7 +13,6 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class OwnerResponseDto {
-    private Long Id;
     private String cafeAddress;
     private String cafePhoneNumber;
     private String cafeName;
@@ -22,7 +21,6 @@ public class OwnerResponseDto {
     private Boolean permit;
     private List<Bean> beans;
     public OwnerResponseDto(Cafe cafe) {
-        this.Id = cafe.getId();
         this.cafeAddress = cafe.getCafeAddress();
         this.cafePhoneNumber = cafe.getCafePhoneNumber();
         this.cafeName = cafe.getCafeName();

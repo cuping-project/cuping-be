@@ -36,11 +36,11 @@ public class MemberController {
 
 	@GetMapping("/checkId")
 	public ResponseEntity<Message> checkId(@RequestBody Map<String, String> userId) {
-		return memberService.checkId(userId);
+		return memberService.duplicateCheckId(userId);
 	}
 	@GetMapping("/checkNickname")
 	public ResponseEntity<Message> checkNickname(@RequestBody Map<String, String> nickname) {
-		return memberService.checkNickname(nickname);
+		return memberService.duplicateCheckNickname(nickname);
 	}
 	@PostMapping("/login")
 	public ResponseEntity<Message> login(@RequestBody MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response) {

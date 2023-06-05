@@ -52,6 +52,17 @@ public class WebSecurityConfig {
         "/swagger-ui/**"
     };
 
+    public static final String[] PERMIT_URI = {
+            "/users/signup/user",
+            "/users/signup/owner",
+            "/users/signup/admin",
+            "/users/login",
+            "/users/checkId",
+            "/users/checkNickname",
+            "/users/oauth/kakao",
+            "/main"
+    };
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -74,25 +85,17 @@ public class WebSecurityConfig {
         // 기본 설정인 Session 방식은 사용하지 않고 JWT 방식을 사용하기 위한 설정
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        http.authorizeHttpRequests()
-            // login 없이 허용하는 페이지
-            //                .requestMatchers("/api/posts/**").permitAll()
-            .requestMatchers("/**").permitAll()
-            // .requestMatchers("/signup").permitAll()
-            // .requestMatchers("/login").permitAll()
-            // .requestMatchers( "/api/posts/**").permitAll()
-            // .requestMatchers(HttpMethod.GET, "/api/read/**").permitAll()
-            .requestMatchers(PERMIT_URL_ARRAY).permitAll()
-            .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+        http.authorizeHttpRequests((authz) -> authz
+                // login 없이 허용하는 페이지
+                .requestMatchers(PERMIT_URI).permitAll()
+                .requestMatchers(PERMIT_URL_ARRAY).permitAll()
+                .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
 
-            // 어떤 요청이든 '인증'
-            .anyRequest().authenticated()
-            // JWT 인증/인가를 사용하기 위한 설정
-            .and().addFilterBefore(new JwtAuthFilter(jwtUtil,userRepository), UsernamePasswordAuthenticationFilter.class)
-            .cors();
-
-        // http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-        //     .addFilterAfter(jwtAuthFilter, ExceptionTranslationFilter.class);
+                // 어떤 요청이든 '인증'
+                .anyRequest().authenticated()
+                // JWT 인증/인가를 사용하기 위한 설정
+                .and().addFilterBefore(new JwtAuthFilter(jwtUtil,userRepository), UsernamePasswordAuthenticationFilter.class)
+        );
 
         return http.build();
     }

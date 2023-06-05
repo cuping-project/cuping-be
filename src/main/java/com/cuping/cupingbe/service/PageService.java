@@ -28,7 +28,7 @@ public class PageService {
         String origin = searchValue.get("origin");
         String flavor = searchValue.get("flavor");
 
-        if (roastingLevel.equals(origin) && origin.equals(flavor)) {
+        if ("*".equals(roastingLevel) && roastingLevel.equals(origin) && origin.equals(flavor)) {
             return new ResponseEntity<>(new Message("findAll", beanRepository.findAll()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Message("findFilter", beanRepository.findByRoastingLevelOrOriginOrFlavor(

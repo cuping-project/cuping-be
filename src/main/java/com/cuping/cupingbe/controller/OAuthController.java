@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 @AllArgsConstructor public class OAuthController {
@@ -18,7 +19,10 @@ import lombok.AllArgsConstructor;
 	private final KakaoService kakaoService;
 
 	@GetMapping("/users/oauth/kakao")
-	public ResponseEntity<Message> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-		return kakaoService.kakaoLogin(code, response);
+	public RedirectView kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+		kakaoService.kakaoLogin(code, response);
+		RedirectView redirectView = new RedirectView();
+		redirectView.setUrl("http://cuping.net");
+		return redirectView;
 	}
 }

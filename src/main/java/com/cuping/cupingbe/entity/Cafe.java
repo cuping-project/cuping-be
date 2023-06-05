@@ -1,5 +1,6 @@
 package com.cuping.cupingbe.entity;
 
+import com.cuping.cupingbe.dto.OwnerPageRequestDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -42,28 +43,26 @@ public class Cafe {
     @Column
     private String imageUrl;
 
-    @Builder
-    public Cafe (User owner, String cafeAddress, String cafePhoneNumber, String cafeName, String x, String y, String imageUrl) {
+    public Cafe(User owner, Cafe cafe, Bean bean) {
         this.owner = owner;
-        this.cafeAddress = cafeAddress;
-        this.cafePhoneNumber = cafePhoneNumber;
-        this.cafeName = cafeName;
-        this.x = x;
-        this.y = y;
-        this.imageUrl = imageUrl;
+        this.cafeAddress = cafe.getCafeAddress();
+        this.cafePhoneNumber = cafe.getCafePhoneNumber();
+        this.cafeName = cafe.getCafeName();
+        this.x = cafe.getX();
+        this.y = cafe.getY();
+        this.imageUrl = cafe.getImageUrl();
+        this.permit = cafe.getPermit();
+        this.bean = bean;
     }
 
-
-    public Cafe (User owner, String cafeAddress, String cafePhoneNumber, String cafeName, String x, String y, String imageUrl, Boolean permit,Bean bean) {
-        this.owner = owner;
-        this.cafeAddress = cafeAddress;
-        this.cafePhoneNumber = cafePhoneNumber;
-        this.cafeName = cafeName;
+    public Cafe(User user, OwnerPageRequestDto ownerPageRequestDto, String x, String y, String imgUrl) {
+        this.owner = user;
+        this.cafeAddress = ownerPageRequestDto.getStoreAddress();
+        this.cafePhoneNumber = ownerPageRequestDto.getStoreNumber();
+        this.cafeName = ownerPageRequestDto.getStoreName();
         this.x = x;
         this.y = y;
-        this.imageUrl = imageUrl;
-        this.permit = permit;
-        this.bean = bean;
+        this.imageUrl = imgUrl;
     }
 
     public void setPermit(boolean b) {

@@ -6,7 +6,6 @@ import com.cuping.cupingbe.global.security.UserDetailsImpl;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.service.AdminPageService;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.Parameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class AdminPageController {
+public class AdminController {
 
     private final AdminPageService adminPageService;
 
@@ -28,7 +27,7 @@ public class AdminPageController {
     }
 
     //(관리자페이지)승인되지 않은 카페 조회
-    @GetMapping("/adminpage")
+    @GetMapping("/admin")
     public List<AdminPageResponseDto> getNotPermitCafe(@AuthenticationPrincipal UserDetailsImpl userDetails){
         return adminPageService.getPermitCafe(userDetails);
     }
