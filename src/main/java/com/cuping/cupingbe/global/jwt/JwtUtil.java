@@ -74,10 +74,7 @@ public class JwtUtil {
 	}
 
 	public boolean checkAdminKey(String adminKey) {
-		if (secretKey.equals(adminKey))
-			return true;
-		else
-			return false;
+		return secretKey.equals(adminKey);
 	}
 
 	// 토큰 생성
