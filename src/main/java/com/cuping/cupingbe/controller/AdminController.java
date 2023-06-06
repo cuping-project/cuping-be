@@ -44,4 +44,9 @@ public class AdminController {
         return adminPageService.deleteBean(beanId, userDetails);
     }
 
+    //(관리자페이지) 원두 전체 조회
+    @GetMapping("/admin/bean")
+    public ResponseEntity<Message> findAllBean(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return adminPageService.findAllBean(userDetails.getUser());
+    }
 }

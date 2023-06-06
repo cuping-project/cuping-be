@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -35,7 +36,10 @@ public class S3Uploader {
     public boolean delete(String fileUrl) {
         try {
             String[] temp = fileUrl.split("/");
-            String fileKey = temp[temp.length-1];
+            String[] temp2 = temp[temp.length-1].split("_");
+            String decodedString = URLDecoder.decode(temp2[temp2.length-1] , "UTF-8");
+            String fileKey = "cuping-image/" + temp2[temp2.length-2] + "_" + decodedString;
+
             amazonS3.deleteObject(bucket, fileKey);
             return true;
         } catch (Exception e) {
