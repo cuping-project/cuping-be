@@ -48,7 +48,7 @@ public class MemberController {
 	}
 
 	@PostMapping("/logout")
-	public ResponseEntity<Message>logout(@AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletResponse response) {
-		return memberService.logout(userDetails.getUser(), response);
+	public ResponseEntity<Message>logout(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		return memberService.logout(userDetails.getUser());
 	}
 }

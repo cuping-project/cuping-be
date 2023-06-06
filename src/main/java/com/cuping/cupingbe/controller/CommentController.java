@@ -8,6 +8,7 @@ import com.cuping.cupingbe.dto.CommentUpdateRequestDto;
 import com.cuping.cupingbe.entity.Comment;
 import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.global.security.UserDetailsImpl;
+import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,20 +24,20 @@ public class CommentController {
 
     //댓글 작성
     @PostMapping("/comment/{beanId}")
-    public ResponseEntity<CommentResponseDto> addComment(@PathVariable Long beanId, @RequestBody CommentRequestDto commentRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<Message> addComment(@PathVariable Long beanId, @RequestBody CommentRequestDto commentRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails){
         return commentService.addComment(beanId, commentRequestDto, userDetails.getUser());
     }
 
     //댓글 수정
     @PutMapping("/comment/{id}")
-    public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Long id, @RequestBody CommentUpdateRequestDto commentUpdateRequestDto, @AuthenticationPrincipal User user){
+    public ResponseEntity<Message> updateComment(@PathVariable Long id, @RequestBody CommentUpdateRequestDto commentUpdateRequestDto, @AuthenticationPrincipal User user){
         commentUpdateRequestDto.setId(id);
         return commentService.updateComment(commentUpdateRequestDto, user);
     }
 
     //댓글 삭제
     @DeleteMapping("/comment/{id}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<Message> deleteComment(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails){
         CommentDeleteRequestDto commentDeleteRequestDto = new CommentDeleteRequestDto();
         commentDeleteRequestDto.setId(id);
         return commentService.deleteComment(commentDeleteRequestDto, userDetails.getUser());

@@ -4,9 +4,8 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
-import com.cuping.cupingbe.global.exception.CustomException;
-import com.cuping.cupingbe.global.exception.ErrorCode;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,18 +38,17 @@ public class JwtUtil {
 	public static final String AUTHORIZATION_HEADER = "Authorization";
 	public static final String AUTHORIZATION_KEY = "auth";
 	private static final String BEARER_PREFIX = "Bearer ";
-	private final UserDetailsServiceImpl userDetailsService;
 	public static final String ACCESS_KEY = "ACCESS_KEY";
 	public static final String REFRESH_KEY = "REFRESH_KEY";
 	public static final long ACCESS_TIME = 60 * 30 * 1000L;
 	public static final long REFRESH_TIME = 60 * 60 * 24 * 14 * 1000L;
+	private final UserDetailsServiceImpl userDetailsService;
 
 
 	@Value("${jwt.secret.key}")
 	private String secretKey;
 	private Key key;
 	private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
-
 	private final RedisUtil redisUtil;
 
 	public TokenDto creatAllToken(String username, UserRoleEnum userRole){
@@ -155,5 +153,12 @@ public class JwtUtil {
 		cookie.setPath("/");
 		cookie.setMaxAge((int)tokenTime);
 		return cookie;
+	}
+
+	public void setCookies(HttpServletResponse response, TokenDto tokenDto) {
+		Cookie accessCookie = createCookie(JwtUtil.ACCESS_KEY, tokenDto.getAccessToken());
+		Cookie refreshCookie = createCookie(JwtUtil.REFRESH_KEY, tokenDto.getRefreshToken());
+		response.addCookie(accessCookie);
+		response.addCookie(refreshCookie);
 	}
 }

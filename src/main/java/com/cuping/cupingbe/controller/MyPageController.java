@@ -1,9 +1,6 @@
 package com.cuping.cupingbe.controller;
 
-import com.cuping.cupingbe.dto.MyPageDto;
 import com.cuping.cupingbe.dto.UserUpdateRequestDto;
-import com.cuping.cupingbe.global.exception.CustomException;
-import com.cuping.cupingbe.global.exception.ErrorCode;
 import com.cuping.cupingbe.global.security.UserDetailsImpl;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.service.MyPageService;
@@ -21,7 +18,7 @@ public class MyPageController {
 
     @GetMapping("/mypage")
     public ResponseEntity<Message> getUserById(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return myPageService.getUserById(userDetails.getUser());
+        return myPageService.getMyPage(userDetails.getUser());
     }
 
     @PatchMapping("/mypage")

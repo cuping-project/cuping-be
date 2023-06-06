@@ -28,7 +28,7 @@ public class AdminController {
 
     //(관리자페이지)승인되지 않은 카페 조회
     @GetMapping("/admin")
-    public List<AdminPageResponseDto> getNotPermitCafe(@AuthenticationPrincipal UserDetailsImpl userDetails){
+    public ResponseEntity<Message> getNotPermitCafe(@AuthenticationPrincipal UserDetailsImpl userDetails){
         return adminPageService.getPermitCafe(userDetails);
     }
 

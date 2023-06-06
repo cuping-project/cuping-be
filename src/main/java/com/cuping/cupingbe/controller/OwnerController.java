@@ -37,7 +37,7 @@ public class OwnerController {
     //(사장페이지) 카페에 원두 추가
     @PostMapping("/owner/bean")
     public ResponseEntity<Message> addBeanByCafe(@RequestBody BeanByCafeRequestDto beanByCafeRequestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return ownerPageService.addBeanByCafe(beanByCafeRequestDto, userDetails.getUser());
+        return ownerPageService.addBeanByCafe(userDetails.getUser(), beanByCafeRequestDto);
     }
 
     //(사장페이지) 카페에 등록된 원두 삭제

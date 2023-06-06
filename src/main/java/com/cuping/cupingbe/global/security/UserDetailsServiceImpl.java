@@ -1,6 +1,8 @@
 package com.cuping.cupingbe.global.security;
 
 
+import com.cuping.cupingbe.global.exception.CustomException;
+import com.cuping.cupingbe.global.exception.ErrorCode;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,9 +20,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-		User user = userRepository.findByUserId(userId)
-				.orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
-
+		User user = userRepository.findByUserId(userId).orElseThrow(
+				() -> new CustomException(ErrorCode.INVALID_ID)
+		);
 		return new UserDetailsImpl(user, user.getUserId());
 	}
 }

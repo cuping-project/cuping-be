@@ -19,4 +19,5 @@ public interface CafeRepository extends JpaRepository<Cafe, Long> {
     Optional<Cafe> findFirstByCafeAddressAndOwnerId(String cafeAddress, Long userId);
     Optional<Cafe> findByCafeAddressAndBeanIdAndOwnerId(String cafeAddress, Long beanId, Long userId);
     Optional<Cafe> findByOwnerIdAndId(Long ownerId, Long cafeId);
+    Optional<Cafe> findById(Long cafeID);
 }

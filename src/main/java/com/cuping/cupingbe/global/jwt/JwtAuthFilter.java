@@ -1,19 +1,17 @@
 package com.cuping.cupingbe.global.jwt;
 
 import java.io.IOException;
-import java.util.Arrays;
 
-import jakarta.servlet.http.Cookie;
+import com.cuping.cupingbe.global.exception.CustomException;
+import com.cuping.cupingbe.global.exception.ErrorCode;
 import org.springframework.security.core.Authentication;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.cuping.cupingbe.dto.SecurityExceptionDto;
 import com.cuping.cupingbe.entity.User;
-import com.cuping.cupingbe.global.redis.util.RedisUtil;
 import com.cuping.cupingbe.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -62,7 +60,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 				//Refresh토큰으로 유저명 가져오기
 				String username = jwtUtil.getUserInfoFromToken(refresh_token);
 				//유저명으로 유저 정보 가져오기
-				User user = userRepository.findByUserId(username).get();
+				User user = userRepository.findByUserId(username).orElseThrow(
+						() -> new CustomException(ErrorCode.INVALID_ID)
+				);
 				//새로운 ACCESS TOKEN 발급
 				String newAccessToken = jwtUtil.createToken(username, user.getRole(), "Access");
 				//Header에 ACCESS TOKEN 추가
