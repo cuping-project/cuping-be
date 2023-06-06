@@ -60,7 +60,9 @@ public class WebSecurityConfig {
             "/users/checkId",
             "/users/checkNickname",
             "/users/oauth/kakao",
-            "/main"
+            "/main/beans",
+            "/main/beans/search",
+            "/main/bean/{cardId}"
     };
 
 
@@ -85,7 +87,7 @@ public class WebSecurityConfig {
         // 기본 설정인 Session 방식은 사용하지 않고 JWT 방식을 사용하기 위한 설정
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        http.authorizeHttpRequests((authz) -> authz
+        http.authorizeHttpRequests()
                 // login 없이 허용하는 페이지
                 .requestMatchers(PERMIT_URI).permitAll()
                 .requestMatchers(PERMIT_URL_ARRAY).permitAll()
@@ -94,8 +96,7 @@ public class WebSecurityConfig {
                 // 어떤 요청이든 '인증'
                 .anyRequest().authenticated()
                 // JWT 인증/인가를 사용하기 위한 설정
-                .and().addFilterBefore(new JwtAuthFilter(jwtUtil,userRepository), UsernamePasswordAuthenticationFilter.class)
-        );
+                .and().addFilterBefore(new JwtAuthFilter(jwtUtil,userRepository), UsernamePasswordAuthenticationFilter.class).cors();
 
         return http.build();
     }
