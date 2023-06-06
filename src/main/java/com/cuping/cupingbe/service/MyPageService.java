@@ -4,14 +4,10 @@ import com.cuping.cupingbe.dto.MyPageDto;
 import com.cuping.cupingbe.dto.UserUpdateRequestDto;
 import com.cuping.cupingbe.entity.Likes;
 import com.cuping.cupingbe.entity.User;
-import com.cuping.cupingbe.global.exception.CustomException;
-import com.cuping.cupingbe.global.exception.ErrorCode;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.LikesRepository;
-import com.cuping.cupingbe.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
-import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,7 +22,7 @@ public class MyPageService {
 
     private final LikesRepository likesRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserRepository userRepository;
+    private final UtilService utilService;
 
     // 마이페이지
     public ResponseEntity<Message> getMyPage(User user) {
@@ -53,7 +49,7 @@ public class MyPageService {
     public void updateUser(User user, UserUpdateRequestDto requestDto) {
 
         // 현재 비밀번호 확인
-        checkUserPassword(requestDto.getCurrentPassword(), user.getPassword());
+        utilService.checkUserPassword(requestDto.getCurrentPassword(), user.getPassword());
 
         // 닉네임 업데이트. 클라이언트가 닉네임을 안보냈으면 기존 닉네임 유지
         String newNickname = requestDto.getNickname();
@@ -66,17 +62,5 @@ public class MyPageService {
         if (!newPassword.isBlank()) {
             user.setPassword(passwordEncoder.encode(newPassword));
         }
-    }
-
-    @Transactional(readOnly = true)
-    public User checkUserId(String userId) {
-        return userRepository.findByUserId(userId).orElseThrow(
-                () -> new CustomException(ErrorCode.INVALID_ID)
-        );
-    }
-
-    public void checkUserPassword(String inputPassword, String userPassword) {
-        if (inputPassword == null || !passwordEncoder.matches(inputPassword, userPassword))
-            throw new CustomException(ErrorCode.INVALID_PASSWORD);
     }
 }

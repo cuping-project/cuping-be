@@ -29,10 +29,11 @@ import java.util.Map;
 public class MemberService {
 
 	private final UserRepository userRepository;
-	private final MediatorImpl mediator;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtil;
 	private final RedisUtil redisUtil;
+	private final UtilService utilService;
+	private final OwnerPageService ownerPageService;
 
 	// 회원가입
 	@Transactional
@@ -44,7 +45,7 @@ public class MemberService {
 				requestDto.getNickname(), role)
 		);
 		if (type.equals("owner")) {
-			mediator.createCafe(new OwnerPageRequestDto(
+			ownerPageService.createCafe(new OwnerPageRequestDto(
 					requestDto.getStoreName()
 					, requestDto.getStoreAddress()
 					, requestDto.getStoreNumber()
@@ -90,11 +91,9 @@ public class MemberService {
 		return new ResponseEntity<>(new Message("로그인 성공", null), HttpStatus.OK);
 	}
 
-
-
 	public User checkLogin(String userId, String inputPassword) {
-		User user = mediator.checkUserId(userId);
-		mediator.checkUserPassword(inputPassword, user.getPassword());
+		User user = utilService.checkUserId(userId);
+		utilService.checkUserPassword(inputPassword, user.getPassword());
 		return user;
 	}
 

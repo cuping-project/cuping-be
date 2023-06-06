@@ -26,16 +26,15 @@ import java.util.Objects;
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final MediatorImpl mediator;
+    private final UtilService utilService;
 
     //댓글 작성
     @Transactional
     public ResponseEntity<Message> addComment(Long beanId, CommentRequestDto commentRequestDto, User user) {
-        Bean bean = mediator.checkBean(beanId);
+        Bean bean = utilService.checkBean(beanId);
         Comment comment = commentRepository.save(new Comment(commentRequestDto, user, bean));
         return new ResponseEntity<>(new Message("댓글 추가 성공.", new CommentResponseDto(comment)), HttpStatus.CREATED);
     }
-
 
     // 댓글 수정
     @Transactional

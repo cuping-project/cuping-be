@@ -1,21 +1,14 @@
 package com.cuping.cupingbe.global.security;
 
-
-//import com.cuping.cupingbe.global.exception.CustomAuthenticationEntryPoint;
 import com.cuping.cupingbe.global.jwt.JwtAuthFilter;
 import com.cuping.cupingbe.global.jwt.JwtUtil;
+
 import com.cuping.cupingbe.repository.UserRepository;
-
-
-import com.cuping.cupingbe.service.MediatorImpl;
-import com.cuping.cupingbe.service.MemberService;
-import com.cuping.cupingbe.service.MyPageService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -23,7 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -37,7 +29,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
-    private final MyPageService myPageService;
+    private final UserRepository userRepository;
     private static final String[] PERMIT_URL_ARRAY = {
         /* swagger v2 */
         "/v2/api-docs",
@@ -95,7 +87,7 @@ public class WebSecurityConfig {
                 // 어떤 요청이든 '인증'
                 .anyRequest().authenticated()
                 // JWT 인증/인가를 사용하기 위한 설정
-                .and().addFilterBefore(new JwtAuthFilter(jwtUtil, myPageService), UsernamePasswordAuthenticationFilter.class).cors();
+                .and().addFilterBefore(new JwtAuthFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class).cors();
 
         return http.build();
     }

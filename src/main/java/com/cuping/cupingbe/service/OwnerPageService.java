@@ -8,7 +8,6 @@ import com.cuping.cupingbe.entity.UserRoleEnum;
 import com.cuping.cupingbe.global.exception.CustomException;
 import com.cuping.cupingbe.global.exception.ErrorCode;
 import com.cuping.cupingbe.global.util.Message;
-import com.cuping.cupingbe.repository.BeanRepository;
 import com.cuping.cupingbe.repository.CafeRepository;
 import com.cuping.cupingbe.s3.S3Uploader;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,10 +32,9 @@ import java.util.*;
 public class OwnerPageService {
 
     private final CafeRepository cafeRepository;
+    private final UtilService utilService;
     private final ObjectMapper objectMapper;
     private final S3Uploader s3Uploader;
-    private final BeanRepository beanRepository;
-    private final MediatorImpl mediator;
 
     //카페 등록 요청
     @Transactional
@@ -51,7 +49,7 @@ public class OwnerPageService {
 
     @Transactional(readOnly = true)
     public void checkCreateCafe(User user, String storeAddress) {
-        mediator.checkUserId(user.getUserId());
+        utilService.checkUserId(user.getUserId());
         if (user.getRole() != UserRoleEnum.OWNER)
             throw new CustomException(ErrorCode.FORBIDDEN_OWNER);
         if (cafeRepository.findByCafeAddress(storeAddress).isPresent())
@@ -92,8 +90,8 @@ public class OwnerPageService {
     public void checkDeleteCafe(Long cafeId, User user) {
         UserRoleEnum role = user.getRole();
         if (role.equals(UserRoleEnum.OWNER) || role.equals(UserRoleEnum.ADMIN)) {
-            mediator.checkUserId(user.getUserId());
-            checkCafeId(cafeId);
+            utilService.checkUserId(user.getUserId());
+            utilService.checkCafeId(cafeId);
             if (role.equals(UserRoleEnum.OWNER)) {
                 checkOwnerAndCafe(user.getId(), cafeId);
             }
@@ -102,17 +100,10 @@ public class OwnerPageService {
     }
 
     @Transactional(readOnly = true)
-    public Cafe checkCafeId(Long cafeId) {
-        return cafeRepository.findById(cafeId).orElseThrow(() ->
-                new CustomException(ErrorCode.UNREGISTER_CAFE));
-    }
-
-    @Transactional(readOnly = true)
     public void checkOwnerAndCafe(Long ownerId, Long cafeId) {
         cafeRepository.findByOwnerIdAndId(ownerId, cafeId).orElseThrow(() ->
                 new CustomException(ErrorCode.FORBIDDEN_CAFE));
     }
-
 
     //사장페이지 카페 조회
     public ResponseEntity<Message> getCafe(User user) {
@@ -154,7 +145,6 @@ public class OwnerPageService {
         return cafeMap;
     }
 
-
     //(사장페이지) 카페에 원두 등록
     @Transactional
     public ResponseEntity<Message> addBeanByCafe(User user, BeanByCafeRequestDto requestDto) {
@@ -174,32 +164,21 @@ public class OwnerPageService {
         if (user.getRole().equals(UserRoleEnum.OWNER)) {
             throw new CustomException(ErrorCode.FORBIDDEN_OWNER);
         }
-        Bean bean = checkBean(requestDto.getBeanOrigin() + requestDto.getBeanName(),
+        Bean bean = utilService.checkBean(requestDto.getBeanOrigin() + requestDto.getBeanName(),
                 requestDto.getBeanRoastingLevel(), false);
         Cafe cafe = type.equals("add") ?
                 checkBeanByCafeCafe(requestDto.getCafeAddress(), user.getId()) :
                 checkBeanByCafeCafe(requestDto.getCafeAddress(), bean.getId(), user.getId());
         return new Cafe(user, cafe, bean);
     }
-    @Transactional(readOnly = true)
-    public Bean checkBean(String beanOriginName, String beanRoastingLevel, boolean isDuplicateCheck) {
-        Optional<Bean> bean = beanRepository.findByBeanOriginNameAndRoastingLevel(
-                beanOriginName, beanRoastingLevel);
-        if (isDuplicateCheck) {
-            if (bean.isPresent())
-                throw new CustomException(ErrorCode.DUPLICATE_BEAN);
-            return null;
-        } else {
-            if (bean.isEmpty())
-                throw new CustomException(ErrorCode.UNREGISTER_BEAN);
-            return bean.get();
-        }
-    }
+
+
     @Transactional(readOnly = true)
     public Cafe checkBeanByCafeCafe(String cafeAddress, Long userId) {
         return cafeRepository.findFirstByCafeAddressAndOwnerId(cafeAddress, userId).orElseThrow(() ->
                 new CustomException(ErrorCode.UNREGISTER_CAFE));
     }
+
     @Transactional(readOnly = true)
     public Cafe checkBeanByCafeCafe(String cafeAddress, Long beanId, Long userId) {
         return cafeRepository.findByCafeAddressAndBeanIdAndOwnerId(cafeAddress, beanId, userId).orElseThrow(() ->

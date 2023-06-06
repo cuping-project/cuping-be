@@ -3,8 +3,6 @@ package com.cuping.cupingbe.service;
 import com.cuping.cupingbe.dto.DetailPageResponseDto;
 import com.cuping.cupingbe.entity.Cafe;
 import com.cuping.cupingbe.entity.Comment;
-import com.cuping.cupingbe.global.exception.CustomException;
-import com.cuping.cupingbe.global.exception.ErrorCode;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.repository.BeanRepository;
@@ -27,6 +25,7 @@ public class PageService {
     private final BeanRepository beanRepository;
     private final CafeRepository cafeRepository;
     private final CommentRepository commentRepository;
+    private final UtilService utilService;
 
     // 메인페이지
     public ResponseEntity<Message> getMainPage(Map<String, String> searchValue) {
@@ -55,18 +54,11 @@ public class PageService {
 
     // 상세페이지
     public ResponseEntity<Message> getDetailPage(Long cardId, String address) {
-        Bean bean = checkBean(cardId);
+        Bean bean = utilService.checkBean(cardId);
         List<Cafe> cafeList = setDetailPageCafe(bean, address);
         // Bean에 연결된 Comment 목록을 가져오기
         List<Comment> commentList = setDetailPageComment(bean);
         return new ResponseEntity<>(new Message("Success", new DetailPageResponseDto(bean, cafeList,commentList)), HttpStatus.OK);
-    }
-
-    @Transactional(readOnly = true)
-    public Bean checkBean(Long beanId) {
-        return beanRepository.findById(beanId).orElseThrow(
-                () -> new CustomException(ErrorCode.INVALID_BEANS)
-        );
     }
 
     public List<Cafe> setDetailPageCafe(Bean bean, String address) {

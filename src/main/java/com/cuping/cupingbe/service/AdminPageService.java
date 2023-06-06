@@ -29,7 +29,7 @@ public class AdminPageService {
     private final S3Uploader s3Uploader;
     private final BeanRepository beanRepository;
     private final CafeRepository cafeRepository;
-    private final MediatorImpl mediator;
+    private final UtilService utilService;
 
     //(관리자페이지) 원두 등록하기
     @Transactional
@@ -46,10 +46,10 @@ public class AdminPageService {
             throw new CustomException(ErrorCode.FORBIDDEN_ADMIN);
         }
     }
-    
+
     public void checkCreateBean(UserRoleEnum role, AdminPageRequestDto adminPageRequestDto) {
         checkAdmin(role);
-        mediator.checkBean(adminPageRequestDto.getOrigin() + adminPageRequestDto.getBeanName()
+        utilService.checkBean(adminPageRequestDto.getOrigin() + adminPageRequestDto.getBeanName()
                 , adminPageRequestDto.getRoastingLevel(), true);
     }
 
@@ -76,7 +76,7 @@ public class AdminPageService {
     public ResponseEntity<Message> permitCafe(Long cafeId, UserDetailsImpl userDetails) {
         //관리자 권한이 있는지 확인
         checkAdmin(userDetails.getUser().getRole());
-        cafeRepository.save(mediator.checkCafeId(cafeId).setPermit(true));
+        cafeRepository.save(utilService.checkCafeId(cafeId).setPermit(true));
         return new ResponseEntity<>(new Message("가게 승인 성공", null), HttpStatus.NO_CONTENT);
     }
 
@@ -85,7 +85,7 @@ public class AdminPageService {
     public ResponseEntity<Message> deleteBean(Long beanId, UserDetailsImpl userDetails) {
         //관리자 권한이 있는지 확인
         checkAdmin(userDetails.getUser().getRole());
-        beanRepository.delete(mediator.checkBean(beanId));
+        beanRepository.delete(utilService.checkBean(beanId));
         return new ResponseEntity<>(new Message("원두 삭제 성공", null), HttpStatus.NO_CONTENT);
     }
 }
