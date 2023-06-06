@@ -1,6 +1,7 @@
 package com.cuping.cupingbe.entity;
 
 import com.cuping.cupingbe.dto.OwnerPageRequestDto;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,19 +55,19 @@ public class Cafe {
         this.permit = cafe.getPermit();
         this.bean = bean;
     }
-
-    public Cafe(User user, OwnerPageRequestDto ownerPageRequestDto, String x, String y, String imgUrl) {
+    public Cafe(User user, OwnerPageRequestDto ownerPageRequestDto, JsonNode documents, String imgUrl) {
         this.owner = user;
         this.cafeAddress = ownerPageRequestDto.getStoreAddress();
         this.cafePhoneNumber = ownerPageRequestDto.getStoreNumber();
         this.cafeName = ownerPageRequestDto.getStoreName();
-        this.x = x;
-        this.y = y;
+        this.x = documents.get(0).path("x").asText();
+        this.y = documents.get(0).path("y").asText();
         this.imageUrl = imgUrl;
     }
 
-    public void setPermit(boolean b) {
+    public Cafe setPermit(boolean b) {
         this.permit = b;
+        return this;
     }
 
 

@@ -29,80 +29,63 @@ public class AdminPageService {
     private final S3Uploader s3Uploader;
     private final BeanRepository beanRepository;
     private final CafeRepository cafeRepository;
+    private final MediatorImpl mediator;
 
-    //(관리자페이지)원두 등록하기
+    //(관리자페이지) 원두 등록하기
     @Transactional
     public ResponseEntity<Message> createBean(AdminPageRequestDto adminPageRequestDto, UserDetailsImpl userDetails) throws IOException {
+        //관리자 권한, 중복 원두가 있는지 확인.
+        checkCreateBean(userDetails.getUser().getRole(), adminPageRequestDto);
+        String imgUrl = s3Uploader.upload(adminPageRequestDto.getImage());
+        beanRepository.save(new Bean(imgUrl, adminPageRequestDto));
+        return new ResponseEntity<>(new Message("원두 등록 성공", null), HttpStatus.CREATED);
+    }
 
-        //관리자 권한이 있는지 확인
-        UserRoleEnum userRoleEnum = userDetails.getUser().getRole();
-        System.out.println("role = " + userRoleEnum);
-        if (userRoleEnum != UserRoleEnum.ADMIN) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
-        } else {
-            String imgUrl = s3Uploader.upload(adminPageRequestDto.getImage());
-            Bean bean = new Bean(imgUrl, adminPageRequestDto);
-            beanRepository.save(bean);
-            Message message = new Message("원두 등록 성공");
-            ResponseEntity<Message> responseEntity = new ResponseEntity<>(message, HttpStatus.OK);
-            return responseEntity;
+    public void checkAdmin(UserRoleEnum role) {
+        if (!role.equals(UserRoleEnum.ADMIN)) {
+            throw new CustomException(ErrorCode.FORBIDDEN_ADMIN);
         }
     }
 
-    //(관리자페이지)승인되지 않은 카페 전체 조회
+    public void checkCreateBean(UserRoleEnum role, AdminPageRequestDto adminPageRequestDto) {
+        checkAdmin(role);
+        mediator.checkBean(adminPageRequestDto.getOrigin() + adminPageRequestDto.getBeanName()
+                , adminPageRequestDto.getRoastingLevel(), true);
+    }
+
+    //(관리자페이지) 승인되지 않은 카페 전체 조회
     @Transactional
-    public List<AdminPageResponseDto> getPermitCafe(UserDetailsImpl userDetails) {
+    public ResponseEntity<Message> getPermitCafe(UserDetailsImpl userDetails) {
         //관리자 권한이 있는지 확인
-        UserRoleEnum userRoleEnum = userDetails.getUser().getRole();
-        System.out.println("role = " + userRoleEnum);
-        if (userRoleEnum != UserRoleEnum.ADMIN) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
-        } else {
-            List<Cafe> cafeList = cafeRepository.findAllByPermit(false);
-            List<AdminPageResponseDto> adminPageResponseDtoList = new ArrayList();
-            for (Cafe cafe : cafeList) {
-                adminPageResponseDtoList.add(new AdminPageResponseDto(cafe));
-            }
-            return adminPageResponseDtoList;
-        }
+        checkAdmin(userDetails.getUser().getRole());
+        return new ResponseEntity<>(new Message("승인 요청 가게 목록 조회.", createPermitCafeList()), HttpStatus.OK);
     }
 
-    //(관리자페이지)카페 승인
+    @Transactional(readOnly = true)
+    public List<AdminPageResponseDto> createPermitCafeList() {
+        List<Cafe> cafeList = cafeRepository.findAllByPermit(false);
+        List<AdminPageResponseDto> adminPageResponseDtoList = new ArrayList<>();
+        for (Cafe cafe : cafeList) {
+            adminPageResponseDtoList.add(new AdminPageResponseDto(cafe));
+        }
+        return adminPageResponseDtoList;
+    }
+
+    //(관리자페이지) 카페 승인
     @Transactional
     public ResponseEntity<Message> permitCafe(Long cafeId, UserDetailsImpl userDetails) {
-
         //관리자 권한이 있는지 확인
-        UserRoleEnum userRoleEnum = userDetails.getUser().getRole();
-        System.out.println("role = " + userRoleEnum);
-        if (userRoleEnum != UserRoleEnum.ADMIN) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
-        } else {
-            Cafe cafe = cafeRepository.findById(cafeId).orElseThrow(
-                    () -> new IllegalArgumentException(ErrorCode.UNREGISTER_CAFE.getDetail())
-            );
-            cafe.setPermit(true);
-            cafeRepository.save(cafe);
-            Message message = new Message("가게 승인 성공");
-            ResponseEntity<Message> responseEntity = new ResponseEntity<>(message, HttpStatus.OK);
-            return responseEntity;
-        }
+        checkAdmin(userDetails.getUser().getRole());
+        cafeRepository.save(mediator.checkCafeId(cafeId).setPermit(true));
+        return new ResponseEntity<>(new Message("가게 승인 성공", null), HttpStatus.NO_CONTENT);
     }
 
+    // (관리자페이지) 원두 삭제
     @Transactional
     public ResponseEntity<Message> deleteBean(Long beanId, UserDetailsImpl userDetails) {
         //관리자 권한이 있는지 확인
-        UserRoleEnum userRoleEnum = userDetails.getUser().getRole();
-        System.out.println("role = " + userRoleEnum);
-        if (userRoleEnum != UserRoleEnum.ADMIN) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
-        } else {
-           Bean bean = beanRepository.findById(beanId).orElseThrow(
-                    () ->  new CustomException(ErrorCode.UNREGISTER_BEAN)
-            );
-            beanRepository.delete(bean);
-            Message message = new Message("원두 삭제 성공");
-            ResponseEntity<Message> responseEntity = new ResponseEntity<>(message, HttpStatus.OK);
-            return responseEntity;
-        }
+        checkAdmin(userDetails.getUser().getRole());
+        beanRepository.delete(mediator.checkBean(beanId));
+        return new ResponseEntity<>(new Message("원두 삭제 성공", null), HttpStatus.NO_CONTENT);
     }
 }

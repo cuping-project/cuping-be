@@ -1,6 +1,9 @@
 package com.cuping.cupingbe.global.security;
 
 
+import com.cuping.cupingbe.service.MediatorImpl;
+import com.cuping.cupingbe.service.MemberService;
+import com.cuping.cupingbe.service.MyPageService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,12 +17,11 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
-	private final UserRepository userRepository;
+	private final MyPageService myPageService;
 
 	@Override
 	public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-		User user = userRepository.findByUserId(userId)
-				.orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+		User user = myPageService.checkUserId(userId);
 
 		return new UserDetailsImpl(user, user.getUserId());
 	}

@@ -3,6 +3,10 @@ package com.cuping.cupingbe.global.jwt;
 import java.io.IOException;
 import java.util.Arrays;
 
+import com.cuping.cupingbe.service.MediatorImpl;
+import com.cuping.cupingbe.service.MemberService;
+import com.cuping.cupingbe.service.MyPageService;
+import com.cuping.cupingbe.service.PageService;
 import jakarta.servlet.http.Cookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.context.annotation.Configuration;
@@ -34,7 +38,7 @@ import static com.cuping.cupingbe.global.security.WebSecurityConfig.PERMIT_URI;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
 	private final JwtUtil jwtUtil;
-	private final UserRepository userRepository;
+	private final MyPageService myPageService;
 
 
 	@Override
@@ -62,7 +66,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 				//Refresh토큰으로 유저명 가져오기
 				String username = jwtUtil.getUserInfoFromToken(refresh_token);
 				//유저명으로 유저 정보 가져오기
-				User user = userRepository.findByUserId(username).get();
+				User user = myPageService.checkUserId(username);
 				//새로운 ACCESS TOKEN 발급
 				String newAccessToken = jwtUtil.createToken(username, user.getRole(), "Access");
 				//Header에 ACCESS TOKEN 추가

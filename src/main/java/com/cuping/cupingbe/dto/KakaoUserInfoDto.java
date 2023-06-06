@@ -1,5 +1,6 @@
 package com.cuping.cupingbe.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,6 +18,13 @@ public class KakaoUserInfoDto {
 		this.nickname = nickname;
 		this.email = email;
 		this.profile_image = profile_image;
+	}
+
+	public KakaoUserInfoDto(JsonNode jsonNode) {
+		this.id = jsonNode.get("id").asLong();
+		this.nickname = jsonNode.get("properties").get("nickname").asText();
+		this.email = jsonNode.get("kakao_account").get("email").asText();
+		this.profile_image = jsonNode.get("properties").get("profile_image").asText();
 	}
 
 }

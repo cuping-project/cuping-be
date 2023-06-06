@@ -6,9 +6,10 @@ import com.cuping.cupingbe.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface LikesRepository extends JpaRepository<Likes, Long> {
-    Likes findByUserAndBean(User user, Bean bean);
+    Optional<Likes> findByUserAndBean(User user, Bean bean);
 
     List<Likes> findAllByBean(Bean bean);
 

@@ -7,6 +7,7 @@ import java.util.Date;
 import com.cuping.cupingbe.global.exception.CustomException;
 import com.cuping.cupingbe.global.exception.ErrorCode;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -50,7 +51,6 @@ public class JwtUtil {
 	private String secretKey;
 	private Key key;
 	private final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
-
 	private final RedisUtil redisUtil;
 
 	public TokenDto creatAllToken(String username, UserRoleEnum userRole){
@@ -155,5 +155,12 @@ public class JwtUtil {
 		cookie.setPath("/");
 		cookie.setMaxAge((int)tokenTime);
 		return cookie;
+	}
+
+	public void setCookies(HttpServletResponse response, TokenDto tokenDto) {
+		Cookie accessCookie = createCookie(JwtUtil.ACCESS_KEY, tokenDto.getAccessToken());
+		Cookie refreshCookie = createCookie(JwtUtil.REFRESH_KEY, tokenDto.getRefreshToken());
+		response.addCookie(accessCookie);
+		response.addCookie(refreshCookie);
 	}
 }
