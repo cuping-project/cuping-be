@@ -173,7 +173,6 @@ public class OwnerPageService {
         return new Cafe(user, cafe, bean);
     }
 
-
     @Transactional(readOnly = true)
     public Cafe checkBeanByCafeCafe(String cafeAddress, Long userId) {
         return cafeRepository.findFirstByCafeAddressAndOwnerId(cafeAddress, userId).orElseThrow(() ->
