@@ -80,27 +80,29 @@ public class OwnerPageService {
     //카페 삭제
     @Transactional
     public ResponseEntity<Message> deleteCafe(Long cafeId, User user) {
-        checkDeleteCafe(cafeId, user);
+        s3Uploader.delete(checkDeleteCafe(cafeId, user).getImageUrl());
         cafeRepository.deleteById(cafeId);
         return new ResponseEntity<>(new Message("카페가 삭제 되었습니다.", null), HttpStatus.OK);
     }
 
     @Transactional(readOnly = true)
-    public void checkDeleteCafe(Long cafeId, User user) {
+    public Cafe checkDeleteCafe(Long cafeId, User user) {
         UserRoleEnum role = user.getRole();
+
         if (role.equals(UserRoleEnum.OWNER) || role.equals(UserRoleEnum.ADMIN)) {
             utilService.checkUserId(user.getUserId());
-            utilService.checkCafeId(cafeId);
+            Cafe cafe = utilService.checkCafeId(cafeId);
             if (role.equals(UserRoleEnum.OWNER)) {
-                checkOwnerAndCafe(user.getId(), cafeId);
+                return checkOwnerAndCafe(user.getId(), cafeId);
             }
+            return cafe;
         } else
             throw new CustomException(ErrorCode.FORBIDDEN_OWNER);
     }
 
     @Transactional(readOnly = true)
-    public void checkOwnerAndCafe(Long ownerId, Long cafeId) {
-        cafeRepository.findByOwnerIdAndId(ownerId, cafeId).orElseThrow(() ->
+    public Cafe checkOwnerAndCafe(Long ownerId, Long cafeId) {
+        return cafeRepository.findByOwnerIdAndId(ownerId, cafeId).orElseThrow(() ->
                 new CustomException(ErrorCode.FORBIDDEN_CAFE));
     }
 

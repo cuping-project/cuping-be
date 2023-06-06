@@ -38,8 +38,9 @@ public class UtilService {
 
     @Transactional(readOnly = true)
     public Cafe checkCafeId(Long cafeId) {
-        return cafeRepository.findById(cafeId).orElseThrow(() ->
-                new CustomException(ErrorCode.UNREGISTER_CAFE));
+        return cafeRepository.findById(cafeId).orElseThrow(
+                () -> new CustomException(ErrorCode.UNREGISTER_CAFE)
+        );
     }
 
     @Transactional(readOnly = true)

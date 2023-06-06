@@ -99,11 +99,7 @@ public class MemberService {
 
 	public void createLoginToken(String userId, UserRoleEnum role, HttpServletResponse response) {
 		TokenDto tokenDto = jwtUtil.creatAllToken(userId, role);
-		if (redisUtil.get(userId).isEmpty()) {
-			redisUtil.set(userId, tokenDto.getRefreshToken(), JwtUtil.REFRESH_TIME);
-		} else {
-			redisUtil.update(userId, tokenDto.getRefreshToken(), JwtUtil.REFRESH_TIME);
-		}
+		redisUtil.set(userId, tokenDto.getRefreshToken(), JwtUtil.REFRESH_TIME);
 		jwtUtil.setCookies(response, tokenDto);
 	}
 
