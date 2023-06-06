@@ -72,16 +72,6 @@ public class OwnerPageService {
         return new ResponseEntity<>(new Message("가게 등록 성공"), HttpStatus.OK);
     }
 
-    public void checkCreateCafe(User user, String storeAddress) {
-        userRepository.findByUserId(user.getUserId()).orElseThrow(
-                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-        );
-        if (user.getRole() != UserRoleEnum.OWNER)
-            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
-        if (cafeRepository.findByCafeAddress(storeAddress).isPresent())
-            throw new CustomException(ErrorCode.DUPLICATE_CAFE);
-    }
-
     //카페 삭제
     @Transactional
     public ResponseEntity<Message> deleteCafe(Long cafeId, User user) throws Exception {
@@ -90,12 +80,13 @@ public class OwnerPageService {
         if (role.equals(UserRoleEnum.OWNER) || role.equals(UserRoleEnum.ADMIN)) {
             userRepository.findByUserId(user.getUserId()).orElseThrow(() ->
                     new CustomException(ErrorCode.USER_NOT_FOUND));
-            cafeRepository.findById(cafeId).orElseThrow(() ->
+            Cafe cafe = cafeRepository.findById(cafeId).orElseThrow(() ->
                     new CustomException(ErrorCode.UNREGISTER_CAFE));
             if (role.equals(UserRoleEnum.OWNER)) {
                 cafeRepository.findByOwnerIdAndId(user.getId(), cafeId).orElseThrow(() ->
                         new CustomException(ErrorCode.UNAUTHORIZED_OWNER));
             }
+            s3Uploader.delete(cafe.getImageUrl());
             cafeRepository.deleteById(cafeId);
         }
         return new ResponseEntity<>(new Message("카페가 삭제 되었습니다."), HttpStatus.OK);
@@ -160,5 +151,16 @@ public class OwnerPageService {
 
         cafeRepository.delete(cafe);
         return new ResponseEntity<>(new Message("원두 삭제 성공", null), HttpStatus.OK);
+    }
+
+    //카페 중복확인, 권환 확인, 회원 확인(카페등록)
+    public void checkCreateCafe(User user, String storeAddress) {
+        userRepository.findByUserId(user.getUserId()).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+        );
+        if (user.getRole() != UserRoleEnum.OWNER)
+            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
+        if (cafeRepository.findByCafeAddress(storeAddress).isPresent())
+            throw new CustomException(ErrorCode.DUPLICATE_CAFE);
     }
 }
