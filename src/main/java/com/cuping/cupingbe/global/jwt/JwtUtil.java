@@ -149,7 +149,7 @@ public class JwtUtil {
 
 	public Cookie createCookie(String name, String value) {
 		long tokenTime = name.equals(ACCESS_KEY) ? ACCESS_TIME : REFRESH_TIME;
-		Cookie cookie = new Cookie(name, value.replace("", "%"));
+		Cookie cookie = new Cookie(name, value.replace(" ", "%"));
 		cookie.setPath("/");
 		cookie.setMaxAge((int)tokenTime);
 		return cookie;

@@ -87,7 +87,16 @@ public class AdminPageService {
     public ResponseEntity<Message> deleteBean(Long beanId, UserDetailsImpl userDetails) {
         //관리자 권한이 있는지 확인
         checkAdmin(userDetails.getUser().getRole());
-        beanRepository.delete(utilService.checkBean(beanId));
+        Bean bean = utilService.checkBean(beanId);
+        s3Uploader.delete(bean.getBeanImage());
+        beanRepository.delete(bean);
         return new ResponseEntity<>(new Message("원두 삭제 성공", null), HttpStatus.NO_CONTENT);
+    }
+
+    //(관리자 페이지) 원두 전체 조회
+    public ResponseEntity<Message> findAllBean(User user) {
+        checkAdmin(user.getRole());
+        List<Bean> bean = beanRepository.findAll();
+        return new ResponseEntity<>(new Message("사장 카페 조회.", bean), HttpStatus.OK);
     }
 }
