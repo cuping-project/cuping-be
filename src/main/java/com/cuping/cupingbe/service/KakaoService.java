@@ -34,31 +34,21 @@ import lombok.extern.slf4j.Slf4j;
 public class KakaoService {
 	private final PasswordEncoder passwordEncoder;
 	private final UserRepository userRepository;
-
 	private final JwtUtil jwtUtil;
 	private final RedisUtil redisUtil;
 
 	public void kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
 
-		TokenDto tokenDto = getToken(code);
-		KakaoUserInfoDto kakaoUserInfo = getKakaoUserInfo(tokenDto.getAccessToken());
+		TokenDto kakaoToken = getToken(code);
+		KakaoUserInfoDto kakaoUserInfo = getKakaoUserInfo(kakaoToken.getAccessToken());
 		User kakaoUser = registerKakaoUserIfNeeded(kakaoUserInfo);
 		String userId = kakaoUser.getUserId();
 
-		if (userId != null)
+		if (userId == null)
 			throw new IllegalArgumentException();
-		tokenDto = jwtUtil.creatAllToken(userId, kakaoUser.getRole());
-		String access_token = tokenDto.getAccessToken();
-		String refresh_token = tokenDto.getRefreshToken();
-		if (redisUtil.get(userId).isEmpty()) {
-			redisUtil.set(userId, refresh_token, JwtUtil.REFRESH_TIME);
-		} else {
-			redisUtil.update(userId, refresh_token, JwtUtil.REFRESH_TIME);
-		}
-		Cookie accessCookie = jwtUtil.createCookie(JwtUtil.ACCESS_KEY, access_token);
-		Cookie refreshCookie = jwtUtil.createCookie(JwtUtil.REFRESH_KEY, refresh_token);
-		response.addCookie(accessCookie);
-		response.addCookie(refreshCookie);
+		TokenDto tokenDto = jwtUtil.creatAllToken(userId, kakaoUser.getRole());
+		redisUtil.set(userId, tokenDto.getRefreshToken(), JwtUtil.REFRESH_TIME);
+		jwtUtil.setCookies(response, tokenDto);
 	}
 
 	private TokenDto getToken(String code) throws JsonProcessingException {
@@ -75,17 +65,14 @@ public class KakaoService {
 
 		HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
 			new HttpEntity<>(body, headers);
-		RestTemplate rt = new RestTemplate();
-		ResponseEntity<String> response = rt.exchange(
+		ResponseEntity<String> response = new RestTemplate().exchange(
 			"https://kauth.kakao.com/oauth/token",
 			HttpMethod.POST,
 			kakaoTokenRequest,
 			String.class
 		);
 
-		String responseBody = response.getBody();
-		ObjectMapper objectMapper = new ObjectMapper();
-		JsonNode jsonNode = objectMapper.readTree(responseBody);
+		JsonNode jsonNode = new ObjectMapper().readTree(response.getBody());
 		return new TokenDto(jsonNode.get("access_token").asText(), jsonNode.get("refresh_token").asText());
 	}
 
@@ -95,49 +82,34 @@ public class KakaoService {
 		headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
 
 		HttpEntity<MultiValueMap<String, String>> kakaoUserInfoRequest = new HttpEntity<>(headers);
-		RestTemplate rt = new RestTemplate();
-		ResponseEntity<String> response = rt.exchange(
+		ResponseEntity<String> response = new RestTemplate().exchange(
 			"https://kapi.kakao.com/v2/user/me",
 			HttpMethod.POST,
 			kakaoUserInfoRequest,
 			String.class
 		);
 
-		String responseBody = response.getBody();
-		ObjectMapper objectMapper = new ObjectMapper();
-		JsonNode jsonNode = objectMapper.readTree(responseBody);
-		Long id = jsonNode.get("id").asLong();
-		String nickname = jsonNode.get("properties")
-			.get("nickname").asText();
-		String email = jsonNode.get("kakao_account")
-			.get("email").asText();
-		String profile_image = jsonNode.get("properties")
-			.get("profile_image").asText();
-
-		return new KakaoUserInfoDto(id, nickname, email, profile_image);
+		JsonNode jsonNode = new ObjectMapper().readTree(response.getBody());
+		return new KakaoUserInfoDto(jsonNode);
 	}
 
 	private User registerKakaoUserIfNeeded(KakaoUserInfoDto kakaoUserInfo) {
 		Long kakaoId = kakaoUserInfo.getId();
 		User kakaoUser = userRepository.findByKakaoId(kakaoId)
 			.orElse(null);
+		User returnUser;
 		if (kakaoUser == null) {
 			String kakaoEmail = kakaoUserInfo.getEmail();
 			User sameEmailUser = userRepository.findByEmail(kakaoEmail).orElse(null);
 			if (sameEmailUser != null) {
-				kakaoUser = sameEmailUser;
-				kakaoUser = kakaoUser.kakaoIdUpdate(kakaoId);
+				sameEmailUser.kakaoIdUpdate((kakaoId));
+				returnUser = userRepository.save(sameEmailUser);
 			} else {
-				// 이메일에
-				String password = UUID.randomUUID().toString();
-				String encodedPassword = passwordEncoder.encode(password);
-				String email = kakaoUserInfo.getEmail();
-				String image_url = kakaoUserInfo.getProfile_image();
-				kakaoUser = new User(kakaoId.toString(), encodedPassword, kakaoUserInfo.getNickname(), UserRoleEnum.USER, kakaoId,
-					email, image_url);
+				returnUser = userRepository.save(new User(kakaoId.toString(), passwordEncoder.encode(UUID.randomUUID().toString()),
+						kakaoUserInfo.getNickname(), UserRoleEnum.USER, kakaoId, kakaoUserInfo.getEmail(), kakaoUserInfo.getProfile_image()));
 			}
-			userRepository.save(kakaoUser);
-		}
-		return kakaoUser;
+		} else
+			returnUser = kakaoUser;
+		return returnUser;
 	}
 }

@@ -53,7 +53,7 @@ public class Bean {
         this.flavor = adminPageRequestDto.getFlavor();
         this.origin = adminPageRequestDto.getOrigin();
         this.hashTag = adminPageRequestDto.getHashTag();
-        this.beanOriginName = this.beanName + this.origin;
+        this.beanOriginName = this.origin + this.beanName;
     }
 
     // 좋아요 개수를 증가시키는 메서드

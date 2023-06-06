@@ -35,8 +35,4 @@ public class Comment {
         this.user = user;
         this.bean = bean;
     }
-
-    public void updateContent(String content) {
-        this.content = content;
-    }
 }

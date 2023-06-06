@@ -10,14 +10,15 @@ import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.entity.UserRoleEnum;
 import com.cuping.cupingbe.global.exception.CustomException;
 import com.cuping.cupingbe.global.exception.ErrorCode;
-import com.cuping.cupingbe.repository.BeanRepository;
+import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.CommentRepository;
-import com.cuping.cupingbe.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 
 @Service
@@ -25,45 +26,47 @@ import org.springframework.stereotype.Service;
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
-    private final BeanRepository beanRepository;
+    private final UtilService utilService;
 
     //댓글 작성
     @Transactional
-    public ResponseEntity<CommentResponseDto> addComment(Long beanId, CommentRequestDto commentRequestDto, User user) {
-        Bean bean = beanRepository.findById(beanId)
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_BEANS));
-        Comment comment = new Comment(commentRequestDto, user, bean);
-        commentRepository.save(comment);
-        return new ResponseEntity<>(new CommentResponseDto(comment), HttpStatus.CREATED);
+    public ResponseEntity<Message> addComment(Long beanId, CommentRequestDto commentRequestDto, User user) {
+        Bean bean = utilService.checkBean(beanId);
+        Comment comment = commentRepository.save(new Comment(commentRequestDto, user, bean));
+        return new ResponseEntity<>(new Message("댓글 추가 성공.", new CommentResponseDto(comment)), HttpStatus.CREATED);
     }
 
-
-    //댓글 수정
+    // 댓글 수정
     @Transactional
-    public ResponseEntity<CommentResponseDto> updateComment(CommentUpdateRequestDto requestDto, User user) {
-        Comment comment = commentRepository.findById(requestDto.getId())
+    public ResponseEntity<Message> updateComment(CommentUpdateRequestDto requestDto, User user) {
+        Comment comment = checkModifyComment(requestDto.getId(), user);
+        commentRepository.save(comment);
+        return new ResponseEntity<>(new Message("댓글 수정 성공.", new CommentResponseDto(comment)), HttpStatus.OK);
+    }
+
+    @Transactional(readOnly = true)
+    public Comment checkComment(Long commentId) {
+        return commentRepository.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_COMMENT));
+    }
 
-        if (!comment.getUser().equals(user) && !user.getRole().equals(UserRoleEnum.ADMIN)) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
+    public void checkUser(Comment comment, User user) {
+        if (!Objects.equals(comment.getUser().getId(), user.getId()) && !user.getRole().equals(UserRoleEnum.ADMIN)) {
+            throw new CustomException(ErrorCode.FORBIDDEN_MEMBER);
         }
+    }
 
-        comment.updateContent(requestDto.getContent());
-        return new ResponseEntity<>(new CommentResponseDto(comment), HttpStatus.OK);
+    public Comment checkModifyComment(Long commentId, User user) {
+        Comment comment = checkComment(commentId);
+        checkUser(comment, user);
+        return comment;
     }
 
     //댓글 삭제
     @Transactional
-    public ResponseEntity<Void> deleteComment(CommentDeleteRequestDto requestDto, User user) {
-        Comment comment = commentRepository.findById(requestDto.getId())
-                .orElseThrow(() -> new CustomException(ErrorCode.NONEXISTENT_COMMENT));
-
-        if (!comment.getUser().equals(user) && !user.getRole().equals(UserRoleEnum.ADMIN)) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
-        }
-
+    public ResponseEntity<Message> deleteComment(CommentDeleteRequestDto requestDto, User user) {
+        Comment comment = checkModifyComment(requestDto.getId(), user);
         commentRepository.delete(comment);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(new Message("댓글 삭제 성공.", null), HttpStatus.NO_CONTENT);
     }
 }

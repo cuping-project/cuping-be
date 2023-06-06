@@ -2,6 +2,8 @@ package com.cuping.cupingbe.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.cuping.cupingbe.global.exception.CustomException;
+import com.cuping.cupingbe.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -32,15 +36,14 @@ public class S3Uploader {
         return amazonS3.getUrl(bucket, fileName).toString();
     }
 
-    public boolean delete(String fileUrl) {
+    public void delete(String fileUrl) {
         try {
-            String[] temp = fileUrl.split("/");
-            String fileKey = temp[temp.length-1];
+            String url = fileUrl.substring(50);
+            String[] temp = url.split("_");
+            String fileKey = temp[0] + "_" + URLDecoder.decode(temp[1], StandardCharsets.UTF_8);
             amazonS3.deleteObject(bucket, fileKey);
-            return true;
         } catch (Exception e) {
-            return false;
+            throw new CustomException(ErrorCode.IMAGE_DELETE_FAIL);
         }
     }
-
 }
