@@ -76,7 +76,7 @@ public class OwnerPageService {
         return objectMapper.readTree(new RestTemplate()
                 .exchange(req, String.class).getBody()).path("documents");
     }
-  
+
     //카페 삭제
     @Transactional
     public ResponseEntity<Message> deleteCafe(Long cafeId, User user) {
@@ -182,16 +182,5 @@ public class OwnerPageService {
     public Cafe checkBeanByCafeCafe(String cafeAddress, Long beanId, Long userId) {
         return cafeRepository.findByCafeAddressAndBeanIdAndOwnerId(cafeAddress, beanId, userId).orElseThrow(() ->
                 new CustomException(ErrorCode.UNREGISTER_CAFE));
-    }
-
-    //카페 중복확인, 권환 확인, 회원 확인(카페등록)
-    public void checkCreateCafe(User user, String storeAddress) {
-        userRepository.findByUserId(user.getUserId()).orElseThrow(
-                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
-        );
-        if (user.getRole() != UserRoleEnum.OWNER)
-            throw new CustomException(ErrorCode.UNAUTHORIZED_OWNER);
-        if (cafeRepository.findByCafeAddress(storeAddress).isPresent())
-            throw new CustomException(ErrorCode.DUPLICATE_CAFE);
     }
 }
