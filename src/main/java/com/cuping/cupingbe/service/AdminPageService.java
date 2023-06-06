@@ -46,7 +46,7 @@ public class AdminPageService {
             throw new CustomException(ErrorCode.FORBIDDEN_ADMIN);
         }
     }
-
+    
     public void checkCreateBean(UserRoleEnum role, AdminPageRequestDto adminPageRequestDto) {
         checkAdmin(role);
         mediator.checkBean(adminPageRequestDto.getOrigin() + adminPageRequestDto.getBeanName()
