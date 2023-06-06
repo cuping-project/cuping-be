@@ -4,6 +4,7 @@ import com.cuping.cupingbe.dto.AdminPageRequestDto;
 import com.cuping.cupingbe.dto.AdminPageResponseDto;
 import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Cafe;
+import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.entity.UserRoleEnum;
 import com.cuping.cupingbe.global.exception.CustomException;
 import com.cuping.cupingbe.global.exception.ErrorCode;
@@ -40,6 +41,7 @@ public class AdminPageService {
         beanRepository.save(new Bean(imgUrl, adminPageRequestDto));
         return new ResponseEntity<>(new Message("원두 등록 성공", null), HttpStatus.CREATED);
     }
+
 
     public void checkAdmin(UserRoleEnum role) {
         if (!role.equals(UserRoleEnum.ADMIN)) {
