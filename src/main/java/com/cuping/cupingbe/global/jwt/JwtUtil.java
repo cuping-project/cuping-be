@@ -40,8 +40,8 @@ public class JwtUtil {
 	private static final String BEARER_PREFIX = "Bearer ";
 	public static final String ACCESS_KEY = "ACCESS_KEY";
 	public static final String REFRESH_KEY = "REFRESH_KEY";
-	public static final long ACCESS_TIME = 60 * 30 * 1000L;
-	public static final long REFRESH_TIME = 60 * 60 * 24 * 14 * 1000L;
+	public static final long ACCESS_TIME = 60 * 60 * 1000L;
+	public static final long REFRESH_TIME = 24 * 60 * 60 * 1000L;
 	private final UserDetailsServiceImpl userDetailsService;
 
 
@@ -150,8 +150,8 @@ public class JwtUtil {
 	public Cookie createCookie(String name, String value) {
 		long tokenTime = name.equals(ACCESS_KEY) ? ACCESS_TIME : REFRESH_TIME;
 		Cookie cookie = new Cookie(name, value.replace(" ", "%"));
-		cookie.setPath("/");
 		cookie.setMaxAge((int)tokenTime);
+		cookie.setPath("/");
 		return cookie;
 	}
 

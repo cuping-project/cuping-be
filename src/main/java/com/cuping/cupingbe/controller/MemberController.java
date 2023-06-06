@@ -44,7 +44,7 @@ public class MemberController {
 	}
 	@PostMapping("/login")
 	public ResponseEntity<Message> login(@RequestBody MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response) {
-		return memberService.login(memberLoginRequestDto,response);
+		return memberService.login(memberLoginRequestDto, response);
 	}
 
 	@PostMapping("/logout")

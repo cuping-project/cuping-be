@@ -54,7 +54,8 @@ public class WebSecurityConfig {
             "/users/oauth/kakao",
             "/main/beans",
             "/main/beans/search",
-            "/main/bean/{cardId}"
+            "/main/bean/{cardId}",
+            "/oauth/kakao"
     };
 
     @Bean
