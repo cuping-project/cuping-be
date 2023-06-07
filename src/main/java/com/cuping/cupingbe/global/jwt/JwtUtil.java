@@ -7,6 +7,7 @@ import java.util.Date;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -147,18 +148,18 @@ public class JwtUtil {
 		return diff;
 	}
 
-	public Cookie createCookie(String name, String value) {
+	public ResponseCookie createCookie(String name, String value) {
 		long tokenTime = name.equals(ACCESS_KEY) ? ACCESS_TIME : REFRESH_TIME;
-		Cookie cookie = new Cookie(name, value.replace(" ", "%"));
-		cookie.setMaxAge((int)tokenTime);
-		cookie.setPath("/");
-		return cookie;
+		return ResponseCookie.from(name, value)
+				.path("/")
+				.maxAge(tokenTime)
+				.sameSite("None")
+				.secure(true)
+				.build();
 	}
 
 	public void setCookies(HttpServletResponse response, TokenDto tokenDto) {
-		Cookie accessCookie = createCookie(JwtUtil.ACCESS_KEY, tokenDto.getAccessToken());
-		Cookie refreshCookie = createCookie(JwtUtil.REFRESH_KEY, tokenDto.getRefreshToken());
-		response.addCookie(accessCookie);
-		response.addCookie(refreshCookie);
+		response.addHeader("Set-Cookie", createCookie(JwtUtil.ACCESS_KEY, tokenDto.getAccessToken()).toString());
+		response.addHeader("Set-Cookie", createCookie(JwtUtil.REFRESH_KEY, tokenDto.getRefreshToken()).toString());
 	}
 }
