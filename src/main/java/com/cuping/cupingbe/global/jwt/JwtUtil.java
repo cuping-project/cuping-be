@@ -150,7 +150,7 @@ public class JwtUtil {
 
 	public ResponseCookie createCookie(String name, String value) {
 		long tokenTime = name.equals(ACCESS_KEY) ? ACCESS_TIME : REFRESH_TIME;
-		return ResponseCookie.from(name, value)
+		return ResponseCookie.from(name, value.replace(" ", "%"))
 				.path("/")
 				.maxAge(tokenTime)
 				.sameSite("None")
