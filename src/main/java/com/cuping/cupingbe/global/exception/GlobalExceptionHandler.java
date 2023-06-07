@@ -4,6 +4,9 @@ import com.cuping.cupingbe.global.util.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -24,5 +27,18 @@ public class GlobalExceptionHandler {
         log.error(e.getMessage());
         Message exceptionMessage = Message.setSuccess(e.getMessage(), e.getCause());
         return new ResponseEntity<>(exceptionMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+
+        BindingResult bindingResult = ex.getBindingResult();
+
+        StringBuilder builder = new StringBuilder();
+        for (FieldError fieldError : bindingResult.getFieldErrors()) {
+            builder.append(fieldError.getDefaultMessage());
+        }
+        log.error(builder.toString());
+        return new ResponseEntity<>(new Message(builder.toString(), null), HttpStatus.BAD_REQUEST);
     }
 }
