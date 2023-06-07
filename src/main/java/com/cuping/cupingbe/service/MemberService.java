@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -39,6 +40,8 @@ public class MemberService {
 	@Transactional
 	public ResponseEntity<Message> signup(String type, MemberSignupRequestDto requestDto) throws Exception {
 		UserRoleEnum role = checkType(type, requestDto.getAdminKey());
+		duplicateCheckId(Map.of("userId", requestDto.getUserId()));
+		duplicateCheckNickname(Map.of("nickname", requestDto.getNickname()));
 		User user = userRepository.save(new User(
 				requestDto.getUserId(),
 				passwordEncoder.encode(requestDto.getPassword()),
