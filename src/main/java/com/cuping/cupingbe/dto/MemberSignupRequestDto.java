@@ -1,7 +1,6 @@
 package com.cuping.cupingbe.dto;
 
-import com.cuping.cupingbe.entity.UserRoleEnum;
-
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,8 +11,12 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class MemberSignupRequestDto {
 
+	@Pattern(regexp = "(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d_]{5,12}",
+			message = "아이디는 알파벳 대소문자, 숫자를 입력하고 5~12자리로 구성해주세요.")
 	private String userId;
 
+	@Pattern(regexp = "(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d!?_]{8,12}",
+			message = "비밀번호는 알파벳 대소문자, 숫자, 특수문자(!?_)를 입력하고 8~12자리로 구성해주세요.")
 	private String password;
 
 	private String adminKey;

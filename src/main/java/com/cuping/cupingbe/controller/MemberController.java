@@ -1,7 +1,6 @@
 package com.cuping.cupingbe.controller;
 
-import com.cuping.cupingbe.dto.OwnerSignupRequestDto;
-import org.springframework.http.MediaType;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,12 +24,12 @@ public class MemberController {
 	private final MemberService memberService;
 
 	@PostMapping("/signup/{type}")
-	public ResponseEntity<Message> signup(@PathVariable String type, @RequestBody MemberSignupRequestDto memberSignupRequestDto) throws Exception {
+	public ResponseEntity<Message> signup(@PathVariable String type, @Valid @RequestBody MemberSignupRequestDto memberSignupRequestDto) throws Exception {
 		return memberService.signup(type, memberSignupRequestDto);
 	}
 
 	@PostMapping( "/signup/owner")
-	public ResponseEntity<Message> ownerSignup(@ModelAttribute MemberSignupRequestDto memberSignupRequestDto) throws Exception {
+	public ResponseEntity<Message> ownerSignup(@Valid @ModelAttribute MemberSignupRequestDto memberSignupRequestDto) throws Exception {
 		return memberService.signup("owner", memberSignupRequestDto);
 	}
 
