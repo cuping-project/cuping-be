@@ -108,19 +108,8 @@ public class OwnerPageService {
 
     //사장페이지 카페 조회
     public ResponseEntity<Message> getCafe(User user) {
-        List<Cafe> cafeList = checkGetCafe(user);
-        Map<String, OwnerResponseDto> cafeMap = createCafeMap(cafeList);
-        return new ResponseEntity<>(new Message("사장 카페 조회.", cafeMap), HttpStatus.OK);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Cafe> checkGetCafe(User user) {
         checkRoleOwner(user.getRole());
-        List<Cafe> cafeList = cafeRepository.findAllByOwnerId(user.getId());
-        if (cafeList == null) {
-            throw new CustomException(ErrorCode.CAFE_NOT_FOUND);
-        }
-        return cafeList;
+        return new ResponseEntity<>(new Message("사장 카페 조회.", createCafeMap(user.getId())), HttpStatus.OK);
     }
 
     public void checkRoleOwner(UserRoleEnum role) {
@@ -129,7 +118,9 @@ public class OwnerPageService {
         }
     }
 
-    public Map<String, OwnerResponseDto> createCafeMap(List<Cafe> cafeList) {
+    @Transactional(readOnly = true)
+    public Map<String, OwnerResponseDto> createCafeMap(Long id) {
+        List<Cafe> cafeList = cafeRepository.findAllByOwnerId(id);
         Map<String, OwnerResponseDto> cafeMap = new HashMap<>();
         for (Cafe cafe : cafeList) {
             String cafeAddress = cafe.getCafeAddress();
@@ -162,9 +153,7 @@ public class OwnerPageService {
 
     @Transactional(readOnly = true)
     public Cafe checkBeanByCafe(User user, BeanByCafeRequestDto requestDto, String type) {
-        if (user.getRole().equals(UserRoleEnum.OWNER)) {
-            throw new CustomException(ErrorCode.FORBIDDEN_OWNER);
-        }
+        checkRoleOwner(user.getRole());
         Bean bean = utilService.checkBean(requestDto.getBeanOrigin() + requestDto.getBeanName(),
                 requestDto.getBeanRoastingLevel(), false);
         Cafe cafe = type.equals("add") ?

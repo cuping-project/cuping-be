@@ -93,7 +93,7 @@ public class JwtUtil {
 
 	// 토큰 검증
 	public boolean validateToken(String token) {
-		if(redisUtil.hasKeyBlackList(token))
+		if(token == null || redisUtil.hasKeyBlackList(token))
 			return false;
 		try {
 			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -129,9 +129,15 @@ public class JwtUtil {
 			.parseClaimsJws(token)
 			.getBody();
 
-		String userId = claims.getId();
-		String refreshToken = redisUtil.get(userId).toString();
-		return !refreshToken.isEmpty() && token.equals(refreshToken);
+//		Claims claims1 = Jwts.
+		String userId = claims.getSubject();
+		String refreshToken;
+		if (redisUtil.get(userId).isPresent()) {
+			refreshToken = redisUtil.get(userId).get().toString().replaceAll("\"", "").substring(7);
+		} else {
+			return false;
+		}
+		return token.equals(refreshToken);
 	}
 
 	public long getExpirationTime(String token) {

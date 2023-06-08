@@ -56,7 +56,7 @@ public class MemberService {
 					, user
 			);
 		}
-		return new ResponseEntity<>(new Message("회원가입 성공", null), HttpStatus.OK);
+		return new ResponseEntity<>(new Message("회원가입 성공", null), HttpStatus.NO_CONTENT);
 	}
 
 	public UserRoleEnum checkType(String type, String adminKey) {
@@ -77,27 +77,21 @@ public class MemberService {
 	public ResponseEntity<Message> duplicateCheckId(Map<String, String> userId) {
 		if (userRepository.findByUserId(userId.get("userId")).isPresent())
 			throw new CustomException(ErrorCode.DUPLICATE_IDENTIFIER);
-		return new ResponseEntity<>(new Message("사용 가능한 아이디입니다.", null), HttpStatus.OK);
+		return new ResponseEntity<>(new Message("사용 가능한 아이디입니다.", null), HttpStatus.NO_CONTENT);
 	}
 
 	public ResponseEntity<Message> duplicateCheckNickname(Map<String, String> nickname) {
 		if (userRepository.findByNickname(nickname.get("nickname")).isPresent())
 			throw new CustomException(ErrorCode.DUPLICATE_NICKNAME);
-		return new ResponseEntity<>(new Message("사용 가능한 닉네임입니다.", null), HttpStatus.OK);
+		return new ResponseEntity<>(new Message("사용 가능한 닉네임입니다.", null), HttpStatus.NO_CONTENT);
 	}
 
 	// 로그인
 	public ResponseEntity<Message> login(MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response){
-		String userId = memberLoginRequestDto.getUserId();
-		User user = checkLogin(userId, memberLoginRequestDto.getPassword());
-		createLoginToken(userId, user.getRole(), response);
-		return new ResponseEntity<>(new Message("로그인 성공", null), HttpStatus.OK);
-	}
-
-	public User checkLogin(String userId, String inputPassword) {
-		User user = utilService.checkUserId(userId);
-		utilService.checkUserPassword(inputPassword, user.getPassword());
-		return user;
+		User user = utilService.checkUserId(memberLoginRequestDto.getUserId());
+		utilService.checkUserPassword(user.getUserId(), memberLoginRequestDto.getPassword());
+		createLoginToken(user.getUserId(), user.getRole(), response);
+		return new ResponseEntity<>(new Message("로그인 성공", null), HttpStatus.NO_CONTENT);
 	}
 
 	public void createLoginToken(String userId, UserRoleEnum role, HttpServletResponse response) {
@@ -109,7 +103,7 @@ public class MemberService {
 	// 로그아웃
 	public ResponseEntity<Message> logout(User user){
 		setLogoutBlackList(user.getUserId());
-		return new ResponseEntity<>(new Message("로그아웃 성공", null), HttpStatus.OK);
+		return new ResponseEntity<>(new Message("로그아웃 성공", null), HttpStatus.NO_CONTENT);
 	}
 
 	public void setLogoutBlackList(String userId) {
@@ -117,7 +111,7 @@ public class MemberService {
 		if (redisUtil.get(userId).isPresent())
 			refreshToken = redisUtil.get(userId).get().toString().substring(7);
 		else
-			throw new CustomException(ErrorCode.USER_NOT_FOUND);
+			return ;
 		Long expireTime = jwtUtil.getExpirationTime(refreshToken);
 		redisUtil.delete(userId);
 		redisUtil.setBlackList(userId, refreshToken, expireTime);
