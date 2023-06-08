@@ -53,8 +53,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		if (!permit) {
 			if (jwtUtil.validateToken(access_token)) {
 				setAuthentication(jwtUtil.getUserInfoFromToken(access_token));
-			} else if (access_token == null) {
-				jwtExceptionHandler(response, "refreshToken 주세요.", HttpStatus.UNAUTHORIZED.value());
+			} else if (access_token == null && refresh_token == null) {
+				jwtExceptionHandler(response, "give me refreshToken.", HttpStatus.UNAUTHORIZED.value());
 				return ;
 			} else if (refresh_token != null && jwtUtil.refreshTokenValid(refresh_token)) {
 				//Refresh토큰으로 유저명 가져오기

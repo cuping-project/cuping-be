@@ -1,6 +1,5 @@
 package com.cuping.cupingbe.dto;
 
-import jakarta.persistence.Column;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 

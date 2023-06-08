@@ -39,7 +39,8 @@ public class CommentService {
     // 댓글 수정
     @Transactional
     public ResponseEntity<Message> updateComment(CommentUpdateRequestDto requestDto, User user) {
-        Comment comment = checkModifyComment(requestDto.getId(), user);
+        Comment comment = checkComment(requestDto.getId());
+        checkUser(comment, user);
         commentRepository.save(comment);
         return new ResponseEntity<>(new Message("댓글 수정 성공.", new CommentResponseDto(comment)), HttpStatus.OK);
     }
@@ -56,16 +57,11 @@ public class CommentService {
         }
     }
 
-    public Comment checkModifyComment(Long commentId, User user) {
-        Comment comment = checkComment(commentId);
-        checkUser(comment, user);
-        return comment;
-    }
-
     //댓글 삭제
     @Transactional
     public ResponseEntity<Message> deleteComment(CommentDeleteRequestDto requestDto, User user) {
-        Comment comment = checkModifyComment(requestDto.getId(), user);
+        Comment comment = checkComment(requestDto.getId());
+        checkUser(comment, user);
         commentRepository.delete(comment);
         return new ResponseEntity<>(new Message("댓글 삭제 성공.", null), HttpStatus.NO_CONTENT);
     }
