@@ -159,7 +159,6 @@ public class JwtUtil {
 		return ResponseCookie.from(name, value.replace(" ", "%"))
 				.path("/")
 				.maxAge(tokenTime)
-				.domain(".cuping.net")
 				.sameSite("None")
 				.secure(true)
 				.build();
