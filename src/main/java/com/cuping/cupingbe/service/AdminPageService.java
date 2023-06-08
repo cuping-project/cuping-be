@@ -75,7 +75,7 @@ public class AdminPageService {
         //관리자 권한이 있는지 확인
         checkRoleAdmin(userDetails.getUser().getRole());
         cafeRepository.save(utilService.checkCafeId(cafeId).setPermit(true));
-        return new ResponseEntity<>(new Message("가게 승인 성공", null), HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(new Message("가게 승인 성공", null), HttpStatus.OK);
     }
 
     // (관리자페이지) 원두 삭제
@@ -87,7 +87,7 @@ public class AdminPageService {
 
         s3Uploader.delete(bean.getBeanImage());
         beanRepository.delete(bean);
-        return new ResponseEntity<>(new Message("원두 삭제 성공", null), HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(new Message("원두 삭제 성공", null), HttpStatus.OK);
     }
 
     //(관리자 페이지) 원두 전체 조회

@@ -63,6 +63,6 @@ public class CommentService {
         Comment comment = checkComment(requestDto.getId());
         checkUser(comment, user);
         commentRepository.delete(comment);
-        return new ResponseEntity<>(new Message("댓글 삭제 성공.", null), HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(new Message("댓글 삭제 성공.", null), HttpStatus.OK);
     }
 }
