@@ -29,11 +29,11 @@ public class LikesService {
             Likes newLikes = likesRepository.save(Likes.addLike(user, bean));
             newLikes.setLikeStatus();
             bean.updateLike(true);
-            return new ResponseEntity<>(new Message("좋아요 성공.", new LikesResponseDto(bean, newLikes)), HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(new Message("좋아요 성공.", new LikesResponseDto(bean, newLikes)), HttpStatus.OK);
         } else {
             like.setLikeStatus();
             bean.updateLike(like.isLikeStatus());
-            return new ResponseEntity<>(new Message("좋아요 성공.", new LikesResponseDto(bean, like)), HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(new Message("좋아요 성공.", new LikesResponseDto(bean, like)), HttpStatus.OK);
         }
     }
 
