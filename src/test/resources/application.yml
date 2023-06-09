@@ -1,0 +1,13 @@
+spring:
+  profiles:
+    include: aws,s3
+
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        hbm2ddl:
+          auto: validate
+logging.level:
+  org.hibernate.SQL: debug
