@@ -42,9 +42,8 @@ public class OwnerPageService {
         checkCreateCafe(user, ownerPageRequestDto.getStoreAddress());
         JsonNode documents = setCreateCafe(ownerPageRequestDto);
         //사업자 등록증 SC저장
-        String businessImage = s3Uploader.upload(ownerPageRequestDto.getAuthImage());
-        String cafeImage = s3Uploader.upload(ownerPageRequestDto.getCafeImage());
-        cafeRepository.save(new Cafe(user, ownerPageRequestDto, documents, businessImage, cafeImage));
+        String imgUrl = s3Uploader.upload(ownerPageRequestDto.getAuthImage());
+        cafeRepository.save(new Cafe(user, ownerPageRequestDto, documents, imgUrl));
         return new ResponseEntity<>(new Message("가게 등록 성공", null), HttpStatus.OK);
     }
 
@@ -81,8 +80,7 @@ public class OwnerPageService {
     //카페 삭제
     @Transactional
     public ResponseEntity<Message> deleteCafe(Long cafeId, User user) {
-        s3Uploader.delete(checkDeleteCafe(cafeId, user).getCafeImage());
-        s3Uploader.delete(checkDeleteCafe(cafeId, user).getBusinessImage());
+        s3Uploader.delete(checkDeleteCafe(cafeId, user).getImageUrl());
         cafeRepository.deleteById(cafeId);
         return new ResponseEntity<>(new Message("카페가 삭제 되었습니다.", null), HttpStatus.OK);
     }
@@ -115,7 +113,7 @@ public class OwnerPageService {
     }
 
     public void checkRoleOwner(UserRoleEnum role) {
-        if (!role.equals(UserRoleEnum.OWNER)) {
+        if (role.equals(UserRoleEnum.OWNER)) {
             throw new CustomException(ErrorCode.FORBIDDEN_OWNER);
         }
     }
