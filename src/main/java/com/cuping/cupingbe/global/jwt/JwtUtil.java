@@ -156,7 +156,7 @@ public class JwtUtil {
 		long tokenTime = name.equals(ACCESS_KEY) ? ACCESS_TIME : REFRESH_TIME;
 		return ResponseCookie.from(name, value.replace(" ", "%"))
 				.path("/")
-				.domain(".cuping.net")
+				.domain("cuping.net")
 				.maxAge(tokenTime)
 				.sameSite("None")
 				.secure(true)
