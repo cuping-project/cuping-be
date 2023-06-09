@@ -60,7 +60,7 @@ public class OwnerPageService {
         URI uri = UriComponentsBuilder
                 .fromUriString("https://dapi.kakao.com")
                 .path("/v2/local/search/keyword.json")
-                .queryParam("query", ownerPageRequestDto.getStoreAddress())
+                .queryParam("query", setAddress(ownerPageRequestDto.getStoreAddress()))
                 .queryParam("size", 1)
                 .encode()
                 .build()
@@ -75,6 +75,18 @@ public class OwnerPageService {
 
         return objectMapper.readTree(new RestTemplate()
                 .exchange(req, String.class).getBody()).path("documents");
+    }
+
+    public String setAddress(String address) {
+        StringBuilder searchAddress = new StringBuilder();
+        String [] splitAddress = address.split(" ");
+        for(String a : splitAddress) {
+            if (a.charAt(0) != '(') {
+                searchAddress.append(a);
+            } else
+                break;
+        }
+        return searchAddress.toString();
     }
 
     //카페 삭제
