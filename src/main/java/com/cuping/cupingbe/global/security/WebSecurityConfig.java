@@ -100,7 +100,7 @@ public class WebSecurityConfig {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        config.addAllowedOriginPattern("https://cuping.net");
+        config.addAllowedOriginPattern("https://cuping.net/**");
         config.addAllowedOriginPattern("http://localhost:3000");
 
         // 특정 헤더를 클라이언트 측에서 사용할 수 있게 지정
