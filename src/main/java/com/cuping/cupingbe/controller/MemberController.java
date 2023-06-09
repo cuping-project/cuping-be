@@ -13,6 +13,7 @@ import com.cuping.cupingbe.global.util.Message;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.Map;
 
@@ -41,9 +42,17 @@ public class MemberController {
 	public ResponseEntity<Message> checkNickname(@RequestBody Map<String, String> nickname) {
 		return memberService.duplicateCheckNickname(nickname);
 	}
+//	@PostMapping("/login")
+//	public ResponseEntity<Message> login(@RequestBody MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response) {
+//		return memberService.login(memberLoginRequestDto, response);
+//	}
+
 	@PostMapping("/login")
-	public ResponseEntity<Message> login(@RequestBody MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response) {
-		return memberService.login(memberLoginRequestDto, response);
+	public RedirectView login(@RequestBody MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response) {
+		memberService.login(memberLoginRequestDto, response);
+		RedirectView redirectView = new RedirectView();
+		redirectView.setUrl("https://cuping.net");
+		return redirectView;
 	}
 
 	@PostMapping("/logout")
