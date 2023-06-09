@@ -160,7 +160,6 @@ public class JwtUtil {
 				.maxAge(tokenTime)
 				.sameSite("None")
 				.secure(true)
-				.httpOnly(true)
 				.build();
 	}
 
