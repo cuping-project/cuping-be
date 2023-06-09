@@ -4,7 +4,6 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
@@ -36,7 +35,6 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 public class JwtUtil {
-	public static final String AUTHORIZATION_HEADER = "Authorization";
 	public static final String AUTHORIZATION_KEY = "auth";
 	private static final String BEARER_PREFIX = "Bearer ";
 	public static final String ACCESS_KEY = "ACCESS_KEY";
@@ -158,9 +156,11 @@ public class JwtUtil {
 		long tokenTime = name.equals(ACCESS_KEY) ? ACCESS_TIME : REFRESH_TIME;
 		return ResponseCookie.from(name, value.replace(" ", "%"))
 				.path("/")
+				.domain(".cuping.net")
 				.maxAge(tokenTime)
 				.sameSite("None")
 				.secure(true)
+				.httpOnly(true)
 				.build();
 	}
 
