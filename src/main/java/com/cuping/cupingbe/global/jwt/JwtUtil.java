@@ -39,8 +39,8 @@ public class JwtUtil {
 	private static final String BEARER_PREFIX = "Bearer ";
 	public static final String ACCESS_KEY = "ACCESS_KEY";
 	public static final String REFRESH_KEY = "REFRESH_KEY";
-	public static final long ACCESS_TIME = 60 * 60 * 1000L;
-	public static final long REFRESH_TIME = 24 * 60 * 60 * 1000L;
+	public static final long ACCESS_TIME = 60 * 60L;
+	public static final long REFRESH_TIME = 14 * 24 * 60 * 60L;
 	private final UserDetailsServiceImpl userDetailsService;
 
 
@@ -148,8 +148,7 @@ public class JwtUtil {
 		// 현재 시간과 만료 시간의 차이를 계산하여 반환
 		Date expirationDate = claims.getExpiration();
 		Date now = new Date();
-		long diff = (expirationDate.getTime() - now.getTime()) / 1000;
-		return diff;
+		return (expirationDate.getTime() - now.getTime());
 	}
 
 	public ResponseCookie createCookie(String name, String value) {
