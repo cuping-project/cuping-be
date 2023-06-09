@@ -88,16 +88,10 @@ public class MemberService {
 
 	// 로그인
 	public ResponseEntity<Message> login(MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response){
-		String userId = memberLoginRequestDto.getUserId();
-		User user = checkLogin(userId, memberLoginRequestDto.getPassword());
-		createLoginToken(userId, user.getRole(), response);
+		User user = utilService.checkUserId(memberLoginRequestDto.getUserId());
+		utilService.checkUserPassword(memberLoginRequestDto.getPassword(), user.getPassword());
+		createLoginToken(user.getUserId(), user.getRole(), response);
 		return new ResponseEntity<>(new Message("로그인 성공", null), HttpStatus.OK);
-	}
-
-	public User checkLogin(String userId, String inputPassword) {
-		User user = utilService.checkUserId(userId);
-		utilService.checkUserPassword(inputPassword, user.getPassword());
-		return user;
 	}
 
 	public void createLoginToken(String userId, UserRoleEnum role, HttpServletResponse response) {
@@ -117,7 +111,7 @@ public class MemberService {
 		if (redisUtil.get(userId).isPresent())
 			refreshToken = redisUtil.get(userId).get().toString().substring(7);
 		else
-			throw new CustomException(ErrorCode.USER_NOT_FOUND);
+			return ;
 		Long expireTime = jwtUtil.getExpirationTime(refreshToken);
 		redisUtil.delete(userId);
 		redisUtil.setBlackList(userId, refreshToken, expireTime);

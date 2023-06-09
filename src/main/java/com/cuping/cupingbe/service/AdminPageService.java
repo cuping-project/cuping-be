@@ -36,30 +36,26 @@ public class AdminPageService {
     @Transactional
     public ResponseEntity<Message> createBean(AdminPageRequestDto adminPageRequestDto, UserDetailsImpl userDetails) throws IOException {
         //관리자 권한, 중복 원두가 있는지 확인.
-        checkCreateBean(userDetails.getUser().getRole(), adminPageRequestDto);
+        checkRoleAdmin(userDetails.getUser().getRole());
+        utilService.checkBean(adminPageRequestDto.getOrigin() + adminPageRequestDto.getBeanName()
+                , adminPageRequestDto.getRoastingLevel(), true);
+
         String imgUrl = s3Uploader.upload(adminPageRequestDto.getImage());
         beanRepository.save(new Bean(imgUrl, adminPageRequestDto));
         return new ResponseEntity<>(new Message("원두 등록 성공", null), HttpStatus.CREATED);
     }
 
-
-    public void checkAdmin(UserRoleEnum role) {
+    public void checkRoleAdmin(UserRoleEnum role) {
         if (!role.equals(UserRoleEnum.ADMIN)) {
             throw new CustomException(ErrorCode.FORBIDDEN_ADMIN);
         }
-    }
-
-    public void checkCreateBean(UserRoleEnum role, AdminPageRequestDto adminPageRequestDto) {
-        checkAdmin(role);
-        utilService.checkBean(adminPageRequestDto.getOrigin() + adminPageRequestDto.getBeanName()
-                , adminPageRequestDto.getRoastingLevel(), true);
     }
 
     //(관리자페이지) 승인되지 않은 카페 전체 조회
     @Transactional
     public ResponseEntity<Message> getPermitCafe(UserDetailsImpl userDetails) {
         //관리자 권한이 있는지 확인
-        checkAdmin(userDetails.getUser().getRole());
+        checkRoleAdmin(userDetails.getUser().getRole());
         return new ResponseEntity<>(new Message("승인 요청 가게 목록 조회.", createPermitCafeList()), HttpStatus.OK);
     }
 
@@ -77,25 +73,26 @@ public class AdminPageService {
     @Transactional
     public ResponseEntity<Message> permitCafe(Long cafeId, UserDetailsImpl userDetails) {
         //관리자 권한이 있는지 확인
-        checkAdmin(userDetails.getUser().getRole());
+        checkRoleAdmin(userDetails.getUser().getRole());
         cafeRepository.save(utilService.checkCafeId(cafeId).setPermit(true));
-        return new ResponseEntity<>(new Message("가게 승인 성공", null), HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(new Message("가게 승인 성공", null), HttpStatus.OK);
     }
 
     // (관리자페이지) 원두 삭제
     @Transactional
     public ResponseEntity<Message> deleteBean(Long beanId, UserDetailsImpl userDetails) {
         //관리자 권한이 있는지 확인
-        checkAdmin(userDetails.getUser().getRole());
+        checkRoleAdmin(userDetails.getUser().getRole());
         Bean bean = utilService.checkBean(beanId);
+
         s3Uploader.delete(bean.getBeanImage());
         beanRepository.delete(bean);
-        return new ResponseEntity<>(new Message("원두 삭제 성공", null), HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(new Message("원두 삭제 성공", null), HttpStatus.OK);
     }
 
     //(관리자 페이지) 원두 전체 조회
     public ResponseEntity<Message> findAllBean(User user) {
-        checkAdmin(user.getRole());
+        checkRoleAdmin(user.getRole());
         List<Bean> bean = beanRepository.findAll();
         return new ResponseEntity<>(new Message("사장 카페 조회.", bean), HttpStatus.OK);
     }
