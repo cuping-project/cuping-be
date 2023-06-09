@@ -42,18 +42,18 @@ public class MemberController {
 	public ResponseEntity<Message> checkNickname(@RequestBody Map<String, String> nickname) {
 		return memberService.duplicateCheckNickname(nickname);
 	}
-//	@PostMapping("/login")
-//	public ResponseEntity<Message> login(@RequestBody MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response) {
-//		return memberService.login(memberLoginRequestDto, response);
-//	}
-
 	@PostMapping("/login")
-	public RedirectView login(@RequestBody MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response) {
-		memberService.login(memberLoginRequestDto, response);
-		RedirectView redirectView = new RedirectView();
-		redirectView.setUrl("https://cuping.net");
-		return redirectView;
+	public ResponseEntity<Message> login(@RequestBody MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response) {
+		return memberService.login(memberLoginRequestDto, response);
 	}
+
+//	@PostMapping("/login")
+//	public RedirectView login(@RequestBody MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response) {
+//		memberService.login(memberLoginRequestDto, response);
+//		RedirectView redirectView = new RedirectView();
+//		redirectView.setUrl("https://cuping.net");
+//		return redirectView;
+//	}
 
 	@PostMapping("/logout")
 	public ResponseEntity<Message>logout(@AuthenticationPrincipal UserDetailsImpl userDetails) {
