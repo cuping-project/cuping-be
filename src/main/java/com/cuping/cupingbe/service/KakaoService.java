@@ -1,11 +1,8 @@
 package com.cuping.cupingbe.service;
 
-import java.util.Optional;
 import java.util.UUID;
 
-import com.cuping.cupingbe.global.util.Message;
-import jakarta.servlet.http.Cookie;
-import org.apache.el.parser.Token;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,6 +33,10 @@ public class KakaoService {
 	private final UserRepository userRepository;
 	private final JwtUtil jwtUtil;
 	private final RedisUtil redisUtil;
+	@Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+	private String clientId;
+	@Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
+	private String clientSecret;
 
 	public void kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
 
@@ -57,9 +58,9 @@ public class KakaoService {
 
 		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
 		body.add("grant_type", "authorization_code");
-		body.add("client_id", "826134c9ef39a5b494d322490e0e3abe");
-		body.add("client_secret", "FVhCXvvHBKp8IhcvLIUy3exbWHiHIzMK");
-		body.add("redirect_uri", "http://13.209.106.144:8080/users/oauth/kakao");
+		body.add("client_id", clientId);
+		body.add("client_secret", clientSecret);
+		body.add("redirect_uri", "https://api.cuping.net/users/oauth/kakao");
 		body.add("code", code);
 
 		HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
