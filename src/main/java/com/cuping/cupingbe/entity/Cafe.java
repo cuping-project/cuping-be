@@ -42,7 +42,10 @@ public class Cafe {
     private Boolean permit = false;
 
     @Column
-    private String imageUrl;
+    private String businessImage;
+
+    @Column
+    private String cafeImage;
 
     public Cafe(User owner, Cafe cafe, Bean bean) {
         this.owner = owner;
@@ -51,18 +54,20 @@ public class Cafe {
         this.cafeName = cafe.getCafeName();
         this.x = cafe.getX();
         this.y = cafe.getY();
-        this.imageUrl = cafe.getImageUrl();
+        this.businessImage = cafe.getBusinessImage();
         this.permit = cafe.getPermit();
         this.bean = bean;
+        this.cafeImage = cafe.getCafeImage();
     }
-    public Cafe(User user, OwnerPageRequestDto ownerPageRequestDto, JsonNode documents, String imgUrl) {
+    public Cafe(User user, OwnerPageRequestDto ownerPageRequestDto, JsonNode documents, String businessImage, String cafeImage) {
         this.owner = user;
         this.cafeAddress = ownerPageRequestDto.getStoreAddress();
         this.cafePhoneNumber = ownerPageRequestDto.getStoreNumber();
         this.cafeName = ownerPageRequestDto.getStoreName();
         this.x = documents.get(0).path("x").asText();
         this.y = documents.get(0).path("y").asText();
-        this.imageUrl = imgUrl;
+        this.businessImage = businessImage;
+        this.cafeImage = cafeImage;
     }
 
     public Cafe setPermit(boolean b) {
