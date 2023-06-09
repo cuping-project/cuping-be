@@ -60,7 +60,7 @@ public class KakaoService {
 		body.add("grant_type", "authorization_code");
 		body.add("client_id", clientId);
 		body.add("client_secret", clientSecret);
-		body.add("redirect_uri", "https://cuping.net/users/oauth/kakao");
+		body.add("redirect_uri", "https://api.cuping.net/users/oauth/kakao");
 		body.add("code", code);
 
 		HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest =
