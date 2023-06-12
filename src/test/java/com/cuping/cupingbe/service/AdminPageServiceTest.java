@@ -70,7 +70,8 @@ class AdminPageServiceTest {
         cafe.setBean(null);
         cafe.setOwner(user);
         cafe.setCafePhoneNumber("TestNumber");
-        cafe.setImageUrl("TestURL");
+        cafe.setBusinessImage("TestURL");
+        cafe.setCafeImage("TestURL");
         cafe.setX("TestX");
         cafe.setY("TestY");
         cafe.setPermit(false);
