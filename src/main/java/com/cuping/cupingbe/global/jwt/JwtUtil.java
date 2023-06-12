@@ -157,8 +157,8 @@ public class JwtUtil {
 				.path("/")
 				.domain("cuping.net")
 				.maxAge(tokenTime)
-				.sameSite("None")
-				.secure(true)
+//				.sameSite("None")
+//				.secure(true)
 				.build();
 	}
 
