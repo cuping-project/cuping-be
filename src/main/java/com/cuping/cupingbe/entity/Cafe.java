@@ -6,9 +6,11 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 public class Cafe {
 
@@ -58,15 +60,17 @@ public class Cafe {
         this.cafeImage = cafe.getCafeImage();
         this.permit = cafe.getPermit();
         this.bean = bean;
+        this.cafeImage = cafe.getCafeImage();
     }
-    public Cafe(User user, OwnerPageRequestDto ownerPageRequestDto, JsonNode documents, String imgUrl) {
+    public Cafe(User user, OwnerPageRequestDto ownerPageRequestDto, JsonNode documents, String businessImage, String cafeImage) {
         this.owner = user;
         this.cafeAddress = ownerPageRequestDto.getStoreAddress();
         this.cafePhoneNumber = ownerPageRequestDto.getStoreNumber();
         this.cafeName = ownerPageRequestDto.getStoreName();
         this.x = documents.get(0).path("x").asText();
         this.y = documents.get(0).path("y").asText();
-        this.businessImage = imgUrl;
+        this.businessImage = businessImage;
+        this.cafeImage = cafeImage;
     }
 
     // test
