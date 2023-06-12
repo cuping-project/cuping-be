@@ -1,9 +1,11 @@
 package com.cuping.cupingbe.dto;
 
 import lombok.Data;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
+@Setter
 public class AdminPageRequestDto {
     private MultipartFile image;
     private String beanName;
