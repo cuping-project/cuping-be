@@ -93,6 +93,29 @@ public class OwnerPageService {
         return searchAddress.toString();
     }
 
+    // test
+    public JsonNode initCafe(String keyword, int page) throws Exception {
+        URI uri = UriComponentsBuilder
+                .fromUriString("https://dapi.kakao.com")
+                .path("/v2/local/search/keyword.json")
+                .queryParam("query", keyword)
+                .queryParam("category_group_code", "CE7")
+                .queryParam("page", page)
+                .queryParam("size", 15)
+                .encode()
+                .build()
+                .toUri();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "KakaoAK " + "49244bfa76b071b6bad74b2441b968d7");
+        RequestEntity<Void> req = RequestEntity
+                .get(uri)
+                .headers(headers)
+                .build();
+
+        return objectMapper.readTree(new RestTemplate()
+                .exchange(req, String.class).getBody()).path("documents");
+    }
     //카페 삭제
     @Transactional
     public ResponseEntity<Message> deleteCafe(Long cafeId, User user) {

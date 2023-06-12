@@ -57,6 +57,7 @@ public class Cafe {
         this.x = cafe.getX();
         this.y = cafe.getY();
         this.businessImage = cafe.getBusinessImage();
+        this.cafeImage = cafe.getCafeImage();
         this.permit = cafe.getPermit();
         this.bean = bean;
         this.cafeImage = cafe.getCafeImage();
@@ -70,6 +71,15 @@ public class Cafe {
         this.y = documents.get(0).path("y").asText();
         this.businessImage = businessImage;
         this.cafeImage = cafeImage;
+    }
+
+    // test
+    public Cafe(JsonNode documents, int num) {
+        this.cafeAddress = documents.get(num).path("road_address_name").asText();
+        this.cafePhoneNumber = documents.get(num).path("phone").asText();
+        this.cafeName = documents.get(num).path("place_name").asText();
+        this.x = documents.get(num).path("x").asText();
+        this.y = documents.get(num).path("y").asText();
     }
 
     public Cafe setPermit(boolean b) {
