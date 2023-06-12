@@ -61,5 +61,5 @@ tasks.named('test') {
 }
 
 test {
-    exclude '**/*'
+    useJUnitPlatform()
 }
