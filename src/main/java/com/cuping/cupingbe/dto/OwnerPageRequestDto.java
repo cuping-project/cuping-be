@@ -18,10 +18,4 @@ public class OwnerPageRequestDto {
     private MultipartFile authImage;
     private MultipartFile cafeImage;
 
-    public OwnerPageRequestDto(String storeName, String storeAddress, String storeNumber, MultipartFile authImage) {
-        this.storeName = storeName;
-        this.storeAddress = storeAddress;
-        this.storeNumber = storeNumber;
-        this.authImage = authImage;
-    }
 }
