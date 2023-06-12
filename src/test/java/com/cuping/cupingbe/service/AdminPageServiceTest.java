@@ -27,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 
@@ -71,6 +72,7 @@ class AdminPageServiceTest {
         cafe.setOwner(user);
         cafe.setCafePhoneNumber("TestNumber");
         cafe.setImageUrl("TestURL");
+        cafe.setImageUrl("TestURL");
         cafe.setX("TestX");
         cafe.setY("TestY");
         cafe.setPermit(false);
@@ -86,7 +88,7 @@ class AdminPageServiceTest {
     }
 
     @Test
-    @DisplayName("원두 생성 성공")
+    @DisplayName("원두 등록")
     public void createBean() {
         //given
         String imgUrl = "TestURL";
@@ -101,7 +103,7 @@ class AdminPageServiceTest {
     }
 
     @Test
-    @DisplayName("카페 조회")
+    @DisplayName("승인되지 않은 카페 조회")
     public void getPermitCafe() {
         // given
         List<Cafe> cafeList = new ArrayList<>();
@@ -121,6 +123,24 @@ class AdminPageServiceTest {
         assertThat(adminPageResponseDtoList.get(0).getCafeId()).isEqualTo(adminPageResponseDtoList1.get(0).getCafeId());
     }
 
+    @Test
+    @DisplayName("카페 승인")
+    public void permitCafe() {
+        //given
+        when(cafeRepository.findById(cafe.getId())).thenReturn(Optional.ofNullable(cafe));
+        when(cafeRepository.save(cafe)).thenReturn(cafe);
+
+        //when
+        Optional<Cafe> cafe1 = cafeRepository.findById(cafe.getId());
+        Cafe cafe2 = new Cafe();
+        if (cafe1.isPresent()) {
+            cafe2 = cafe1.get();
+        }
+        Cafe cafe3 = cafeRepository.save(cafe2);
+
+        //then
+        assertThat(cafe3.getPermit()).isNotEqualTo(cafe2.getPermit());
+    }
 
 
 
