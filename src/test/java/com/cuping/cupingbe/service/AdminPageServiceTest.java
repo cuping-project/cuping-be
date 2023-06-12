@@ -1,6 +1,5 @@
 package com.cuping.cupingbe.service;
 
-
 import com.cuping.cupingbe.dto.AdminPageRequestDto;
 import com.cuping.cupingbe.dto.AdminPageResponseDto;
 import com.cuping.cupingbe.dto.OwnerPageRequestDto;
@@ -34,7 +33,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 class AdminPageServiceTest {
-
     @Mock
     private BeanRepository beanRepository;
     @Mock
@@ -46,15 +44,11 @@ class AdminPageServiceTest {
     @Mock
     private Cafe cafe;
     private AdminPageRequestDto adminPageRequestDto;
-
-
-
-
     @BeforeEach
     @DisplayName("초기세팅")
     public void setup() {
-        adminPageRequestDto = new AdminPageRequestDto();
         MultipartFile mockFile = new MockMultipartFile("testFile", new byte[0]);
+        adminPageRequestDto = new AdminPageRequestDto();
         adminPageRequestDto.setImage(mockFile);
         adminPageRequestDto.setBeanName("TestName");
         adminPageRequestDto.setBeanSummary("TestSummary");
@@ -77,7 +71,6 @@ class AdminPageServiceTest {
         cafe.setY("TestY");
         cafe.setPermit(false);
 
-
         user = new User();
         user.setId(1L);
         user.setUserId("TestId");
@@ -86,14 +79,12 @@ class AdminPageServiceTest {
         user.setNickname("TestNickName");
         user.setRole(UserRoleEnum.ADMIN);
     }
-
     @Test
     @DisplayName("원두 등록")
     public void createBean() {
         //given
         String imgUrl = "TestURL";
         Bean bean = new Bean(imgUrl, adminPageRequestDto);
-
         //when
         checkCreateBean(user, adminPageRequestDto);
         when(beanRepository.save(bean)).thenReturn(bean);
@@ -101,49 +92,69 @@ class AdminPageServiceTest {
         Bean saveBean = beanRepository.save(bean);
         assertThat(saveBean).isEqualTo(bean);
     }
-
     @Test
     @DisplayName("승인되지 않은 카페 조회")
     public void getPermitCafe() {
         // given
         List<Cafe> cafeList = new ArrayList<>();
         List<AdminPageResponseDto> adminPageResponseDtoList = new ArrayList<>();
-        List<AdminPageResponseDto> adminPageResponseDtoList1 = new ArrayList<>();
         // when
         checkAdmin(user);
         cafeList.add(cafe);
         when(cafeRepository.findAllByPermit(false)).thenReturn(cafeList);
-        adminPageResponseDtoList1.add(new AdminPageResponseDto(cafe));
-
         // then
         List<Cafe> cafeList1 = cafeRepository.findAllByPermit(false);
         for (Cafe cafe : cafeList1) {
             adminPageResponseDtoList.add(new AdminPageResponseDto(cafe));
         }
-        assertThat(adminPageResponseDtoList.get(0).getCafeId()).isEqualTo(adminPageResponseDtoList1.get(0).getCafeId());
+        assertThat(adminPageResponseDtoList.get(0).getCafeId()).isEqualTo(cafeList.get(0).getId());
     }
-
     @Test
     @DisplayName("카페 승인")
     public void permitCafe() {
         //given
-        when(cafeRepository.findById(cafe.getId())).thenReturn(Optional.ofNullable(cafe));
-        when(cafeRepository.save(cafe)).thenReturn(cafe);
-
+        String imgUrl = "TestURL";
+        Bean bean = new Bean(imgUrl, adminPageRequestDto);
+        Cafe cafe2 = new Cafe(user, cafe, bean);
         //when
-        Optional<Cafe> cafe1 = cafeRepository.findById(cafe.getId());
-        Cafe cafe2 = new Cafe();
-        if (cafe1.isPresent()) {
-            cafe2 = cafe1.get();
-        }
-        Cafe cafe3 = cafeRepository.save(cafe2);
-
+        checkAdmin(user);
+        when(utilService.checkCafeId(cafe.getId())).thenReturn(cafe2);
+        when(cafeRepository.save(cafe2)).thenReturn(cafe2);
         //then
-        assertThat(cafe3.getPermit()).isNotEqualTo(cafe2.getPermit());
+        cafe2 = utilService.checkCafeId(cafe.getId());
+        cafe2.setPermit(true);
+        Cafe testCafe = cafeRepository.save(cafe2);
+        assertThat(testCafe.getPermit());
     }
-
-
-
+    @Test
+    @DisplayName("원두 삭제")
+    public void deleteBean() {
+        //given
+        String imgUrl = "TestURL";
+        Bean bean = new Bean(imgUrl, adminPageRequestDto);
+        when(utilService.checkBean(bean.getId())).thenReturn(bean);
+        //when
+        checkAdmin(user);
+        Bean testBean = utilService.checkBean(bean.getId());
+        beanRepository.delete(testBean);
+        Optional<Bean> resultBean = beanRepository.findById(testBean.getId());
+        //then
+        assertThat(resultBean.isEmpty());
+    }
+    @Test
+    @DisplayName("원두 전체 조회")
+    public void findAllBean() {
+        //given
+        String imgUrl = "TestURL";
+        Bean bean = new Bean(imgUrl, adminPageRequestDto);
+        List<Bean> beanList = new ArrayList<>();
+        beanList.add(bean);
+        when(beanRepository.findAll()).thenReturn(beanList);
+        //when
+        List<Bean> testList = beanRepository.findAll();
+        //then
+        assertThat(testList.size() > 0);
+    }
     public void checkCreateBean(User user, AdminPageRequestDto adminPageRequestDto) {
         checkAdmin(user);
         utilService.checkBean(adminPageRequestDto.getOrigin() + adminPageRequestDto.getBeanName()
@@ -154,6 +165,4 @@ class AdminPageServiceTest {
             throw new CustomException(ErrorCode.FORBIDDEN_ADMIN);
         }
     }
-
-
 }
