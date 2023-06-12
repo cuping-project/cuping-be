@@ -52,7 +52,7 @@ public class MemberService {
 							requestDto.getStoreName()
 							, requestDto.getStoreAddress()
 							, requestDto.getStoreNumber()
-							, requestDto.getAuthImage(), requestDto.getAuthImage())
+							, requestDto.getAuthImage())
 					, user
 			);
 		}

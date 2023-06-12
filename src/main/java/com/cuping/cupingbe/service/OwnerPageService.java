@@ -43,7 +43,10 @@ public class OwnerPageService {
         JsonNode documents = setCreateCafe(ownerPageRequestDto);
         //사업자 등록증 SC저장
         String businessImage = s3Uploader.upload(ownerPageRequestDto.getAuthImage());
-        String cafeImage = s3Uploader.upload(ownerPageRequestDto.getCafeImage());
+        String cafeImage;
+        if (ownerPageRequestDto.getCafeImage() != null) {
+             cafeImage = s3Uploader.upload(ownerPageRequestDto.getCafeImage());
+        } else { cafeImage = "";}
         cafeRepository.save(new Cafe(user, ownerPageRequestDto, documents, businessImage, cafeImage));
         return new ResponseEntity<>(new Message("가게 등록 성공", null), HttpStatus.OK);
     }
