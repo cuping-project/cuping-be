@@ -49,10 +49,10 @@ public class MemberService {
 		);
 		if (type.equals("owner")) {
 			ownerPageService.createCafe(new OwnerPageRequestDto(
-					requestDto.getStoreName()
-					, requestDto.getStoreAddress()
-					, requestDto.getStoreNumber()
-					, requestDto.getAuthImage())
+							requestDto.getStoreName()
+							, requestDto.getStoreAddress()
+							, requestDto.getStoreNumber()
+							, requestDto.getAuthImage())
 					, user
 			);
 		}
