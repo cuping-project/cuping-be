@@ -1,4 +1,4 @@
-package com.cuping.cupingbe.likes;
+package com.cuping.cupingbe.service;
 
 import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Likes;
