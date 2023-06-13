@@ -30,4 +30,6 @@ public class MemberSignupRequestDto {
 	private String storeNumber;
 
 	private MultipartFile authImage;
+
+	private MultipartFile[] cafeImage;
 }
