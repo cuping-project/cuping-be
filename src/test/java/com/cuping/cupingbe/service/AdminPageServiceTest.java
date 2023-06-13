@@ -31,14 +31,10 @@ class AdminPageServiceTest {
     @Mock
     private CafeRepository cafeRepository;
     @Mock
-    private User user;
-    @Mock
     private UtilService utilService;
-    @Mock
+    private User user;
     private Cafe cafe;
-    @Mock
     private Bean bean;
-    @Mock
     private AdminPageRequestDto adminPageRequestDto;
     @BeforeEach
     @DisplayName("초기세팅")
