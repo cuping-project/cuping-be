@@ -3,15 +3,12 @@ package com.cuping.cupingbe.entity;
 import com.cuping.cupingbe.dto.OwnerPageRequestDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Cafe {
 
     @Id // 카카오맵에서 제공하는 ID를 사용하려고 GeneratedValue추가 안함.

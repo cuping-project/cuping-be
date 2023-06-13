@@ -2,12 +2,14 @@ package com.cuping.cupingbe.entity;
 
 import com.cuping.cupingbe.dto.AdminPageRequestDto;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Bean {
 
     @Id
