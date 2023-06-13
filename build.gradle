@@ -40,6 +40,7 @@ dependencies {
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
 
     // mysql
     implementation 'mysql:mysql-connector-java:8.0.32'
