@@ -13,8 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class UtilService {
@@ -45,17 +43,17 @@ public class UtilService {
 
     @Transactional(readOnly = true)
     public Bean checkBean(String beanOriginName, String beanRoastingLevel, boolean isDuplicateCheck) {
-        Optional<Bean> bean = beanRepository.findByBeanOriginNameAndRoastingLevel(
-                beanOriginName, beanRoastingLevel);
+        Bean bean = checkByBeanOriginNameAndRoastingLevel(beanOriginName, beanRoastingLevel);
         if (isDuplicateCheck) {
-            if (bean.isPresent())
-                throw new CustomException(ErrorCode.DUPLICATE_BEAN);
-            return null;
+            throw new CustomException(ErrorCode.DUPLICATE_BEAN);
         } else {
-            if (bean.isEmpty())
-                throw new CustomException(ErrorCode.UNREGISTER_BEAN);
-            return bean.get();
+            return bean;
         }
+    }
+
+    public Bean checkByBeanOriginNameAndRoastingLevel(String beanOriginName, String beanRoastingLevel) {
+        return beanRepository.findByBeanOriginNameAndRoastingLevel(beanOriginName, beanRoastingLevel).orElseThrow(() ->
+                new CustomException(ErrorCode.INVALID_BEANS));
     }
 
     @Transactional(readOnly = true)
