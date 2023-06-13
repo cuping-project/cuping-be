@@ -62,6 +62,7 @@ public class Cafe {
         this.bean = bean;
         this.cafeImage = cafe.getCafeImage();
     }
+
     public Cafe(User user, OwnerPageRequestDto ownerPageRequestDto, JsonNode documents, String businessImage, String cafeImage) {
         this.owner = user;
         this.cafeAddress = ownerPageRequestDto.getStoreAddress();

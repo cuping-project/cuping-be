@@ -44,12 +44,13 @@ public class PageService {
 
     // 검색
     public ResponseEntity<Message> getSearchPage(String keyword) {
+        List<Bean> beanList;
         if (keyword.isEmpty()) {
-            return new ResponseEntity<>(new Message("Success", beanRepository.findAll()), HttpStatus.OK);
+            beanList = beanRepository.findAll();
         } else {
-            return new ResponseEntity<>(new Message("Success", beanRepository.findByBeanOriginNameContaining(keyword)),
-            HttpStatus.OK);
+            beanList = beanRepository.findByBeanOriginNameContaining(keyword);
         }
+        return new ResponseEntity<>(new Message("Success", beanList), HttpStatus.OK);
     }
 
     // 상세페이지
@@ -58,7 +59,7 @@ public class PageService {
         List<Cafe> cafeList = setDetailPageCafe(bean, address);
         // Bean에 연결된 Comment 목록을 가져오기
         List<Comment> commentList = setDetailPageComment(bean);
-        return new ResponseEntity<>(new Message("Success", new DetailPageResponseDto(bean, cafeList,commentList)), HttpStatus.OK);
+        return new ResponseEntity<>(new Message("Success", new DetailPageResponseDto(bean, cafeList, commentList)), HttpStatus.OK);
     }
 
     public List<Cafe> setDetailPageCafe(Bean bean, String address) {
