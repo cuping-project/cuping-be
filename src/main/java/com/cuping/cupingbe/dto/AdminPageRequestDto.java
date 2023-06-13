@@ -1,11 +1,12 @@
 package com.cuping.cupingbe.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
-@Setter
+@AllArgsConstructor
 public class AdminPageRequestDto {
     private MultipartFile image;
     private String beanName;
@@ -15,5 +16,4 @@ public class AdminPageRequestDto {
     private String flavor;
     private String origin;
     private String hashTag;
-
 }
