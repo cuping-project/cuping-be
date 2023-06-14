@@ -1,4 +1,4 @@
-package likes;
+package com.cuping.cupingbe.service;
 
 import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Likes;
@@ -20,7 +20,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 
 @ExtendWith(MockitoExtension.class)

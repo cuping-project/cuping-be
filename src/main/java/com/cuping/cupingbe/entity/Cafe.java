@@ -57,11 +57,11 @@ public class Cafe {
         this.x = cafe.getX();
         this.y = cafe.getY();
         this.businessImage = cafe.getBusinessImage();
-        this.cafeImage = cafe.getCafeImage();
         this.permit = cafe.getPermit();
         this.bean = bean;
         this.cafeImage = cafe.getCafeImage();
     }
+
     public Cafe(User user, OwnerPageRequestDto ownerPageRequestDto, JsonNode documents, String businessImage, String cafeImage) {
         this.owner = user;
         this.cafeAddress = ownerPageRequestDto.getStoreAddress();
