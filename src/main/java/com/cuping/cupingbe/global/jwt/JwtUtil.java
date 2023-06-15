@@ -172,8 +172,8 @@ public class JwtUtil {
 				.path("/")
 				.domain("localhost")
 				.maxAge(tokenTime)
-				.sameSite("None")
-				.secure(true)
+//				.sameSite("None")
+//				.secure(true)
 				.build();
 	}
 
