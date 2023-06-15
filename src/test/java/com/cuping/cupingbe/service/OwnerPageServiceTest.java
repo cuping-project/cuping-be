@@ -1,6 +1,5 @@
 package com.cuping.cupingbe.service;
 
-
 import com.cuping.cupingbe.dto.BeanByCafeRequestDto;
 import com.cuping.cupingbe.dto.OwnerPageRequestDto;
 import com.cuping.cupingbe.dto.OwnerResponseDto;
@@ -8,6 +7,7 @@ import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Cafe;
 import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.entity.UserRoleEnum;
+import com.cuping.cupingbe.global.security.UserDetailsImpl;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.BeanRepository;
 import com.cuping.cupingbe.repository.CafeRepository;
@@ -20,35 +20,43 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+
+import java.io.IOException;
+import java.util.*;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OwnerPageServiceTest {
     @Mock
-    private OwnerPageService ownerPageService;
-    @Mock
     private CafeRepository cafeRepository;
     @Mock
+    private UtilService utilService;
+    @Mock
     private S3Uploader s3Uploader;
-
-    private User user;
-    private Bean bean;
-    private Cafe cafe;
+    @Mock
+    private UserDetailsImpl userDetails;
+    @Mock
+    private OwnerPageService ownerService;
+    @Mock
+    private OwnerPageService ownerPageService2;
+    @InjectMocks
+    private OwnerPageService ownerPageService;
     private OwnerPageRequestDto ownerPageRequestDto;
-    private OwnerResponseDto ownerResponseDto;
     private BeanByCafeRequestDto beanByCafeRequestDto;
+    private User user;
+    private Cafe cafe;
+    private Bean bean;
     @BeforeEach
     @DisplayName("초기세팅")
     public void setup() {
@@ -60,17 +68,18 @@ class OwnerPageServiceTest {
                 "TestImageURL", "TestSummary", "단맛/신맛/쓴맛",
                 "TestInfo", "2", "TestFlavor", "TestOrigin", 0);
 
+        cafe = new Cafe(1L, user, bean, "TestAddress", "TestNumber","TestName",
+                "TestX", "TestY", false,
+                "TestbusinessImageURL", "TestCafeImageURL");
+
         user = new User(1L,"TestId", "TestNickName", "TestPassWord",
                 UserRoleEnum.OWNER, null, "TestEmail", null);
 
-        cafe = new Cafe(1L, user, bean, "TestAddress", "TestNumber","TestName",
-                "TestX", "TestY", false,
-                "TestBusinessImageURL", "TestCafeImageURL");
-
-        ownerResponseDto = new OwnerResponseDto(cafe);
+        userDetails = new UserDetailsImpl(user,user.getUserId());
 
         beanByCafeRequestDto = new BeanByCafeRequestDto(cafe.getCafeAddress(),
                 bean.getBeanName(),bean.getRoastingLevel(),bean.getOrigin());
+
     }
     @Test
     @DisplayName("카페 등록 요청")
@@ -93,13 +102,13 @@ class OwnerPageServiceTest {
         ArrayNode documentsArrayNode = mapper.createArrayNode();
         documentsArrayNode.add(cafeNode);
         JsonNode jsonNode = documentsArrayNode;
-        when(ownerPageService.setCreateCafe(ownerPageRequestDto)).thenReturn(jsonNode);
+        when(ownerService.setCreateCafe(ownerPageRequestDto)).thenReturn(jsonNode);
         when(s3Uploader.upload(ownerPageRequestDto.getAuthImage())).thenReturn("TestBusinessImageURL");
-        when(s3Uploader.upload(ownerPageRequestDto.getAuthImage())).thenReturn("TestCafeImageURL");
+        when(s3Uploader.upload(ownerPageRequestDto.getCafeImage())).thenReturn("TestCafeImageURL");
         when(cafeRepository.save(any(Cafe.class))).thenReturn(cafe);
         //when
-        ownerPageService.checkCreateCafe(user, ownerPageRequestDto.getStoreAddress());
-        JsonNode documents = ownerPageService.setCreateCafe(ownerPageRequestDto);
+        ownerService.checkCreateCafe(user, ownerPageRequestDto.getStoreAddress());
+        JsonNode documents = ownerService.setCreateCafe(ownerPageRequestDto);
         String businessImage = s3Uploader.upload(ownerPageRequestDto.getAuthImage());
         String cafeImage;
         if (ownerPageRequestDto.getCafeImage() != null) {
@@ -107,38 +116,39 @@ class OwnerPageServiceTest {
         } else { cafeImage = "";}
         Cafe tmpCafe = cafeRepository.save(new Cafe(user, ownerPageRequestDto, documents, businessImage, cafeImage));
         ResponseEntity<Message> responseEntity = new ResponseEntity<>
-        (new Message("가게 등록 성공", null), HttpStatus.OK);
+                (new Message("가게 등록 성공", null), HttpStatus.OK);
         //then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(cafe.getId().equals(tmpCafe.getId()));
         assertThat(responseEntity.getBody().getMessage().equals("가게 등록 성공"));
     }
     @Test
-    @DisplayName("카페 삭제")
-    public void deleteCafe () {
-        //given
-        when(ownerPageService.checkDeleteCafe(cafe.getId(), user)).thenReturn(cafe);
-        //when
-        s3Uploader.delete(ownerPageService.checkDeleteCafe(cafe.getId(),user).getBusinessImage());
-        s3Uploader.delete(ownerPageService.checkDeleteCafe(cafe.getId(),user).getCafeImage());
-        cafeRepository.delete(ownerPageService.checkDeleteCafe(cafe.getId(),user));
-        Optional<Cafe> resultCafe = cafeRepository.findById(cafe.getId());
-        //then
-        assertThat(resultCafe.isEmpty());
+    @DisplayName("카페 삭제 요청")
+    public void deleteCafeTest() {
+        // given
+        when(utilService.checkUserId(user.getUserId())).thenReturn(user);
+        when(utilService.checkCafeId(cafe.getId())).thenReturn(cafe);
+        when(cafeRepository.findByOwnerIdAndId(user.getId(), cafe.getId())).thenReturn(Optional.of(cafe));
+        when(utilService.checkCafeId(cafe.getId())).thenReturn(cafe);
+        doNothing().when(cafeRepository).deleteById(cafe.getId());
+
+        // when
+        ResponseEntity<Message> responseEntity = ownerPageService.deleteCafe(cafe.getId(), user);
+
+        // then
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody().getData()).isNull();
     }
+
     @Test
     @DisplayName("카페 조회")
     public void getCafe() {
         // given
-        Map<String, OwnerResponseDto> cafeMap = new HashMap<>();
-        cafeMap.put(cafe.getCafeAddress(), ownerResponseDto);
-        when(ownerPageService.createCafeMap(user.getId())).thenReturn(cafeMap);
-
+        List<Cafe> cafeList = new ArrayList<>();
+        cafeList.add(cafe);
+        when(cafeRepository.findAllByOwnerId(user.getId())).thenReturn(cafeList);
         // when
-        ownerPageService.checkRoleOwner(user.getRole());
-        ResponseEntity<Message> responseEntity = new ResponseEntity<>(
-                new Message("사장 카페 조회.", ownerPageService.createCafeMap(user.getId())), HttpStatus.OK);
-
+        ResponseEntity<Message> responseEntity = ownerPageService.getCafe(user);
         // then
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(((Map<String, OwnerResponseDto>) responseEntity.getBody().getData())
@@ -148,23 +158,27 @@ class OwnerPageServiceTest {
     @Test
     @DisplayName("카페에 원두 등록")
     public void addBeanByCafe() {
-        //given
-        when(ownerPageService.checkBeanByCafe(user, beanByCafeRequestDto, "add")).thenReturn(cafe);
-        when(cafeRepository.save(cafe)).thenReturn(cafe);
-        //when
-        Cafe testCafe = cafeRepository.save(ownerPageService.checkBeanByCafe(user, beanByCafeRequestDto, "add"));
-        //then
-        assertThat(testCafe.equals(cafe));
+        // given
+        when(utilService.checkBean(beanByCafeRequestDto.getBeanOrigin() + beanByCafeRequestDto.getBeanName(), beanByCafeRequestDto.getBeanRoastingLevel(), false)).thenReturn(bean);
+        when(cafeRepository.findFirstByCafeAddressAndOwnerId(cafe.getCafeAddress(), user.getId())).thenReturn(Optional.of(cafe));
+        when(cafeRepository.save(any(Cafe.class))).thenReturn(cafe);
+        // when
+        ResponseEntity<Message> response = ownerPageService.addBeanByCafe(userDetails.getUser(), beanByCafeRequestDto);
+        // then
+        assertThat(response.getBody().getData()).isNull();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
     @Test
     @DisplayName("카페에 등록된 원두 삭제")
     public void deleteBeanBycafe() {
         //given
-        when(ownerPageService.checkBeanByCafe(user, beanByCafeRequestDto, "delete")).thenReturn(cafe);
+        when(utilService.checkBean(beanByCafeRequestDto.getBeanOrigin() + beanByCafeRequestDto.getBeanName(), beanByCafeRequestDto.getBeanRoastingLevel(), false)).thenReturn(bean);
+        when(cafeRepository.findByCafeAddressAndBeanIdAndOwnerId(beanByCafeRequestDto.getCafeAddress(),bean.getId(),user.getId())).thenReturn(Optional.of(cafe));
+        doNothing().when(cafeRepository).delete(any(Cafe.class));
         //when
-        Cafe resultCafe = ownerPageService.checkBeanByCafe(user, beanByCafeRequestDto, "delete");
-        cafeRepository.delete(resultCafe);
+        ResponseEntity<Message> response = ownerPageService.deleteBeanByCafe(beanByCafeRequestDto, userDetails.getUser());
         //then
-        assertThat(cafeRepository.findById(resultCafe.getId()).isEmpty());
+        assertThat(response.getBody().getData()).isEqualTo(null);
+        assertThat(response.getHeaders().equals(HttpStatus.OK));
     }
 }

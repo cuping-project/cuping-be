@@ -8,20 +8,34 @@ import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.entity.UserRoleEnum;
 import com.cuping.cupingbe.global.exception.CustomException;
 import com.cuping.cupingbe.global.exception.ErrorCode;
+import com.cuping.cupingbe.global.security.UserDetailsImpl;
+import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.BeanRepository;
 import com.cuping.cupingbe.repository.CafeRepository;
+import com.cuping.cupingbe.s3.S3Uploader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,17 +46,24 @@ class AdminPageServiceTest {
     private CafeRepository cafeRepository;
     @Mock
     private UtilService utilService;
+    @Mock
+    private S3Uploader s3Uploader;
+    @Mock
+    private UserDetailsImpl userDetails;
+    @Mock
+    private AdminPageRequestDto adminPageRequestDto;
+    @InjectMocks
+    private AdminPageService adminPageService;
     private User user;
     private Cafe cafe;
     private Bean bean;
-    private AdminPageRequestDto adminPageRequestDto;
     @BeforeEach
     @DisplayName("초기세팅")
     public void setup() {
         MultipartFile mockFile = new MockMultipartFile("testFile", new byte[0]);
         adminPageRequestDto = new AdminPageRequestDto(mockFile, "TestName", "TestSummary",
-                      "TestInfo", "2", "TestFlavor",
-                        "TestOrigin", "쓴맛/단맛/신맛");
+                "TestInfo", "2", "TestFlavor",
+                "TestOrigin", "쓴맛/단맛/신맛");
 
         bean = new Bean(1L, "TestName", "TestOriginName",
                 "TestImageURL", "TestSummary", "단맛/신맛/쓴맛",
@@ -54,91 +75,90 @@ class AdminPageServiceTest {
 
         user = new User(1L,"TestId", "TestNickName", "TestPassWord",
                 UserRoleEnum.ADMIN, null, "TestEmail", null);
+
+        userDetails = new UserDetailsImpl(user,user.getUserId());
+
     }
     @Test
     @DisplayName("원두 등록")
-    public void createBean() {
+    public void createBean() throws IOException {
         //given
-        String imgUrl = "TestURL";
-        Bean bean = new Bean(imgUrl, adminPageRequestDto);
+        String imgUrl = "TestUrl";
+        doNothing().when(utilService).checkRoleAdmin(user.getRole());
+        given(utilService.checkBean(adminPageRequestDto.getOrigin() + adminPageRequestDto.getBeanName()
+                , adminPageRequestDto.getRoastingLevel(), true)).willReturn(bean);
+        given(s3Uploader.upload(adminPageRequestDto.getImage())).willReturn(imgUrl);
+        when(beanRepository.save(any(Bean.class))).thenReturn(bean);
         //when
-        checkCreateBean(user, adminPageRequestDto);
-        when(beanRepository.save(bean)).thenReturn(bean);
+        ResponseEntity<Message> response = adminPageService.createBean(adminPageRequestDto,userDetails);
+
         //then
-        Bean saveBean = beanRepository.save(bean);
-        assertThat(saveBean).isEqualTo(bean);
+        assertThat(response.getBody().getData()).isEqualTo(null);
+        assertThat(response.getStatusCode().equals(HttpStatus.OK));
     }
+
     @Test
     @DisplayName("승인되지 않은 카페 조회")
     public void getPermitCafe() {
         // given
+        doNothing().when(utilService).checkRoleAdmin(user.getRole());
         List<Cafe> cafeList = new ArrayList<>();
-        List<AdminPageResponseDto> adminPageResponseDtoList = new ArrayList<>();
-        // when
-        checkAdmin(user);
         cafeList.add(cafe);
+        List<AdminPageResponseDto> adminPageResponseDtoList = new ArrayList<>();
         when(cafeRepository.findAllByPermit(false)).thenReturn(cafeList);
-        // then
         List<Cafe> cafeList1 = cafeRepository.findAllByPermit(false);
         for (Cafe cafe : cafeList1) {
             adminPageResponseDtoList.add(new AdminPageResponseDto(cafe));
         }
-        assertThat(adminPageResponseDtoList.get(0).getCafeId()).isEqualTo(cafeList.get(0).getId());
+        //when
+        ResponseEntity<Message> response = adminPageService.getPermitCafe(userDetails);
+
+        //then
+        assertThat(response.getBody().getData().equals(adminPageResponseDtoList));
+        assertThat(response.getStatusCode().equals(HttpStatus.OK));
     }
     @Test
     @DisplayName("카페 승인")
     public void permitCafe() {
         //given
-        String imgUrl = "TestURL";
-        Bean bean = new Bean(imgUrl, adminPageRequestDto);
         Cafe cafe2 = new Cafe(user, cafe, bean);
-        //when
-        checkAdmin(user);
+        doNothing().when(utilService).checkRoleAdmin(user.getRole());
         when(utilService.checkCafeId(cafe.getId())).thenReturn(cafe2);
-        when(cafeRepository.save(cafe2)).thenReturn(cafe2);
+        when(cafeRepository.save(cafe2.setPermit(true))).thenReturn(cafe2);
+
+        //when
+        ResponseEntity<Message> response = adminPageService.permitCafe(1L, userDetails);
+
         //then
-        cafe2 = utilService.checkCafeId(cafe.getId());
-        cafe2.setPermit(true);
-        Cafe testCafe = cafeRepository.save(cafe2);
-        assertThat(testCafe.getPermit());
+        assertThat(response.getBody().getData()).isEqualTo(null);
+        assertThat(response.getStatusCode().equals(HttpStatus.OK));
     }
     @Test
     @DisplayName("원두 삭제")
     public void deleteBean() {
         //given
-        String imgUrl = "TestURL";
-        Bean bean = new Bean(imgUrl, adminPageRequestDto);
-        when(utilService.checkBean(bean.getId())).thenReturn(bean);
+        doNothing().when(utilService).checkRoleAdmin(user.getRole());
+        given(utilService.checkBean(bean.getId())).willReturn(bean);
+        doNothing().when(beanRepository).delete(bean);
         //when
-        checkAdmin(user);
-        Bean testBean = utilService.checkBean(bean.getId());
-        beanRepository.delete(testBean);
-        Optional<Bean> resultBean = beanRepository.findById(testBean.getId());
+        ResponseEntity<Message> response = adminPageService.deleteBean(bean.getId(),userDetails);
         //then
-        assertThat(resultBean.isEmpty());
+        assertThat(Objects.requireNonNull(response.getBody()).getData()).isEqualTo(null);
+        assertThat(response.getStatusCode().equals(HttpStatus.OK));
     }
     @Test
     @DisplayName("원두 전체 조회")
     public void findAllBean() {
         //given
-        String imgUrl = "TestURL";
-        Bean bean = new Bean(imgUrl, adminPageRequestDto);
+        doNothing().when(utilService).checkRoleAdmin(user.getRole());
         List<Bean> beanList = new ArrayList<>();
         beanList.add(bean);
-        when(beanRepository.findAll()).thenReturn(beanList);
+        given(beanRepository.findAll()).willReturn(beanList);
         //when
-        List<Bean> testList = beanRepository.findAll();
+        ResponseEntity<Message> response = adminPageService.findAllBean(userDetails.getUser());
+
         //then
-        assertThat(testList.size() > 0);
-    }
-    public void checkCreateBean(User user, AdminPageRequestDto adminPageRequestDto) {
-        checkAdmin(user);
-        utilService.checkBean(adminPageRequestDto.getOrigin() + adminPageRequestDto.getBeanName()
-                , adminPageRequestDto.getRoastingLevel(), true);
-    }
-    public void checkAdmin(User user) {
-        if (!user.getRole().equals(UserRoleEnum.ADMIN)) {
-            throw new CustomException(ErrorCode.FORBIDDEN_ADMIN);
-        }
+        assertThat(response.getStatusCode().equals(HttpStatus.OK));
+        assertThat(response.getBody().getData().equals(beanList));
     }
 }
