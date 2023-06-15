@@ -164,26 +164,10 @@ public class JwtUtil {
 				.build();
 	}
 
-	public ResponseCookie createCookie(String name, String value, HttpServletRequest request) {
-		long tokenTime = name.equals(ACCESS_KEY) ? ACCESS_COOKIE : REFRESH_COOKIE;
-		String url = request.getRequestURL().toString();
-		String domain = url.contains("localhost") ? "localhost" : "cuping.net";
-		return ResponseCookie.from(name, value)
-				.path("/")
-				.domain("localhost")
-				.maxAge(tokenTime)
-//				.sameSite("None")
-//				.secure(true)
-				.build();
-	}
-
 	public void setCookies(HttpServletResponse response, TokenDto tokenDto) {
 		response.addHeader("Set-Cookie", createCookie(JwtUtil.ACCESS_KEY, tokenDto.getAccessToken()).toString());
 		response.addHeader("Set-Cookie", createCookie(JwtUtil.REFRESH_KEY, tokenDto.getRefreshToken()).toString());
-	}
-
-	public void setCookies(HttpServletResponse response, HttpServletRequest request, TokenDto tokenDto) {
-		response.addHeader("Set-Cookie", createCookie(JwtUtil.ACCESS_KEY, tokenDto.getAccessToken(), request).toString());
-		response.addHeader("Set-Cookie", createCookie(JwtUtil.REFRESH_KEY, tokenDto.getRefreshToken(), request).toString());
+		response.addHeader(ACCESS_KEY, tokenDto.getAccessToken());
+		response.addHeader(REFRESH_KEY, tokenDto.getRefreshToken());
 	}
 }
