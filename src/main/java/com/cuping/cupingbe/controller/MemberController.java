@@ -1,5 +1,6 @@
 package com.cuping.cupingbe.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,17 +44,10 @@ public class MemberController {
 		return memberService.duplicateCheckNickname(nickname);
 	}
 	@PostMapping("/login")
-	public ResponseEntity<Message> login(@RequestBody MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response) {
-		return memberService.login(memberLoginRequestDto, response);
+	public ResponseEntity<Message> login(@RequestBody MemberLoginRequestDto memberLoginRequestDto
+			, HttpServletResponse response, HttpServletRequest request) {
+		return memberService.login(memberLoginRequestDto, response, request);
 	}
-
-//	@PostMapping("/login")
-//	public RedirectView login(@RequestBody MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response) {
-//		memberService.login(memberLoginRequestDto, response);
-//		RedirectView redirectView = new RedirectView();
-//		redirectView.setUrl("https://cuping.net");
-//		return redirectView;
-//	}
 
 	@PostMapping("/logout")
 	public ResponseEntity<Message>logout(@AuthenticationPrincipal UserDetailsImpl userDetails) {
