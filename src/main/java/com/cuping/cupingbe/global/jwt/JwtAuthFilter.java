@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.cuping.cupingbe.global.exception.CustomException;
 import com.cuping.cupingbe.global.exception.ErrorCode;
 import org.springframework.security.core.Authentication;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -26,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import static com.cuping.cupingbe.global.security.WebSecurityConfig.PERMIT_URI;
 
 @RequiredArgsConstructor
-@Configuration
 @WebFilter(urlPatterns = "/**")
 @Slf4j
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -66,7 +64,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 				//새로운 ACCESS TOKEN 발급
 				String newAccessToken = jwtUtil.createToken(username, user.getRole(), "Access");
 				//Header에 ACCESS TOKEN 추가
-				response.setHeader(JwtUtil.ACCESS_KEY, newAccessToken);
+				response.addHeader("Set-Cookie", jwtUtil.createCookie(JwtUtil.ACCESS_KEY, newAccessToken).toString());
 				setAuthentication(username);
 			} else {
 				jwtExceptionHandler(response, "Token Error.", HttpStatus.UNAUTHORIZED.value());

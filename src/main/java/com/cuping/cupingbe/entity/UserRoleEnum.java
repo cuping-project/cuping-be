@@ -1,6 +1,7 @@
 package com.cuping.cupingbe.entity;
 
-public enum UserRoleEnum {
+public enum
+UserRoleEnum {
 
 	OWNER(Authority.OWNER),
 	USER(Authority.USER),

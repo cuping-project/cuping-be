@@ -56,10 +56,7 @@ public class WebSecurityConfig {
             "/main/beans/search",
             "/main/bean/{cardId}",
             "/main/bean",
-            "/oauth/kakao",
-            "/api/init",
-            "/api/check", // test
-            "/api/check/{num}" // test
+            "/oauth/kakao"
     };
 
     @Bean
