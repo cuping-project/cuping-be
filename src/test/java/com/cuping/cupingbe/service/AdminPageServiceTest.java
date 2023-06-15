@@ -8,20 +8,28 @@ import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.entity.UserRoleEnum;
 import com.cuping.cupingbe.global.exception.CustomException;
 import com.cuping.cupingbe.global.exception.ErrorCode;
+import com.cuping.cupingbe.global.security.UserDetailsImpl;
+import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.BeanRepository;
 import com.cuping.cupingbe.repository.CafeRepository;
+import com.cuping.cupingbe.s3.S3Uploader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,6 +40,10 @@ class AdminPageServiceTest {
     private CafeRepository cafeRepository;
     @Mock
     private UtilService utilService;
+    @Mock
+    private S3Uploader s3Uploader;
+    @InjectMocks
+    private AdminPageService adminPageService;
     private User user;
     private Cafe cafe;
     private Bean bean;
@@ -92,15 +104,20 @@ class AdminPageServiceTest {
         String imgUrl = "TestURL";
         Bean bean = new Bean(imgUrl, adminPageRequestDto);
         Cafe cafe2 = new Cafe(user, cafe, bean);
-        //when
-        checkAdmin(user);
+        UserDetailsImpl userDetails = new UserDetailsImpl(user, user.getUserId());
+        doNothing().when(adminPageService).checkRoleAdmin(user.getRole());
         when(utilService.checkCafeId(cafe.getId())).thenReturn(cafe2);
-        when(cafeRepository.save(cafe2)).thenReturn(cafe2);
+        when(cafeRepository.save(cafe2.setPermit(true))).thenReturn(cafe2);
+
+        //when
+        ResponseEntity<Message> response = adminPageService.permitCafe(1L, userDetails);
+
         //then
-        cafe2 = utilService.checkCafeId(cafe.getId());
-        cafe2.setPermit(true);
-        Cafe testCafe = cafeRepository.save(cafe2);
-        assertThat(testCafe.getPermit());
+        assertThat(Objects.requireNonNull(response.getBody()).getData()).isEqualTo(null);
+//        cafe2 = utilService.checkCafeId(cafe.getId());
+//        cafe2.setPermit(true);
+//        Cafe testCafe = cafeRepository.save(cafe2);
+//        assertThat(testCafe.getPermit());
     }
     @Test
     @DisplayName("원두 삭제")
