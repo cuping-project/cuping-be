@@ -36,11 +36,13 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class JwtUtil {
 	public static final String AUTHORIZATION_KEY = "auth";
-	private static final String BEARER_PREFIX = "Bearer ";
+	private static final String BEARER_PREFIX = "Bearer%";
 	public static final String ACCESS_KEY = "ACCESS_KEY";
 	public static final String REFRESH_KEY = "REFRESH_KEY";
-	public static final long ACCESS_TIME = 60 * 60L;
-	public static final long REFRESH_TIME = 14 * 24 * 60 * 60L;
+	public static final long ACCESS_TIME = 60 * 60 * 1000L;
+	public static final long ACCESS_COOKIE = 60 * 60;
+	public static final long REFRESH_TIME = 14 * 24 * 60 * 60 * 1000L;
+	public static final long REFRESH_COOKIE = 14 * 24 * 60 * 60;
 	private final UserDetailsServiceImpl userDetailsService;
 
 
@@ -152,10 +154,10 @@ public class JwtUtil {
 	}
 
 	public ResponseCookie createCookie(String name, String value) {
-		long tokenTime = name.equals(ACCESS_KEY) ? ACCESS_TIME : REFRESH_TIME;
-		return ResponseCookie.from(name, value.replace(" ", "%"))
+		long tokenTime = name.equals(ACCESS_KEY) ? ACCESS_COOKIE : REFRESH_COOKIE;
+		return ResponseCookie.from(name, value)
 				.path("/")
-				.domain("cuping.net")
+//				.domain("cuping.net")
 				.maxAge(tokenTime)
 //				.sameSite("None")
 //				.secure(true)
