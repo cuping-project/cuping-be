@@ -170,7 +170,8 @@ public class JwtUtil {
 		String domain = url.contains("localhost") ? "localhost" : "cuping.net";
 		return ResponseCookie.from(name, value)
 				.path("/")
-				.domain("/")
+				.domain("/localhost")
+				.domain("cuping.net")
 				.maxAge(tokenTime)
 				.sameSite("None")
 				.secure(true)
