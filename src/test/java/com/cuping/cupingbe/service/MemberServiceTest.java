@@ -9,6 +9,7 @@ import com.cuping.cupingbe.global.jwt.JwtUtil;
 import com.cuping.cupingbe.global.redis.util.RedisUtil;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Optional;
@@ -66,29 +68,30 @@ public class MemberServiceTest {
         assertDoesNotThrow(() -> memberService.signup("user", requestDto));
     }
 
-//    @Test
-//    public void testLogin() {
-//        TokenDto mockTokenDto = new TokenDto("accessToken", "refreshToken");
-//        // Given
-//        MemberLoginRequestDto loginRequestDto = new MemberLoginRequestDto();
-//        loginRequestDto.setUserId("jaykim");
-//        loginRequestDto.setPassword("1408adad");
-//        User testUser = new User("jaykim", "encodedPassword", "lam", UserRoleEnum.USER);
-//        HttpServletResponse response = new MockHttpServletResponse();
-//        //checkUserId메서드가 jaykim과 함꼐 호출 -> testUser반환
-//        when(utilService.checkUserId("jaykim")).thenReturn(testUser);
-//        //void 반환하는 메서드는 doNothing을 써야한다. set된 비밀번호랑 testUser의 비밀번호와 함께 호출될떄 아뭇것도 수행x
-//        doNothing().when(utilService).checkUserPassword("1408adad", testUser.getPassword());
-//        //token반환
-//        when(jwtUtil.creatAllToken(testUser.getUserId(), testUser.getRole())).thenReturn(mockTokenDto);
-//        doNothing().when(jwtUtil).setCookies(any(HttpServletResponse.class), eq(mockTokenDto));
-//        doNothing().when(redisUtil).set(eq(testUser.getUserId()), eq(mockTokenDto.getRefreshToken()), eq(JwtUtil.REFRESH_TIME));
-//        // When
-//        ResponseEntity<Message> result = memberService.login(loginRequestDto, response);
-//        // Then
-//        assertEquals(HttpStatus.OK, result.getStatusCode());
-//        assertEquals("로그인 성공", result.getBody().getMessage());
-//    }
+    @Test
+    public void testLogin() {
+        TokenDto mockTokenDto = new TokenDto("accessToken", "refreshToken");
+        // Given
+        MemberLoginRequestDto loginRequestDto = new MemberLoginRequestDto();
+        loginRequestDto.setUserId("jaykim");
+        loginRequestDto.setPassword("1408adad");
+        User testUser = new User("jaykim", "encodedPassword", "lam", UserRoleEnum.USER);
+        HttpServletResponse response = new MockHttpServletResponse();
+        HttpServletRequest request = new MockHttpServletRequest();
+        //checkUserId메서드가 jaykim과 함꼐 호출 -> testUser반환
+        when(utilService.checkUserId("jaykim")).thenReturn(testUser);
+        //void 반환하는 메서드는 doNothing을 써야한다. set된 비밀번호랑 testUser의 비밀번호와 함께 호출될떄 아뭇것도 수행x
+        doNothing().when(utilService).checkUserPassword("1408adad", testUser.getPassword());
+        //token반환
+        when(jwtUtil.creatAllToken(testUser.getUserId(), testUser.getRole())).thenReturn(mockTokenDto);
+        doNothing().when(jwtUtil).setCookies(any(HttpServletResponse.class), eq(mockTokenDto));
+        doNothing().when(redisUtil).set(eq(testUser.getUserId()), eq(mockTokenDto.getRefreshToken()), eq(JwtUtil.REFRESH_TIME));
+        // When
+        ResponseEntity<Message> result = memberService.login(loginRequestDto,response,request);
+        // Then
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals("로그인 성공", result.getBody().getMessage());
+    }
     @Test
     public void testLogout() {
         User testUser = new User("jaykim", "1408adad", "lam", UserRoleEnum.USER);
