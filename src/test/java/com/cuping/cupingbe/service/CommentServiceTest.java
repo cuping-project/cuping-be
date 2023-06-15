@@ -52,6 +52,8 @@ public class CommentServiceTest {
     @Test //댓글 수정 테스트
     public void updateCommentTest() {
         CommentUpdateRequestDto requestDto = new CommentUpdateRequestDto();
+        requestDto.setId(1L);  // 수정하려는 댓글의 ID
+        requestDto.setContent("Updated content");  // 수정된 댓글 내용
         User user = new User();
 
         Comment comment = new Comment();
@@ -69,6 +71,7 @@ public class CommentServiceTest {
     @Test //댓글 삭제 테스트
     public void deleteCommentTest() {
         CommentDeleteRequestDto requestDto = new CommentDeleteRequestDto();
+        requestDto.setId(1L);  // 수정하려는 댓글의 ID
         User user = new User();
 
         Comment comment = new Comment();
