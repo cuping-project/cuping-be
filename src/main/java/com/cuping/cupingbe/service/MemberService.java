@@ -1,6 +1,7 @@
 package com.cuping.cupingbe.service;
 
 import com.cuping.cupingbe.dto.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -87,17 +88,19 @@ public class MemberService {
 	}
 
 	// 로그인
-	public ResponseEntity<Message> login(MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response){
+	public ResponseEntity<Message> login(MemberLoginRequestDto memberLoginRequestDto
+			, HttpServletResponse response, HttpServletRequest request) {
 		User user = utilService.checkUserId(memberLoginRequestDto.getUserId());
 		utilService.checkUserPassword(memberLoginRequestDto.getPassword(), user.getPassword());
-		createLoginToken(user.getUserId(), user.getRole(), response);
+		createLoginToken(user.getUserId(), user.getRole(), response, request);
 		return new ResponseEntity<>(new Message("로그인 성공", null), HttpStatus.OK);
 	}
 
-	public void createLoginToken(String userId, UserRoleEnum role, HttpServletResponse response) {
+	public void createLoginToken(String userId, UserRoleEnum role
+			, HttpServletResponse response, HttpServletRequest request) {
 		TokenDto tokenDto = jwtUtil.creatAllToken(userId, role);
 		redisUtil.set(userId, tokenDto.getRefreshToken(), JwtUtil.REFRESH_TIME);
-		jwtUtil.setCookies(response, tokenDto);
+		jwtUtil.setCookies(response, request, tokenDto);
 	}
 
 	// 로그아웃
