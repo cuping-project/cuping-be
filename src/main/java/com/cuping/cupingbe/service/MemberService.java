@@ -88,19 +88,17 @@ public class MemberService {
 	}
 
 	// 로그인
-	public ResponseEntity<Message> login(MemberLoginRequestDto memberLoginRequestDto
-			, HttpServletResponse response, HttpServletRequest request) {
+	public ResponseEntity<Message> login(MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response) {
 		User user = utilService.checkUserId(memberLoginRequestDto.getUserId());
 		utilService.checkUserPassword(memberLoginRequestDto.getPassword(), user.getPassword());
-		createLoginToken(user.getUserId(), user.getRole(), response, request);
+		createLoginToken(user.getUserId(), user.getRole(), response);
 		return new ResponseEntity<>(new Message("로그인 성공", null), HttpStatus.OK);
 	}
 
-	public void createLoginToken(String userId, UserRoleEnum role
-			, HttpServletResponse response, HttpServletRequest request) {
+	public void createLoginToken(String userId, UserRoleEnum role, HttpServletResponse response) {
 		TokenDto tokenDto = jwtUtil.creatAllToken(userId, role);
 		redisUtil.set(userId, tokenDto.getRefreshToken(), JwtUtil.REFRESH_TIME);
-		jwtUtil.setCookies(response, request, tokenDto);
+		jwtUtil.setCookies(response, tokenDto);
 	}
 
 	// 로그아웃
