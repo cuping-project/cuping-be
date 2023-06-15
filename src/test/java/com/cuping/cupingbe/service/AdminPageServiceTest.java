@@ -22,18 +22,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AdminPageServiceTest {
@@ -88,8 +85,12 @@ class AdminPageServiceTest {
         when(beanRepository.save(any(Bean.class))).thenReturn(bean);
         //when
         ResponseEntity<Message> response = adminPageService.createBean(adminPageRequestDto,userDetails);
-
         //then
+        verify(utilService,times(1)).checkRoleAdmin(user.getRole());
+        verify(utilService,times(1)).checkBean(adminPageRequestDto.getOrigin() + adminPageRequestDto.getBeanName()
+                , adminPageRequestDto.getRoastingLevel(), true);
+        verify(s3Uploader,times(1)).upload(adminPageRequestDto.getImage());
+        verify(beanRepository,times(1)).save(any(Bean.class));
         assertThat(response.getBody().getData()).isEqualTo(null);
         assertThat(response.getStatusCode().equals(HttpStatus.OK));
     }
@@ -109,8 +110,9 @@ class AdminPageServiceTest {
         }
         //when
         ResponseEntity<Message> response = adminPageService.getPermitCafe(userDetails);
-
         //then
+        verify(utilService,times(1)).checkRoleAdmin(user.getRole());
+        verify(cafeRepository,times(2)).findAllByPermit(false);
         assertThat(response.getBody().getData().equals(adminPageResponseDtoList));
         assertThat(response.getStatusCode().equals(HttpStatus.OK));
     }
@@ -119,15 +121,15 @@ class AdminPageServiceTest {
     @DisplayName("카페 승인")
     public void permitCafe() {
         //given
-        Cafe cafe2 = new Cafe(user, cafe, bean);
         doNothing().when(utilService).checkRoleAdmin(user.getRole());
-        when(utilService.checkCafeId(cafe.getId())).thenReturn(cafe2);
-        when(cafeRepository.save(cafe2.setPermit(true))).thenReturn(cafe2);
-
+        when(utilService.checkCafeId(cafe.getId())).thenReturn(cafe);
+        when(cafeRepository.save(cafe.setPermit(true))).thenReturn(cafe);
         //when
         ResponseEntity<Message> response = adminPageService.permitCafe(1L, userDetails);
-
         //then
+        verify(utilService,times(1)).checkRoleAdmin(user.getRole());
+        verify(utilService,times(1)).checkCafeId(cafe.getId());
+        verify(cafeRepository,times(1)).save(cafe.setPermit(true));
         assertThat(response.getBody().getData()).isEqualTo(null);
         assertThat(response.getStatusCode().equals(HttpStatus.OK));
     }
@@ -141,6 +143,9 @@ class AdminPageServiceTest {
         //when
         ResponseEntity<Message> response = adminPageService.deleteBean(bean.getId(),userDetails);
         //then
+        verify(utilService,times(1)).checkRoleAdmin(user.getRole());
+        verify(utilService,times(1)).checkBean(bean.getId());
+        verify(beanRepository,times(1)).delete(bean);
         assertThat(Objects.requireNonNull(response.getBody()).getData()).isEqualTo(null);
         assertThat(response.getStatusCode().equals(HttpStatus.OK));
     }
@@ -154,8 +159,9 @@ class AdminPageServiceTest {
         given(beanRepository.findAll()).willReturn(beanList);
         //when
         ResponseEntity<Message> response = adminPageService.findAllBean(userDetails.getUser());
-
         //then
+        verify(utilService,times(1)).checkRoleAdmin(user.getRole());
+        verify(beanRepository,times(1)).findAll();
         assertThat(response.getStatusCode().equals(HttpStatus.OK));
         assertThat(response.getBody().getData().equals(beanList));
     }

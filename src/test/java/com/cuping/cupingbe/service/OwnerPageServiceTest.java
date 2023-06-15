@@ -9,7 +9,6 @@ import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.entity.UserRoleEnum;
 import com.cuping.cupingbe.global.security.UserDetailsImpl;
 import com.cuping.cupingbe.global.util.Message;
-import com.cuping.cupingbe.repository.BeanRepository;
 import com.cuping.cupingbe.repository.CafeRepository;
 import com.cuping.cupingbe.s3.S3Uploader;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -27,8 +26,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 import java.util.*;
 
 
@@ -48,8 +45,6 @@ class OwnerPageServiceTest {
     private UserDetailsImpl userDetails;
     @Mock
     private OwnerPageService ownerService;
-    @Mock
-    private OwnerPageService ownerPageService2;
     @InjectMocks
     private OwnerPageService ownerPageService;
     private OwnerPageRequestDto ownerPageRequestDto;
@@ -129,13 +124,19 @@ class OwnerPageServiceTest {
         when(utilService.checkUserId(user.getUserId())).thenReturn(user);
         when(utilService.checkCafeId(cafe.getId())).thenReturn(cafe);
         when(cafeRepository.findByOwnerIdAndId(user.getId(), cafe.getId())).thenReturn(Optional.of(cafe));
-        when(utilService.checkCafeId(cafe.getId())).thenReturn(cafe);
+        doNothing().when(s3Uploader).delete(cafe.getCafeImage());
+        doNothing().when(s3Uploader).delete(cafe.getBusinessImage());
         doNothing().when(cafeRepository).deleteById(cafe.getId());
 
         // when
         ResponseEntity<Message> responseEntity = ownerPageService.deleteCafe(cafe.getId(), user);
 
         // then
+        verify(utilService,times(2)).checkCafeId(cafe.getId());
+        verify(utilService,times(2)).checkUserId(user.getUserId());
+        verify(s3Uploader,times(1)).delete(cafe.getCafeImage());
+        verify(s3Uploader,times(1)).delete(cafe.getBusinessImage());
+        verify(cafeRepository,times(1)).deleteById(cafe.getId());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(responseEntity.getBody().getData()).isNull();
     }
@@ -150,6 +151,7 @@ class OwnerPageServiceTest {
         // when
         ResponseEntity<Message> responseEntity = ownerPageService.getCafe(user);
         // then
+        verify(cafeRepository,times(1)).findAllByOwnerId(user.getId());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(((Map<String, OwnerResponseDto>) responseEntity.getBody().getData())
                 .get(cafe.getCafeAddress()).getCafeName())
@@ -165,6 +167,9 @@ class OwnerPageServiceTest {
         // when
         ResponseEntity<Message> response = ownerPageService.addBeanByCafe(userDetails.getUser(), beanByCafeRequestDto);
         // then
+        verify(utilService,times(1)).checkBean(beanByCafeRequestDto.getBeanOrigin() + beanByCafeRequestDto.getBeanName(), beanByCafeRequestDto.getBeanRoastingLevel(), false);
+        verify(cafeRepository,times(1)).findFirstByCafeAddressAndOwnerId(cafe.getCafeAddress(), user.getId());
+        verify(cafeRepository,times(1)).save(any(Cafe.class));
         assertThat(response.getBody().getData()).isNull();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
@@ -178,6 +183,9 @@ class OwnerPageServiceTest {
         //when
         ResponseEntity<Message> response = ownerPageService.deleteBeanByCafe(beanByCafeRequestDto, userDetails.getUser());
         //then
+        verify(utilService,times(1)).checkBean(beanByCafeRequestDto.getBeanOrigin() + beanByCafeRequestDto.getBeanName(), beanByCafeRequestDto.getBeanRoastingLevel(), false);
+        verify(cafeRepository,times(1)).findByCafeAddressAndBeanIdAndOwnerId(beanByCafeRequestDto.getCafeAddress(),bean.getId(),user.getId());
+        verify(cafeRepository,times(1)).delete(any(Cafe.class));
         assertThat(response.getBody().getData()).isEqualTo(null);
         assertThat(response.getHeaders().equals(HttpStatus.OK));
     }
