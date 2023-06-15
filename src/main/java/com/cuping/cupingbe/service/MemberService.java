@@ -1,6 +1,7 @@
 package com.cuping.cupingbe.service;
 
 import com.cuping.cupingbe.dto.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -87,7 +88,7 @@ public class MemberService {
 	}
 
 	// 로그인
-	public ResponseEntity<Message> login(MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response){
+	public ResponseEntity<Message> login(MemberLoginRequestDto memberLoginRequestDto, HttpServletResponse response) {
 		User user = utilService.checkUserId(memberLoginRequestDto.getUserId());
 		utilService.checkUserPassword(memberLoginRequestDto.getPassword(), user.getPassword());
 		createLoginToken(user.getUserId(), user.getRole(), response);

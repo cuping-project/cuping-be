@@ -6,8 +6,6 @@ import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Cafe;
 import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.entity.UserRoleEnum;
-import com.cuping.cupingbe.global.exception.CustomException;
-import com.cuping.cupingbe.global.exception.ErrorCode;
 import com.cuping.cupingbe.global.security.UserDetailsImpl;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.BeanRepository;
@@ -19,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -117,6 +114,7 @@ class AdminPageServiceTest {
         assertThat(response.getBody().getData().equals(adminPageResponseDtoList));
         assertThat(response.getStatusCode().equals(HttpStatus.OK));
     }
+
     @Test
     @DisplayName("카페 승인")
     public void permitCafe() {

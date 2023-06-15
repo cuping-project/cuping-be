@@ -157,7 +157,7 @@ public class JwtUtil {
 		long tokenTime = name.equals(ACCESS_KEY) ? ACCESS_COOKIE : REFRESH_COOKIE;
 		return ResponseCookie.from(name, value)
 				.path("/")
-//				.domain("cuping.net")
+				.domain("cuping.net")
 				.maxAge(tokenTime)
 //				.sameSite("None")
 //				.secure(true)
@@ -167,5 +167,7 @@ public class JwtUtil {
 	public void setCookies(HttpServletResponse response, TokenDto tokenDto) {
 		response.addHeader("Set-Cookie", createCookie(JwtUtil.ACCESS_KEY, tokenDto.getAccessToken()).toString());
 		response.addHeader("Set-Cookie", createCookie(JwtUtil.REFRESH_KEY, tokenDto.getRefreshToken()).toString());
+		response.addHeader(ACCESS_KEY, tokenDto.getAccessToken());
+		response.addHeader(REFRESH_KEY, tokenDto.getRefreshToken());
 	}
 }
