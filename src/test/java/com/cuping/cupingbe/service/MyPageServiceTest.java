@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MyPageServiceTest {
@@ -42,8 +43,9 @@ class MyPageServiceTest {
     @InjectMocks
     private MyPageService myPageService;
 
-    @InjectMocks
+    @Mock
     private UtilService utilService;
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @Test //마이페이지 호출 테스트
@@ -68,10 +70,13 @@ class MyPageServiceTest {
         String currentPassword = "currentPassword";
         String newPassword = "newPassword";
         String nickname = "newNickname";
+        user.setPassword(currentPassword);
         UserUpdateRequestDto requestDto = new UserUpdateRequestDto();
         requestDto.setCurrentPassword(currentPassword);
         requestDto.setNewPassword(newPassword);
         requestDto.setNickname(nickname);
+        doNothing().when(utilService).checkUserPassword(requestDto.getCurrentPassword(), user.getPassword());
+        when(passwordEncoder.encode(newPassword)).thenReturn(newPassword);
 
         // When
         myPageService.updateUser(user, requestDto);
@@ -79,10 +84,9 @@ class MyPageServiceTest {
         // Then
         assertEquals(nickname, user.getNickname());
         assertEquals(newPassword, user.getPassword());
-        assertTrue(passwordEncoder.matches(newPassword, user.getPassword()));
 
         // Verify that checkUserPassword() was called
-        Mockito.verify(utilService).checkUserPassword(currentPassword, user.getPassword());
+        verify(utilService).checkUserPassword(requestDto.getCurrentPassword(), currentPassword);
     }
 
 }

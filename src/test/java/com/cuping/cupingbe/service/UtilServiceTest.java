@@ -214,7 +214,7 @@ class UtilServiceTest {
 
         // when && then
         assertThat(utilService.checkByBeanOriginNameAndRoastingLevel(beanOriginName, beanRoastingLevel))
-                .isEqualTo(bean);
+                .isEqualTo(Optional.of(bean));
     }
 
     @Test
