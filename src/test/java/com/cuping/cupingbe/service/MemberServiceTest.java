@@ -87,7 +87,7 @@ public class MemberServiceTest {
         doNothing().when(jwtUtil).setCookies(any(HttpServletResponse.class), eq(mockTokenDto));
         doNothing().when(redisUtil).set(eq(testUser.getUserId()), eq(mockTokenDto.getRefreshToken()), eq(JwtUtil.REFRESH_TIME));
         // When
-        ResponseEntity<Message> result = memberService.login(loginRequestDto,response,request);
+        ResponseEntity<Message> result = memberService.login(loginRequestDto,response);
         // Then
         assertEquals(HttpStatus.OK, result.getStatusCode());
         assertEquals("로그인 성공", result.getBody().getMessage());
