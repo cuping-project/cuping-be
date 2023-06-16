@@ -52,7 +52,7 @@ public class CommentService {
     }
 
     public void checkUser(Comment comment, User user) {
-        if (!Objects.equals(comment.getUser().getId(), user.getId()) && !user.getRole().equals(UserRoleEnum.ADMIN)) {
+        if (!Objects.equals(comment.getUser().getUserId(), user.getUserId()) && !user.getRole().equals(UserRoleEnum.ADMIN)) {
             throw new CustomException(ErrorCode.FORBIDDEN_MEMBER);
         }
     }

@@ -3,6 +3,7 @@ package com.cuping.cupingbe.service;
 import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Cafe;
 import com.cuping.cupingbe.entity.User;
+import com.cuping.cupingbe.entity.UserRoleEnum;
 import com.cuping.cupingbe.global.exception.CustomException;
 import com.cuping.cupingbe.global.exception.ErrorCode;
 import com.cuping.cupingbe.repository.BeanRepository;
@@ -66,5 +67,11 @@ public class UtilService {
         return beanRepository.findById(beanId).orElseThrow(
                 () -> new CustomException(ErrorCode.INVALID_BEANS)
         );
+    }
+
+    public void checkRoleAdmin(UserRoleEnum role) {
+        if (!role.equals(UserRoleEnum.ADMIN)) {
+            throw new CustomException(ErrorCode.FORBIDDEN_ADMIN);
+        }
     }
 }
