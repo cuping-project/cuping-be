@@ -45,10 +45,15 @@ public class Cafe {
 
     @Column
     private String cafeImage;
+    private String city;
+    private String district;
 
     public Cafe(User owner, Cafe cafe, Bean bean) {
         this.owner = owner;
         this.cafeAddress = cafe.getCafeAddress();
+        String [] split = cafe.getCafeAddress().split(" ");
+        this.city = split[0];
+        this.district = split[1];
         this.cafePhoneNumber = cafe.getCafePhoneNumber();
         this.cafeName = cafe.getCafeName();
         this.x = cafe.getX();
@@ -62,6 +67,9 @@ public class Cafe {
     public Cafe(User user, OwnerPageRequestDto ownerPageRequestDto, JsonNode documents, String businessImage, String cafeImage) {
         this.owner = user;
         this.cafeAddress = ownerPageRequestDto.getStoreAddress();
+        String [] split = ownerPageRequestDto.getStoreAddress().split(" ");
+        this.city = split[0];
+        this.district = split[1];
         this.cafePhoneNumber = ownerPageRequestDto.getStoreNumber();
         this.cafeName = ownerPageRequestDto.getStoreName();
         this.x = documents.get(0).path("x").asText();
