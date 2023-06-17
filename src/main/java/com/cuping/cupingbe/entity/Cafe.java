@@ -45,7 +45,11 @@ public class Cafe {
 
     @Column
     private String cafeImage;
+
+    @Column
     private String city;
+
+    @Column
     private String district;
 
     public Cafe(User owner, Cafe cafe, Bean bean) {
@@ -78,14 +82,6 @@ public class Cafe {
         this.cafeImage = cafeImage;
     }
 
-    // test
-    public Cafe(JsonNode documents, int num) {
-        this.cafeAddress = documents.get(num).path("road_address_name").asText();
-        this.cafePhoneNumber = documents.get(num).path("phone").asText();
-        this.cafeName = documents.get(num).path("place_name").asText();
-        this.x = documents.get(num).path("x").asText();
-        this.y = documents.get(num).path("y").asText();
-    }
 
     public Cafe setPermit(boolean b) {
         this.permit = b;
