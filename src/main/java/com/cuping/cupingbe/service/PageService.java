@@ -28,19 +28,19 @@ public class PageService {
     private final UtilService utilService;
 
     // 메인페이지
-    public ResponseEntity<Message> getMainPage(Map<String, String> searchValue) {
-        String roastingLevel = searchValue.get("roastingLevel");
-        String origin = searchValue.get("origin");
-        String flavor = searchValue.get("flavor");
-
-        if ("*".equals(roastingLevel) && roastingLevel.equals(origin) && origin.equals(flavor)) {
-            return new ResponseEntity<>(new Message("findAll", beanRepository.findAll()), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(new Message("findFilter", beanRepository.findByRoastingLevelOrOriginOrFlavor(
-                    roastingLevel, origin, flavor
-            )), HttpStatus.OK);
-        }
-    }
+//    public ResponseEntity<Message> getMainPage(Map<String, String> searchValue) {
+//        String roastingLevel = searchValue.get("roastingLevel");
+//        String origin = searchValue.get("origin");
+//        String flavor = searchValue.get("flavor");
+//
+//        if ("*".equals(roastingLevel) && roastingLevel.equals(origin) && origin.equals(flavor)) {
+//            return new ResponseEntity<>(new Message("findAll", beanRepository.findAll()), HttpStatus.OK);
+//        } else {
+//            return new ResponseEntity<>(new Message("findFilter", beanRepository.findByRoastingLevelOrOriginOrFlavor(
+//                    roastingLevel, origin, flavor
+//            )), HttpStatus.OK);
+//        }
+//    }
 
     // 검색
     public ResponseEntity<Message> getSearchPage(String keyword) {

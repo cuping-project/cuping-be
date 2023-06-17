@@ -15,10 +15,10 @@ public class PageController {
 
     private final PageService pageService;
 
-    @GetMapping("/beans")
-    public ResponseEntity<Message> mainPage(@RequestParam Map<String, String> searchValue) {
-        return pageService.getMainPage(searchValue);
-    }
+//    @GetMapping("/beans")
+//    public ResponseEntity<Message> mainPage(@RequestParam Map<String, String> searchValue) {
+//        return pageService.getMainPage(searchValue);
+//    }
 
     @GetMapping("beans/search")
     public ResponseEntity<Message> searchPage(@RequestParam String keyword) {
