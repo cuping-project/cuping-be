@@ -56,16 +56,16 @@ class OwnerPageServiceTest {
     @DisplayName("초기세팅")
     public void setup() {
         MultipartFile mockFile = new MockMultipartFile("testFile", new byte[0]);
-        ownerPageRequestDto = new OwnerPageRequestDto("TestStoreName", "TestAdress",
+        ownerPageRequestDto = new OwnerPageRequestDto("TestStoreName", "Test Adress",
                 "TestStoreNumber", mockFile, mockFile);
 
         bean = new Bean(1L, "TestName", "TestOriginName",
                 "TestImageURL", "TestSummary", "단맛/신맛/쓴맛",
-                "TestInfo", "2", "TestFlavor", "TestOrigin", 0);
+                "TestInfo", "2", "TestOrigin", 0, true, true, true, true);
 
-        cafe = new Cafe(1L, user, bean, "TestAddress", "TestNumber","TestName",
+        cafe = new Cafe(1L, user, bean, "Test Address", "TestNumber","TestName",
                 "TestX", "TestY", false,
-                "TestbusinessImageURL", "TestCafeImageURL");
+                "TestbusinessImageURL", "TestCafeImageURL", "서울시", "관악구");
 
         user = new User(1L,"TestId", "TestNickName", "TestPassWord",
                 UserRoleEnum.OWNER, null, "TestEmail", null);
@@ -82,7 +82,7 @@ class OwnerPageServiceTest {
         //given
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode cafeNode = mapper.createObjectNode();
-        cafeNode.put("address_name", "Testaddress");
+        cafeNode.put("address_name", "Test address");
         cafeNode.put("category_group_code", "CE7");
         cafeNode.put("category_group_name", "카페");
         cafeNode.put("category_name", "음식점 > 카페");
@@ -91,7 +91,7 @@ class OwnerPageServiceTest {
         cafeNode.put("phone", "TestNumber");
         cafeNode.put("place_name", "TestName");
         cafeNode.put("place_url", "TestPlace_URL");
-        cafeNode.put("road_address_name", "TestAddress");
+        cafeNode.put("road_address_name", "Test Address");
         cafeNode.put("x", "TestX");
         cafeNode.put("y", "TestY");
         ArrayNode documentsArrayNode = mapper.createArrayNode();

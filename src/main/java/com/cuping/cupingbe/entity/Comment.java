@@ -23,11 +23,11 @@ public class Comment {
     @Column
     private String username;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name="User_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "bean_id")
     private Bean bean;
 

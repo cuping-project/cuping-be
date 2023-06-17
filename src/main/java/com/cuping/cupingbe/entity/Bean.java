@@ -5,9 +5,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Bean {
@@ -38,13 +40,19 @@ public class Bean {
     private String roastingLevel;
 
     @Column
-    private String flavor;
-
-    @Column
     private String origin;
     // 좋아요 개수를 관리할 필드 추가
     @Column
     private int likesCount = 0;
+
+    @Column
+    private boolean sour = false;
+    @Column
+    private boolean bitter = false;
+    @Column
+    private boolean burnt = false;
+    @Column
+    private boolean sweet = false;
 
     public Bean(String imgUrl, AdminPageRequestDto adminPageRequestDto) {
         this.beanName = adminPageRequestDto.getBeanName();
@@ -52,9 +60,11 @@ public class Bean {
         this.beanSummary = adminPageRequestDto.getBeanSummary();
         this.beanInfo = adminPageRequestDto.getBeanInfo();
         this.roastingLevel = adminPageRequestDto.getRoastingLevel();
-        this.flavor = adminPageRequestDto.getFlavor();
         this.origin = adminPageRequestDto.getOrigin();
-        this.hashTag = adminPageRequestDto.getHashTag();
+        this.sour = adminPageRequestDto.isSour();
+        this.bitter = adminPageRequestDto.isBitter();
+        this.burnt = adminPageRequestDto.isBurnt();
+        this.sweet = adminPageRequestDto.isSweet();
         this.beanOriginName = this.origin + this.beanName;
     }
 
