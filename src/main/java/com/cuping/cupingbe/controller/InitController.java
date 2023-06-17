@@ -48,6 +48,6 @@ public class InitController {
 
     @GetMapping("/api/check/{num}")
     public JsonNode check(@PathVariable int num) throws Exception {
-        return ownerPageService.initCafe("도봉구", num);
+        return ownerPageService.initCafe("강남구", num);
     }
 }
