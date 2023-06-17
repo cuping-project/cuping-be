@@ -1,5 +1,6 @@
 package com.cuping.cupingbe.dto;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Setter;
@@ -13,7 +14,9 @@ public class AdminPageRequestDto {
     private String beanSummary;
     private String beanInfo;
     private String roastingLevel;
-    private String flavor;
     private String origin;
-    private String hashTag;
+    private boolean sour = false;
+    private boolean bitter = false;
+    private boolean burnt = false;
+    private boolean sweet = false;
 }

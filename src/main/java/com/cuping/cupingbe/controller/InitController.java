@@ -45,19 +45,7 @@ public class InitController {
             "금천구",
             "구로구"
     };
-    @GetMapping("/api/init")
-    public void hello() throws Exception {
 
-        for(String s : location){
-            for (int i = 1; i <= 45; i++) {
-                JsonNode cafes = ownerPageService.initCafe(s, i);
-                for (int j = 0; j < 15; j++) {
-                    cafes.get(j).path("road_address_name").asText();
-                    cafeRepository.save(new Cafe(cafes, j));
-                }
-            }
-        }
-    }
     @GetMapping("/api/check/{num}")
     public JsonNode check(@PathVariable int num) throws Exception {
         return ownerPageService.initCafe("도봉구", num);

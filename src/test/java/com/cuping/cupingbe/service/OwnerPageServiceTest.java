@@ -61,11 +61,11 @@ class OwnerPageServiceTest {
 
         bean = new Bean(1L, "TestName", "TestOriginName",
                 "TestImageURL", "TestSummary", "단맛/신맛/쓴맛",
-                "TestInfo", "2", "TestFlavor", "TestOrigin", 0);
+                "TestInfo", "2", "TestOrigin", 0, true, true, true, true);
 
         cafe = new Cafe(1L, user, bean, "TestAddress", "TestNumber","TestName",
                 "TestX", "TestY", false,
-                "TestbusinessImageURL", "TestCafeImageURL");
+                "TestbusinessImageURL", "TestCafeImageURL", "서울시", "관악구");
 
         user = new User(1L,"TestId", "TestNickName", "TestPassWord",
                 UserRoleEnum.OWNER, null, "TestEmail", null);
