@@ -41,7 +41,8 @@ public class AdminPageService {
                 , adminPageRequestDto.getRoastingLevel(), true);
 
         String imgUrl = s3Uploader.upload(adminPageRequestDto.getImage());
-        beanRepository.save(new Bean(imgUrl, adminPageRequestDto));
+        String imgUrl2 = s3Uploader.upload(adminPageRequestDto.getBeanGraph());
+        beanRepository.save(new Bean(imgUrl, imgUrl2, adminPageRequestDto));
         return new ResponseEntity<>(new Message("원두 등록 성공", null), HttpStatus.CREATED);
     }
 
@@ -82,6 +83,7 @@ public class AdminPageService {
         Bean bean = utilService.checkBean(beanId);
 
         s3Uploader.delete(bean.getBeanImage());
+        s3Uploader.delete(bean.getBeanGraph());
         beanRepository.delete(bean);
         return new ResponseEntity<>(new Message("원두 삭제 성공", null), HttpStatus.OK);
     }
