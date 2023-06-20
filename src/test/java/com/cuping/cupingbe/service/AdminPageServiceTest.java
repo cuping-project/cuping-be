@@ -55,12 +55,12 @@ class AdminPageServiceTest {
     @DisplayName("초기세팅")
     public void setup() {
         MultipartFile mockFile = new MockMultipartFile("testFile", new byte[0]);
-        adminPageRequestDto = new AdminPageRequestDto(mockFile, "TestName", "TestSummary",
+        adminPageRequestDto = new AdminPageRequestDto(mockFile, mockFile,"TestName", "TestSummary",
                 "TestInfo", "2", "TestFlavor",
                 true, true, true, true);
 
         bean = new Bean(1L, "TestName", "TestOriginName",
-                "TestImageURL", "TestSummary", "단맛/신맛/쓴맛",
+                "TestImageURL","TestGraph" ,"TestSummary", "단맛/신맛/쓴맛",
                 "TestInfo", "2", "TestOrigin", 0, true, true, true, true);
 
         cafe = new Cafe(1L, user, bean, "TestAddress", "TestNumber","TestName",
@@ -82,6 +82,7 @@ class AdminPageServiceTest {
         given(utilService.checkBean(adminPageRequestDto.getOrigin() + adminPageRequestDto.getBeanName()
                 , adminPageRequestDto.getRoastingLevel(), true)).willReturn(bean);
         given(s3Uploader.upload(adminPageRequestDto.getImage())).willReturn(imgUrl);
+        given(s3Uploader.upload(adminPageRequestDto.getBeanGraph())).willReturn(imgUrl);
         when(beanRepository.save(any(Bean.class))).thenReturn(bean);
         //when
         ResponseEntity<Message> response = adminPageService.createBean(adminPageRequestDto,userDetails);
@@ -89,7 +90,8 @@ class AdminPageServiceTest {
         verify(utilService,times(1)).checkRoleAdmin(user.getRole());
         verify(utilService,times(1)).checkBean(adminPageRequestDto.getOrigin() + adminPageRequestDto.getBeanName()
                 , adminPageRequestDto.getRoastingLevel(), true);
-        verify(s3Uploader,times(1)).upload(adminPageRequestDto.getImage());
+        verify(s3Uploader,times(2)).upload(adminPageRequestDto.getImage());
+        verify(s3Uploader,times(2)).upload(adminPageRequestDto.getBeanGraph());
         verify(beanRepository,times(1)).save(any(Bean.class));
         assertThat(response.getBody().getData()).isEqualTo(null);
         assertThat(response.getStatusCode().equals(HttpStatus.OK));
