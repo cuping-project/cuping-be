@@ -60,7 +60,7 @@ class OwnerPageServiceTest {
                 "TestStoreNumber", mockFile, mockFile);
 
         bean = new Bean(1L, "TestName", "TestOriginName",
-                "TestImageURL", "TestSummary", "단맛/신맛/쓴맛",
+                "TestImageURL", "TestGraph","TestSummary", "단맛/신맛/쓴맛",
                 "TestInfo", "2", "TestOrigin", 0, true, true, true, true);
 
         cafe = new Cafe(1L, user, bean, "Test Address", "TestNumber","TestName",
