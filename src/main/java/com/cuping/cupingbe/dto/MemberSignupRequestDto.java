@@ -15,7 +15,7 @@ public class MemberSignupRequestDto {
 			message = "아이디는 알파벳 대소문자, 숫자를 입력하고 5~12자리로 구성해주세요.")
 	private String userId;
 
-	@Pattern(regexp = "(?=.*[a-z])(?=.*\\d)(?=.*[!?_])[a-z\\d!?_]{8,12}",
+	@Pattern(regexp = "^(?=.*[a-z])(?=.*\\d)(?=.*[~!?_@#$%^&*()+|=])[a-z\\d~!?_@#$%^&*()+|=]{8,16}$",
 			message = "비밀번호는 알파벳 소문자, 숫자, 특수문자(!?_)를 입력하고 8~12자리로 구성해주세요.")
 	private String password;
 
