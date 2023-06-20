@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 public class AdminPageRequestDto {
     private MultipartFile image;
+    private MultipartFile beanGraph;
     private String beanName;
     private String beanSummary;
     private String beanInfo;

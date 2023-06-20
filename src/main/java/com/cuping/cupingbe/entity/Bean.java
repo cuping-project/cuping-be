@@ -28,6 +28,9 @@ public class Bean {
     private String beanImage;
 
     @Column
+    private String beanGraph;
+
+    @Column
     private String beanSummary;
 
     @Column
@@ -54,7 +57,7 @@ public class Bean {
     @Column
     private boolean sweet = false;
 
-    public Bean(String imgUrl, AdminPageRequestDto adminPageRequestDto) {
+    public Bean(String imgUrl, String beanGraph, AdminPageRequestDto adminPageRequestDto) {
         this.beanName = adminPageRequestDto.getBeanName();
         this.beanImage = imgUrl;
         this.beanSummary = adminPageRequestDto.getBeanSummary();
@@ -65,6 +68,7 @@ public class Bean {
         this.bitter = adminPageRequestDto.isBitter();
         this.burnt = adminPageRequestDto.isBurnt();
         this.sweet = adminPageRequestDto.isSweet();
+        this.beanGraph = beanGraph;
         this.beanOriginName = this.origin + this.beanName;
     }
 
