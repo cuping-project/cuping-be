@@ -3,13 +3,14 @@ package com.cuping.cupingbe.repository;
 import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Cafe;
 import com.cuping.cupingbe.entity.Bean;
+import com.cuping.cupingbe.repository.queryDsl.CustomCafeRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface CafeRepository extends JpaRepository<Cafe, Long> {
+public interface CafeRepository extends JpaRepository<Cafe, Long>, CustomCafeRepository {
     //승인되지 않은 카페 전체 조회
     List<Cafe> findAllByPermit(boolean b);
     List<Cafe> findByBeanAndCafeAddressContaining(Bean bean, String cafeAddress);
