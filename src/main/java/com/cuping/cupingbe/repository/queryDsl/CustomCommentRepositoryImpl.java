@@ -35,4 +35,10 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
         return queryResults.getResults();
     }
 
+    @Override
+    public List<Comment> findByBean(Bean bean) {
+        return jpaQueryFactory.selectFrom(QComment.comment)
+                .where(QComment.comment.bean.eq(bean))
+                .fetch();
+    }
 }

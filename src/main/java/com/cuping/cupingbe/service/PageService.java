@@ -70,7 +70,7 @@ public class PageService {
     public List<Comment> setDetailPageComment(Bean bean, int pageNumber) {
         return commentRepository.findByBean(bean, pageNumber);
     }
-    //상세페이지
+    //상세페이지(페이징 처리 없이 가져옴)
     public ResponseEntity<Message> getDetailBean(Long cardId, String address) {
         Bean bean = utilService.checkBean(cardId);
         List<Cafe> cafeList = setDetailPageCafe(bean, address);
