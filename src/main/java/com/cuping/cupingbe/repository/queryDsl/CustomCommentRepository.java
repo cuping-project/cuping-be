@@ -11,5 +11,5 @@ public interface CustomCommentRepository {
 //    List<Comment> findByBean(Bean bean);
 
     List<Comment> findByBean(Bean bean, int page);
-    List<Comment> findByBean(Bean bean);
+
 }

@@ -58,7 +58,7 @@ public class PageService {
         Bean bean = utilService.checkBean(cardId);
         List<Cafe> cafeList = setDetailPageCafe(bean, address);
         // Bean에 연결된 Comment 목록을 가져오기
-        int commentCount = commentRepository.findByBean(bean).size();
+        int commentCount = commentRepository.findByBean_id(bean.getId()).size();
         List<Comment> commentList = setDetailPageComment(bean, pageNumber);
         return new ResponseEntity<>(new Message("Success", new DetailPageResponseDto(commentCount ,bean, cafeList, commentList)), HttpStatus.OK);
     }
@@ -75,12 +75,12 @@ public class PageService {
         Bean bean = utilService.checkBean(cardId);
         List<Cafe> cafeList = setDetailPageCafe(bean, address);
         // Bean에 연결된 Comment 목록을 가져오기
-        int commentCount = commentRepository.findByBean(bean).size();
+        int commentCount = commentRepository.findByBean_id(bean.getId()).size();
         List<Comment> commentList = setDetailPageComment(bean);
         return new ResponseEntity<>(new Message("Success", new DetailPageResponseDto(commentCount,bean, cafeList, commentList)), HttpStatus.OK);
     }
     public List<Comment> setDetailPageComment(Bean bean) {
-        return commentRepository.findByBean(bean);
+        return commentRepository.findByBean_id(bean.getId());
     }
 }
 
