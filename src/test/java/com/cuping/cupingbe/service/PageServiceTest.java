@@ -92,14 +92,11 @@ class PageServiceTest {
 
         when(cafeRepository.findByBeanAndCafeAddressContaining(bean, null)).thenReturn(cafeList);
         when(commentRepository.findByBean(bean,1)).thenReturn(commentList);
-        when(commentRepository.findByBean(bean).size()).thenReturn(1);
+        when(commentRepository.findByBean_id(bean.getId())).thenReturn(commentList);
         when(utilService.checkBean(beanId)).thenReturn(bean);
 
         // when
         ResponseEntity<Message> response = pageService.getDetailPage(beanId, null, 1);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getBody()).isNotNull();
         DetailPageResponseDto responseDto = (DetailPageResponseDto) Objects.requireNonNull(response.getBody()).getData();
 
         // then
@@ -125,14 +122,11 @@ class PageServiceTest {
 
         when(cafeRepository.findByBeanAndCafeAddressContaining(bean, "강남구")).thenReturn(cafeList);
         when(commentRepository.findByBean(bean,1)).thenReturn(commentList);
-        when(commentRepository.findByBean(bean).size()).thenReturn(1);
+        when(commentRepository.findByBean_id(bean.getId())).thenReturn(commentList);
         when(utilService.checkBean(beanId)).thenReturn(bean);
 
         // when
         ResponseEntity<Message> response = pageService.getDetailPage(beanId, "강남구", 1);
-        assertThat(response).isNotNull();
-        assertThat(response.getBody()).isNotNull();
-
         DetailPageResponseDto responseDto = (DetailPageResponseDto) Objects.requireNonNull(response.getBody()).getData();
 
         // then
