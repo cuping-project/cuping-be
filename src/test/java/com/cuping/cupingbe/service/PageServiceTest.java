@@ -138,7 +138,7 @@ class PageServiceTest {
     }
 
     @Test
-    @DisplayName("getDetailPage address = null")
+    @DisplayName("setDetailPage address = null")
     void setDetailPageCafeNull() {
         // given
         Bean bean = new Bean();
@@ -159,7 +159,7 @@ class PageServiceTest {
     }
 
     @Test
-    @DisplayName("getDetailPage address = 강남구")
+    @DisplayName("setDetailPage address = 강남구")
     void setDetailPageCafeAddress() {
         // given
         Bean bean = new Bean();

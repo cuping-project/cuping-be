@@ -49,7 +49,7 @@ public class KakaoService {
 			throw new IllegalArgumentException();
 		TokenDto tokenDto = jwtUtil.creatAllToken(userId, kakaoUser.getRole());
 		redisUtil.set(userId, tokenDto.getRefreshToken(), JwtUtil.REFRESH_TIME);
-		jwtUtil.setCookies(response, tokenDto);
+		jwtUtil.setCookiesKakao(response, tokenDto);
 	}
 
 	private TokenDto getToken(String code) throws JsonProcessingException {
