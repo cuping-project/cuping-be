@@ -28,7 +28,7 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
     public List<Comment> findByBean(Bean bean, int page) {
         QueryResults<Comment> queryResults = jpaQueryFactory.selectFrom(QComment.comment)
                 .where(QComment.comment.bean.eq(bean))
-                .offset((page - 1) * PAGE_SIZE)
+                .offset((long) (page - 1) * PAGE_SIZE)
                 .limit(PAGE_SIZE)
                 .fetchResults();
 
