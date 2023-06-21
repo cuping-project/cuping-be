@@ -91,11 +91,11 @@ class PageServiceTest {
         commentList.add(comment);
 
         when(cafeRepository.findByBeanAndCafeAddressContaining(bean, null)).thenReturn(cafeList);
-        when(commentRepository.findByBean(bean)).thenReturn(commentList);
+        when(commentRepository.findByBean(bean,1)).thenReturn(commentList);
         when(utilService.checkBean(beanId)).thenReturn(bean);
 
         // when
-        ResponseEntity<Message> response = pageService.getDetailPage(beanId, null);
+        ResponseEntity<Message> response = pageService.getDetailPage(beanId, null, 1);
         DetailPageResponseDto responseDto = (DetailPageResponseDto) Objects.requireNonNull(response.getBody()).getData();
 
         // then
@@ -120,11 +120,11 @@ class PageServiceTest {
         commentList.add(comment);
 
         when(cafeRepository.findByBeanAndCafeAddressContaining(bean, "강남구")).thenReturn(cafeList);
-        when(commentRepository.findByBean(bean)).thenReturn(commentList);
+        when(commentRepository.findByBean(bean,1)).thenReturn(commentList);
         when(utilService.checkBean(beanId)).thenReturn(bean);
 
         // when
-        ResponseEntity<Message> response = pageService.getDetailPage(beanId, "강남구");
+        ResponseEntity<Message> response = pageService.getDetailPage(beanId, "강남구", 1);
         DetailPageResponseDto responseDto = (DetailPageResponseDto) Objects.requireNonNull(response.getBody()).getData();
 
         // then
@@ -181,10 +181,10 @@ class PageServiceTest {
         // given
         Bean bean = new Bean();
 
-        when(commentRepository.findByBean(bean)).thenReturn(null);
+        when(commentRepository.findByBean(bean,1)).thenReturn(null);
 
         // when
-        List<Comment> responseCommentList2 = pageService.setDetailPageComment(bean);
+        List<Comment> responseCommentList2 = pageService.setDetailPageComment(bean, 1);
 
         // then
         assertThat(responseCommentList2).isEqualTo(null);
@@ -199,10 +199,10 @@ class PageServiceTest {
         List<Comment> commentList = new ArrayList<>();
         commentList.add(comment);
 
-        when(commentRepository.findByBean(bean)).thenReturn(commentList);
+        when(commentRepository.findByBean(bean,1)).thenReturn(commentList);
 
         // when
-        List<Comment> responseCommentList = pageService.setDetailPageComment(bean);
+        List<Comment> responseCommentList = pageService.setDetailPageComment(bean, 1);
 
         // then
         assertThat(responseCommentList).isEqualTo(commentList);
