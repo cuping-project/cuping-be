@@ -53,19 +53,32 @@ public class PageService {
         return new ResponseEntity<>(new Message("Success", beanList), HttpStatus.OK);
     }
 
-    // 상세페이지
-    public ResponseEntity<Message> getDetailPage(Long cardId, String address) {
+    // 상세페이지(페이징 처리)
+    public ResponseEntity<Message> getDetailPage(Long cardId, String address, int pageNumber) {
         Bean bean = utilService.checkBean(cardId);
         List<Cafe> cafeList = setDetailPageCafe(bean, address);
         // Bean에 연결된 Comment 목록을 가져오기
-        List<Comment> commentList = setDetailPageComment(bean);
-        return new ResponseEntity<>(new Message("Success", new DetailPageResponseDto(bean, cafeList, commentList)), HttpStatus.OK);
+        int commentCount = commentRepository.findByBean(bean).size();
+        List<Comment> commentList = setDetailPageComment(bean, pageNumber);
+        return new ResponseEntity<>(new Message("Success", new DetailPageResponseDto(commentCount ,bean, cafeList, commentList)), HttpStatus.OK);
     }
 
     public List<Cafe> setDetailPageCafe(Bean bean, String address) {
         return cafeRepository.findByBeanAndCafeAddressContaining(bean, address);
     }
 
+    public List<Comment> setDetailPageComment(Bean bean, int pageNumber) {
+        return commentRepository.findByBean(bean, pageNumber);
+    }
+    //상세페이지(페이징 처리 없이 가져옴)
+    public ResponseEntity<Message> getDetailBean(Long cardId, String address) {
+        Bean bean = utilService.checkBean(cardId);
+        List<Cafe> cafeList = setDetailPageCafe(bean, address);
+        // Bean에 연결된 Comment 목록을 가져오기
+        int commentCount = commentRepository.findByBean(bean).size();
+        List<Comment> commentList = setDetailPageComment(bean);
+        return new ResponseEntity<>(new Message("Success", new DetailPageResponseDto(commentCount,bean, cafeList, commentList)), HttpStatus.OK);
+    }
     public List<Comment> setDetailPageComment(Bean bean) {
         return commentRepository.findByBean(bean);
     }

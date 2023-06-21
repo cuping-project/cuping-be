@@ -26,8 +26,9 @@ public class PageController {
     }
 
     @GetMapping("/bean/{cardId}")
-    public ResponseEntity<Message> detailPage(@PathVariable Long cardId, @RequestParam String address) {
-        return pageService.getDetailPage(cardId, address);
+    public ResponseEntity<Message> detailPage(@PathVariable Long cardId, @RequestParam String address, Integer pageNumber) {
+        if(pageNumber != null) {return pageService.getDetailPage(cardId, address, pageNumber);}
+        else {return  pageService.getDetailBean(cardId, address);}
     }
 }
 
