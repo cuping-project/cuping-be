@@ -97,9 +97,6 @@ class PageServiceTest {
 
         // when
         ResponseEntity<Message> response = pageService.getDetailPage(beanId, null, 1);
-
-        assertThat(response).isNotNull();
-        assertThat(response.getBody()).isNotNull();
         DetailPageResponseDto responseDto = (DetailPageResponseDto) Objects.requireNonNull(response.getBody()).getData();
 
         // then
@@ -130,9 +127,6 @@ class PageServiceTest {
 
         // when
         ResponseEntity<Message> response = pageService.getDetailPage(beanId, "강남구", 1);
-        assertThat(response).isNotNull();
-        assertThat(response.getBody()).isNotNull();
-
         DetailPageResponseDto responseDto = (DetailPageResponseDto) Objects.requireNonNull(response.getBody()).getData();
 
         // then
