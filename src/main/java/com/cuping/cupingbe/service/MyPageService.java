@@ -2,6 +2,7 @@ package com.cuping.cupingbe.service;
 
 import com.cuping.cupingbe.dto.MyPageDto;
 import com.cuping.cupingbe.dto.UserUpdateRequestDto;
+import com.cuping.cupingbe.entity.Bean;
 import com.cuping.cupingbe.entity.Likes;
 import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.global.util.Message;
@@ -29,7 +30,7 @@ public class MyPageService {
         // 유저가 누른 좋아요를 갖고옴
         List<Likes> likesList =setMyPageLikes(user);
         // 좋아요 목록을 생성
-        List<Long> heartList = setMyPageHeartList(likesList);
+        List<Bean> heartList = setMyPageHeartList(likesList);
         return new ResponseEntity<>(new Message("마이페이지.", new MyPageDto(user, heartList)), HttpStatus.OK);
     }
 
@@ -37,10 +38,10 @@ public class MyPageService {
         return likesRepository.findAllByUser(user);
     }
 
-    public List<Long> setMyPageHeartList(List<Likes> likesList) {
+    public List<Bean> setMyPageHeartList(List<Likes> likesList) {
         return likesList.stream()
                 .filter(Likes::isLikeStatus)
-                .map(like -> like.getBean().getId())
+                .map(Likes::getBean)
                 .collect(Collectors.toList());
     }
 
