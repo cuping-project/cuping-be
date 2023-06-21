@@ -8,5 +8,7 @@ import java.util.Optional;
 
 public interface CustomCommentRepository {
     Optional<Comment> findById(Long id);
-    List<Comment> findByBean(Bean bean);
+//    List<Comment> findByBean(Bean bean);
+
+    List<Comment> findByBean(Bean bean, int page);
 }
