@@ -92,6 +92,7 @@ class PageServiceTest {
 
         when(cafeRepository.findByBeanAndCafeAddressContaining(bean, null)).thenReturn(cafeList);
         when(commentRepository.findByBean(bean,1)).thenReturn(commentList);
+        when(commentRepository.findByBean(bean)).thenReturn(commentList);
         when(utilService.checkBean(beanId)).thenReturn(bean);
 
         // when
@@ -121,6 +122,7 @@ class PageServiceTest {
 
         when(cafeRepository.findByBeanAndCafeAddressContaining(bean, "강남구")).thenReturn(cafeList);
         when(commentRepository.findByBean(bean,1)).thenReturn(commentList);
+        when(commentRepository.findByBean(bean)).thenReturn(commentList);
         when(utilService.checkBean(beanId)).thenReturn(bean);
 
         // when
