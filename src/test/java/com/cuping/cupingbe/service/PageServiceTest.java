@@ -122,11 +122,7 @@ class PageServiceTest {
 
         when(cafeRepository.findByBeanAndCafeAddressContaining(bean, "강남구")).thenReturn(cafeList);
         when(commentRepository.findByBean(bean,1)).thenReturn(commentList);
-<<<<<<< HEAD
-        when(commentRepository.findByBean(bean)).thenReturn(commentList);
-=======
         when(commentRepository.findByBean_id(bean.getId())).thenReturn(commentList);
->>>>>>> 39cd7c19ea5911477304408f3912c4e53cc9627f
         when(utilService.checkBean(beanId)).thenReturn(bean);
 
         // when
