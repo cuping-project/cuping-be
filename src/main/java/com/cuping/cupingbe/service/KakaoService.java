@@ -2,6 +2,7 @@ package com.cuping.cupingbe.service;
 
 import java.util.UUID;
 
+import com.cuping.cupingbe.global.util.Message;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,7 +39,7 @@ public class KakaoService {
 	@Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
 	private String clientSecret;
 
-	public void kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+	public ResponseEntity<Message> kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
 
 		TokenDto kakaoToken = getToken(code);
 		KakaoUserInfoDto kakaoUserInfo = getKakaoUserInfo(kakaoToken.getAccessToken());
@@ -49,7 +50,8 @@ public class KakaoService {
 			throw new IllegalArgumentException();
 		TokenDto tokenDto = jwtUtil.creatAllToken(userId, kakaoUser.getRole());
 		redisUtil.set(userId, tokenDto.getRefreshToken(), JwtUtil.REFRESH_TIME);
-		jwtUtil.setCookiesKakao(response, tokenDto);
+		jwtUtil.setCookies(response, tokenDto);
+		return new ResponseEntity<>(new Message("로그인 성공", null), HttpStatus.OK);
 	}
 
 	private TokenDto getToken(String code) throws JsonProcessingException {

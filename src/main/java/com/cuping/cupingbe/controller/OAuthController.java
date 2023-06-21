@@ -1,5 +1,7 @@
 package com.cuping.cupingbe.controller;
 
+import com.cuping.cupingbe.global.util.Message;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,10 +19,7 @@ import org.springframework.web.servlet.view.RedirectView;
 	private final KakaoService kakaoService;
 
 	@GetMapping("/users/oauth/kakao")
-	public RedirectView kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
-		kakaoService.kakaoLogin(code, response);
-		RedirectView redirectView = new RedirectView();
-		redirectView.setUrl("https://cuping.net");
-		return redirectView;
+	public ResponseEntity<Message> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
+		return kakaoService.kakaoLogin(code, response);
 	}
 }

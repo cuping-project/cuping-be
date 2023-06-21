@@ -159,8 +159,8 @@ public class JwtUtil {
 				.path("/")
 				.domain("cuping.net")
 				.maxAge(tokenTime)
-//				.sameSite("None")
-//				.secure(true)
+				.sameSite("None")
+				.secure(true)
 				.build();
 	}
 
@@ -169,12 +169,5 @@ public class JwtUtil {
 //		response.addHeader("Set-Cookie", createCookie(JwtUtil.REFRESH_KEY, tokenDto.getRefreshToken()).toString());
 		response.addHeader(ACCESS_KEY, tokenDto.getAccessToken());
 		response.addHeader(REFRESH_KEY, tokenDto.getRefreshToken());
-	}
-
-	public void setCookiesKakao(HttpServletResponse response, TokenDto tokenDto) {
-		response.addHeader("Set-Cookie", createCookie(JwtUtil.ACCESS_KEY, tokenDto.getAccessToken()).toString());
-		response.addHeader("Set-Cookie", createCookie(JwtUtil.REFRESH_KEY, tokenDto.getRefreshToken()).toString());
-//		response.addHeader(ACCESS_KEY, tokenDto.getAccessToken());
-//		response.addHeader(REFRESH_KEY, tokenDto.getRefreshToken());
 	}
 }

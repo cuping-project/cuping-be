@@ -26,13 +26,11 @@ public class CustomCommentRepositoryImpl implements CustomCommentRepository {
 
     @Override
     public List<Comment> findByBean(Bean bean, int page) {
-        QueryResults<Comment> queryResults = jpaQueryFactory.selectFrom(QComment.comment)
+        return jpaQueryFactory.selectFrom(QComment.comment)
                 .where(QComment.comment.bean.eq(bean))
                 .offset((long) (page - 1) * PAGE_SIZE)
                 .limit(PAGE_SIZE)
-                .fetchResults();
-
-        return queryResults.getResults();
+                .fetch();
     }
 
     @Override
