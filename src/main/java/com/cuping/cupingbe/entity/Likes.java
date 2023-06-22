@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Likes {
+public class Likes extends Timestamped{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

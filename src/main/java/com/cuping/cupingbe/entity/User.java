@@ -19,7 +19,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Setter
-public class User {
+public class User extends Timestamped{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
