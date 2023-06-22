@@ -41,6 +41,7 @@ public class CommentService {
     public ResponseEntity<Message> updateComment(CommentUpdateRequestDto requestDto, User user) {
         Comment comment = checkComment(requestDto.getId());
         checkUser(comment, user);
+        comment.setContent(requestDto.getContent());
         commentRepository.save(comment);
         return new ResponseEntity<>(new Message("댓글 수정 성공.", new CommentResponseDto(comment)), HttpStatus.OK);
     }

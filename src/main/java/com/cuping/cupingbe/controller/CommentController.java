@@ -30,9 +30,10 @@ public class CommentController {
 
     //댓글 수정
     @PutMapping("/comment/{id}")
-    public ResponseEntity<Message> updateComment(@PathVariable Long id, @RequestBody CommentUpdateRequestDto commentUpdateRequestDto, @AuthenticationPrincipal User user){
+    public ResponseEntity<Message> updateComment(@PathVariable Long id, @RequestBody CommentUpdateRequestDto commentUpdateRequestDto
+            , @AuthenticationPrincipal UserDetailsImpl userDetails){
         commentUpdateRequestDto.setId(id);
-        return commentService.updateComment(commentUpdateRequestDto, user);
+        return commentService.updateComment(commentUpdateRequestDto, userDetails.getUser());
     }
 
     //댓글 삭제
