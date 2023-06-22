@@ -22,6 +22,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import static com.cuping.cupingbe.global.jwt.JwtUtil.ACCESS_KEY;
+import static com.cuping.cupingbe.global.jwt.JwtUtil.REFRESH_KEY;
 import static com.cuping.cupingbe.global.security.WebSecurityConfig.PERMIT_URI;
 
 @RequiredArgsConstructor
@@ -37,8 +39,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
 		// JWT 토큰을 해석하여 추출.
-		String access_token = jwtUtil.resolveToken(request, jwtUtil.ACCESS_KEY);
-		String refresh_token = jwtUtil.resolveToken(request, jwtUtil.REFRESH_KEY);
+		String access_token = jwtUtil.resolveToken(request, ACCESS_KEY);
+		String refresh_token = jwtUtil.resolveToken(request, REFRESH_KEY);
 		String uri = request.getRequestURI();
 		boolean permit = false;
 
@@ -64,7 +66,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 				//새로운 ACCESS TOKEN 발급
 				String newAccessToken = jwtUtil.createToken(username, user.getRole(), "Access");
 				//Header에 ACCESS TOKEN 추가
-				response.addHeader("Set-Cookie", jwtUtil.createCookie(JwtUtil.ACCESS_KEY, newAccessToken).toString());
+//				response.addHeader("Set-Cookie", jwtUtil.createCookie(JwtUtil.ACCESS_KEY, newAccessToken).toString());
+				response.addHeader(ACCESS_KEY, newAccessToken);
 				setAuthentication(username);
 			} else {
 				jwtExceptionHandler(response, "Token Error.", HttpStatus.UNAUTHORIZED.value());
