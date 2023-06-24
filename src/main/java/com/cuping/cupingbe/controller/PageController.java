@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -26,6 +28,12 @@ public class PageController {
     @GetMapping("beans/search")
     public ResponseEntity<Message> searchPage(@RequestParam String keyword) {
         return pageService.getSearchPage(keyword);
+    }
+
+    @GetMapping("beans/search/hashTag")
+    public ResponseEntity<Message>  searchBean(@RequestParam boolean desc, String hashTag) {
+        if (hashTag == null) {return pageService.getSearchPage(null);}
+        else {return pageService.getKewordBean(desc, hashTag);}
     }
 
     @GetMapping("/bean/{cardId}")

@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -81,6 +80,14 @@ public class PageService {
     }
     public List<Comment> setDetailPageComment(Bean bean) {
         return commentRepository.findByBean_id(bean.getId());
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<Message> getKewordBean(boolean desc, String hashTag) {
+        String keyword = hashTag;
+        String[] key = keyword.split("/");
+        List<Bean> beanList = beanRepository.findByBeanName(desc,key);
+        return new ResponseEntity<>(new Message("Success",beanList), HttpStatus.OK);
     }
 }
 
