@@ -19,32 +19,37 @@ public class CustomBeanRepositoryImpl implements CustomBeanRepository {
     public List<Bean> findByBeanName(boolean desc, String[] hashTagkey) {
         List<Bean> beanList = new ArrayList<>();
 
-        BooleanExpression condition = null;
-
-        for (int i = 1; i <hashTagkey.length ; i++) {
-            String tag = "%" + hashTagkey[i] + "%";
-            BooleanExpression tagCondition = QBean.bean.hashTag.like(tag);
-
-            if (condition == null) {
-                condition = tagCondition;
-            } else {
-                condition = condition.or(tagCondition);
-            }
-        }
+        BooleanExpression condition = buildCondition(hashTagkey);
 
         JPAQuery<Bean> query = jpaQueryFactory.selectFrom(QBean.bean)
                 .where(condition);
 
-        if (desc) {
-            query = query.orderBy(QBean.bean.likesCount.desc());
-        } else {
-            query = query.orderBy(QBean.bean.likesCount.asc());
-        }
+        setDesc(query, desc);
 
         beanList.addAll(query.fetch());
 
         return beanList;
     }
 
+    private BooleanExpression buildCondition(String[] hashTagkey) {
+        BooleanExpression condition = null;
+
+        for (int i = 0; i < hashTagkey.length; i++) {
+            String tag = "%" + hashTagkey[i] + "%";
+            BooleanExpression tagCondition = QBean.bean.hashTag.like(tag);
+
+            condition = mergeCondition(condition, tagCondition);
+        }
+
+        return condition;
+    }
+
+    private BooleanExpression mergeCondition(BooleanExpression condition, BooleanExpression tagCondition) {
+        return (condition == null) ? tagCondition : condition.or(tagCondition);
+    }
+
+    private void setDesc(JPAQuery<Bean> query, boolean desc) {
+        query.orderBy(desc ? QBean.bean.likesCount.desc() : QBean.bean.likesCount.asc());
+    }
 
 }
