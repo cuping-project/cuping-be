@@ -55,7 +55,6 @@ public class WebSecurityConfig {
             "/main/beans",
             "/main/beans/search",
             "/main/bean/{cardId}",
-            "/main/beans/search/hashTag",
             "/main/bean",
             "/oauth/kakao"
     };
