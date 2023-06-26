@@ -53,8 +53,8 @@ public class PageService {
         return new ResponseEntity<>(new Message("Success", beanList), HttpStatus.OK);
     }
 
-    public ResponseEntity<Message> getSearchPage(BeanRequestDto beanRequestDto) {
-        List<Bean> beanList = beanRepository.findBeanByRequestDto(beanRequestDto);
+    public ResponseEntity<Message> getSearchPage(String keyword, String sort, String [] filter) {
+        List<Bean> beanList = beanRepository.findBeanByRequestDto(keyword, sort, filter);
         return new ResponseEntity<>(new Message("Success", beanList), HttpStatus.OK);
     }
 
