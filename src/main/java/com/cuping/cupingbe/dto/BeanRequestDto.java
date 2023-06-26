@@ -12,4 +12,5 @@ public class BeanRequestDto {
     private String [] filterList;
     private String sort;
     private String keyword;
+    
 }
