@@ -19,7 +19,7 @@ public class CustomCafeRepositoryImpl implements CustomCafeRepository {
     public List<CafeResponseDto> findByBeanAndCafeAddressContaining(Bean bean, String address) {
         return jpaQueryFactory.select(Projections.constructor(CafeResponseDto.class
                 ,cafe.Id, cafe.cafeAddress,  cafe.cafePhoneNumber, cafe.cafeName
-                , cafe.x, cafe.y, cafe.cafeImage, cafe.city, cafe.district, cafe.detailLink ))
+                , cafe.x, cafe.y, cafe.cafeImage, cafe.city, cafe.district, cafe.detailLink, cafe.bean))
                 .from(cafe)
                 .where(cafe.bean.eq(bean)
                         .and(cafe.district.eq(address)))
