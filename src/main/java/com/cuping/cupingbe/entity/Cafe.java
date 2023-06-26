@@ -99,7 +99,7 @@ public class Cafe {
         this.permit = b;
         return this;
     }
-    
+
     public void setBean(Bean bean) {
         this.bean = bean;
     }

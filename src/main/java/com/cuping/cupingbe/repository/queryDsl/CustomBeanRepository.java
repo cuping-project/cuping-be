@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface CustomBeanRepository {
 
-    List<Bean> findBeanByRequestDto(BeanRequestDto beanRequestDto);
+    List<Bean> findBeanByRequestDto(String keyword, String sort, String [] filter);
 }
