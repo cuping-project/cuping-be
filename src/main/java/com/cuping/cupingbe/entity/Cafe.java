@@ -95,13 +95,11 @@ public class Cafe {
         this.cafeImage = cafeImage;
     }
 
-
     public Cafe setPermit(boolean b) {
         this.permit = b;
         return this;
     }
-
-
+    
     public void setBean(Bean bean) {
         this.bean = bean;
     }
