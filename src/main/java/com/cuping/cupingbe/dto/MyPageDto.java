@@ -14,13 +14,11 @@ import java.util.List;
 public class MyPageDto {
     private String userId;
     private String nickname;
-    private String password;
     private List<Bean> heartList;
 
     public MyPageDto(User user, List<Bean> heartList) {
         this.userId = user.getUserId();
         this.nickname = user.getNickname();
-        this.password = user.getPassword();
         this.heartList = heartList;
     }
 }

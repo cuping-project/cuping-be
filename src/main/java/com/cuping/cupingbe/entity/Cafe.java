@@ -4,6 +4,7 @@ import com.cuping.cupingbe.dto.OwnerPageRequestDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.*;
+import org.jetbrains.annotations.Nullable;
 
 @Entity
 @Getter
@@ -11,7 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 public class Cafe {
 
-    @Id // 카카오맵에서 제공하는 ID를 사용하려고 GeneratedValue추가 안함.
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long Id;
     @ManyToOne
@@ -51,6 +52,18 @@ public class Cafe {
 
     @Column
     private String district;
+
+    @Column
+    private String detailLink;
+
+    @Column
+    private String homePageLink;
+
+    @Column
+    private String openDay;
+
+    @Column
+    private String openTime;
 
     public Cafe(User owner, Cafe cafe, Bean bean) {
         this.owner = owner;

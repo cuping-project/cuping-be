@@ -1,5 +1,6 @@
 package com.cuping.cupingbe.controller;
 
+import com.cuping.cupingbe.dto.BeanRequestDto;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.AddressRepository;
 import com.cuping.cupingbe.service.PageService;
@@ -23,9 +24,14 @@ public class PageController {
 //        return pageService.getMainPage(searchValue);
 //    }
 
+//    @GetMapping("beans/search")
+//    public ResponseEntity<Message> searchPage(@RequestParam String keyword) {
+//        return pageService.getSearchPage(keyword);
+//    }
+
     @GetMapping("beans/search")
-    public ResponseEntity<Message> searchPage(@RequestParam String keyword) {
-        return pageService.getSearchPage(keyword);
+    public ResponseEntity<Message> searchPage(@RequestBody BeanRequestDto beanRequestDto) {
+        return pageService.getSearchPage(beanRequestDto);
     }
 
     @GetMapping("/bean/{cardId}")
