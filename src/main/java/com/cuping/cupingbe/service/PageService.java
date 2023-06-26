@@ -88,5 +88,6 @@ public class PageService {
     public List<Comment> setDetailPageComment(Bean bean) {
         return commentRepository.findByBean_id(bean.getId());
     }
+
 }
 

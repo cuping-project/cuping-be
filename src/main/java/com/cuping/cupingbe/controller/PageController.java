@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -28,7 +30,7 @@ public class PageController {
     public ResponseEntity<Message> searchPage(@RequestParam String keyword, String sort, String [] filter) {
         return pageService.getSearchPage(keyword, sort, filter);
     }
-
+    
 //    @GetMapping("beans/search")
 //    public ResponseEntity<Message> searchPage(@RequestBody BeanRequestDto beanRequestDto) {
 //        return pageService.getSearchPage(beanRequestDto);
