@@ -63,7 +63,7 @@ class AdminPageServiceTest {
                 "TestImageURL","TestGraph" ,"TestSummary", "단맛/신맛/쓴맛",
                 "TestInfo", "2", "TestOrigin", 0, true, true, true, true);
 
-        cafe = new Cafe(1L, user, bean, "TestAddress", "TestNumber", "TestName",
+        cafe = new Cafe(1L, user, bean, "Test Address", "TestNumber", "TestName",
                 "TestX", "TestY", false,
                 "TestBusinessImageURL", "TestCafeImageURL", "서울시", "관악구", "TestDetailLink",
                 "TestHomePageLink", "TestOpenDay", "TestOpenTime");
