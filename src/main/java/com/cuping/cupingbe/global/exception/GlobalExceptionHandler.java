@@ -24,6 +24,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<Message> handleException(Exception e){
+        log.error("exception");
         log.error(e.getMessage());
         Message exceptionMessage = Message.setSuccess(e.getMessage(), e.getCause());
         return new ResponseEntity<>(exceptionMessage, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -31,6 +32,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = RuntimeException.class)
     public ResponseEntity<Message> handleRunTimeException(RuntimeException e) {
+        log.error("run");
         log.error(e.getMessage());
         Message exceptionMessage = Message.setSuccess(e.getMessage(), e.getCause());
         return new ResponseEntity<>(exceptionMessage, HttpStatus.INTERNAL_SERVER_ERROR);

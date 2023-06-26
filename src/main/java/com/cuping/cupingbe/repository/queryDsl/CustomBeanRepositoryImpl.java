@@ -1,14 +1,19 @@
 package com.cuping.cupingbe.repository.queryDsl;
 
+import com.cuping.cupingbe.dto.BeanRequestDto;
 import com.cuping.cupingbe.entity.Bean;
-import com.cuping.cupingbe.entity.QBean;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import static com.cuping.cupingbe.entity.QBean.bean;
+import static io.jsonwebtoken.lang.Strings.hasText;
 
 @RequiredArgsConstructor
 public class CustomBeanRepositoryImpl implements CustomBeanRepository {
@@ -16,40 +21,66 @@ public class CustomBeanRepositoryImpl implements CustomBeanRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Bean> findByBeanName(boolean desc, String[] hashTagkey) {
-        List<Bean> beanList = new ArrayList<>();
+    public List<Bean> findBeanByRequestDto(BeanRequestDto beanRequestDto) {
 
-        BooleanExpression condition = buildCondition(hashTagkey);
-
-        JPAQuery<Bean> query = jpaQueryFactory.selectFrom(QBean.bean)
-                .where(condition);
-
-        setDesc(query, desc);
-
-        beanList.addAll(query.fetch());
-
-        return beanList;
+        return jpaQueryFactory.selectFrom(bean)
+                .where(keyword(beanRequestDto.getKeyword()),
+                        filter(beanRequestDto.getFilterList()))
+                .orderBy(sort(beanRequestDto.getSort()))
+                .fetch();
     }
 
-    private BooleanExpression buildCondition(String[] hashTagkey) {
-        BooleanExpression condition = null;
+    private BooleanExpression keyword (String keyword) {
+        return hasText(keyword) ? bean.beanOriginName.contains(keyword) : null;
+    }
 
-        for (int i = 0; i < hashTagkey.length; i++) {
-            String tag = "%" + hashTagkey[i] + "%";
-            BooleanExpression tagCondition = QBean.bean.hashTag.like(tag);
+    private BooleanExpression filter (String [] filterList) {
+        return filterList != null ? Expressions.allOf(Arrays.stream(filterList).map(this::eqFilter).toArray(BooleanExpression[]::new)) : null;
+    }
 
-            condition = mergeCondition(condition, tagCondition);
+    private BooleanExpression eqFilter(String filter) {
+        switch (filter) {
+            case "bitter" -> {
+                return bean.bitter.isTrue();
+            }
+            case "burnt" -> {
+                return bean.burnt.isTrue();
+            }
+            case "sour" -> {
+                return bean.sour.isTrue();
+            }
+            case "sweet" -> {
+                return bean.sweet.isTrue();
+            }
+            default -> {
+                return null;
+            }
         }
-
-        return condition;
     }
 
-    private BooleanExpression mergeCondition(BooleanExpression condition, BooleanExpression tagCondition) {
-        return (condition == null) ? tagCondition : condition.or(tagCondition);
+    private OrderSpecifier<?> sort (String sort) {
+        if (sort.equals("likes"))
+            return bean.likesCount.desc();
+        else if (sort.equals("abc"))
+            return bean.beanOriginName.asc();
+        else
+            return null;
     }
-
-    private void setDesc(JPAQuery<Bean> query, boolean desc) {
-        query.orderBy(desc ? QBean.bean.likesCount.desc() : QBean.bean.likesCount.asc());
-    }
-
 }
+
+//    private BooleanExpression buildCondition(String[] hashTagkey) {
+//        BooleanExpression condition = null;
+//
+//        for (int i = 0; i < hashTagkey.length; i++) {
+//            String tag = "%" + hashTagkey[i] + "%";
+//            BooleanExpression tagCondition = bean.hashTag.like(tag);
+//            condition.or(bean.hashTag.contains(tag));
+//            condition = mergeCondition(condition, tagCondition);
+//        }
+//
+//        return condition;
+//    }
+//
+//    private BooleanExpression mergeCondition(BooleanExpression condition, BooleanExpression tagCondition) {
+//        return (condition == null) ? tagCondition : condition.or(tagCondition);
+//    }

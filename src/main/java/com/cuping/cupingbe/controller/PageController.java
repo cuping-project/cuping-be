@@ -1,5 +1,6 @@
 package com.cuping.cupingbe.controller;
 
+import com.cuping.cupingbe.dto.BeanRequestDto;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.AddressRepository;
 import com.cuping.cupingbe.service.PageService;
@@ -25,16 +26,16 @@ public class PageController {
 //        return pageService.getMainPage(searchValue);
 //    }
 
+//    @GetMapping("beans/search")
+//    public ResponseEntity<Message> searchPage(@RequestParam String keyword) {
+//        return pageService.getSearchPage(keyword);
+//    }
+
     @GetMapping("beans/search")
-    public ResponseEntity<Message> searchPage(@RequestParam String keyword) {
-        return pageService.getSearchPage(keyword);
+    public ResponseEntity<Message> searchPage(@RequestBody BeanRequestDto beanRequestDto) {
+        return pageService.getSearchPage(beanRequestDto);
     }
 
-    @GetMapping("beans/search/hashTag")
-    public ResponseEntity<Message>  searchBean(@RequestParam boolean desc, String hashTag) {
-        if (hashTag == null) {return pageService.getSearchPage(null);}
-        else {return pageService.getKewordBean(desc, hashTag);}
-    }
 
     @GetMapping("/bean/{cardId}")
     public ResponseEntity<Message> detailPage(@PathVariable Long cardId, @RequestParam String address, Integer pageNumber) {

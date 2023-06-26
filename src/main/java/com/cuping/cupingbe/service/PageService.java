@@ -1,7 +1,8 @@
 package com.cuping.cupingbe.service;
 
+import com.cuping.cupingbe.dto.BeanRequestDto;
+import com.cuping.cupingbe.dto.CafeResponseDto;
 import com.cuping.cupingbe.dto.DetailPageResponseDto;
-import com.cuping.cupingbe.entity.Cafe;
 import com.cuping.cupingbe.entity.Comment;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.entity.Bean;
@@ -52,18 +53,24 @@ public class PageService {
         return new ResponseEntity<>(new Message("Success", beanList), HttpStatus.OK);
     }
 
+    public ResponseEntity<Message> getSearchPage(BeanRequestDto beanRequestDto) {
+        List<Bean> beanList = beanRepository.findBeanByRequestDto(beanRequestDto);
+        return new ResponseEntity<>(new Message("Success", beanList), HttpStatus.OK);
+    }
+
     // 상세페이지(페이징 처리)
     public ResponseEntity<Message> getDetailPage(Long cardId, String address, int pageNumber) {
         Bean bean = utilService.checkBean(cardId);
-        List<Cafe> cafeList = setDetailPageCafe(bean, address);
+        List<CafeResponseDto> cafeList = setDetailPageCafe(bean, address);
         // Bean에 연결된 Comment 목록을 가져오기
         int commentCount = commentRepository.findByBean_id(bean.getId()).size();
         List<Comment> commentList = setDetailPageComment(bean, pageNumber);
         return new ResponseEntity<>(new Message("Success", new DetailPageResponseDto(commentCount ,bean, cafeList, commentList)), HttpStatus.OK);
     }
 
-    public List<Cafe> setDetailPageCafe(Bean bean, String address) {
-        return cafeRepository.findByBeanAndCafeAddressContaining(bean, address);
+    public List<CafeResponseDto> setDetailPageCafe(Bean bean, String address) {
+        String [] splitAddress = address.split(" ");
+        return cafeRepository.findByBeanAndCafeAddressContaining(bean, splitAddress[1]);
     }
 
     public List<Comment> setDetailPageComment(Bean bean, int pageNumber) {
@@ -72,7 +79,7 @@ public class PageService {
     //상세페이지(페이징 처리 없이 가져옴)
     public ResponseEntity<Message> getDetailBean(Long cardId, String address) {
         Bean bean = utilService.checkBean(cardId);
-        List<Cafe> cafeList = setDetailPageCafe(bean, address);
+        List<CafeResponseDto> cafeList = setDetailPageCafe(bean, address);
         // Bean에 연결된 Comment 목록을 가져오기
         int commentCount = commentRepository.findByBean_id(bean.getId()).size();
         List<Comment> commentList = setDetailPageComment(bean);
@@ -82,12 +89,5 @@ public class PageService {
         return commentRepository.findByBean_id(bean.getId());
     }
 
-    @Transactional(readOnly = true)
-    public ResponseEntity<Message> getKewordBean(boolean desc, String hashTag) {
-        String keyword = hashTag;
-        String[] key = keyword.split("/");
-        List<Bean> beanList = beanRepository.findByBeanName(desc,key);
-        return new ResponseEntity<>(new Message("Success",beanList), HttpStatus.OK);
-    }
 }
 
