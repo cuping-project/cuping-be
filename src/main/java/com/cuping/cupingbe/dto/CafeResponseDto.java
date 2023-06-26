@@ -1,5 +1,6 @@
 package com.cuping.cupingbe.dto;
 
+import com.cuping.cupingbe.entity.Bean;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,4 +29,6 @@ public class CafeResponseDto {
     private String district;
 
     private String detailLink;
+
+    private Bean bean;
 }
