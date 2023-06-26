@@ -26,16 +26,15 @@ public class PageController {
 //        return pageService.getMainPage(searchValue);
 //    }
 
-//    @GetMapping("beans/search")
-//    public ResponseEntity<Message> searchPage(@RequestParam String keyword) {
-//        return pageService.getSearchPage(keyword);
-//    }
-
     @GetMapping("beans/search")
-    public ResponseEntity<Message> searchPage(@RequestBody BeanRequestDto beanRequestDto) {
-        return pageService.getSearchPage(beanRequestDto);
+    public ResponseEntity<Message> searchPage(@RequestParam String keyword, String sort, String [] filter) {
+        return pageService.getSearchPage(keyword, sort, filter);
     }
-
+    
+//    @GetMapping("beans/search")
+//    public ResponseEntity<Message> searchPage(@RequestBody BeanRequestDto beanRequestDto) {
+//        return pageService.getSearchPage(beanRequestDto);
+//    }
 
     @GetMapping("/bean/{cardId}")
     public ResponseEntity<Message> detailPage(@PathVariable Long cardId, @RequestParam String address, Integer pageNumber) {
@@ -46,6 +45,11 @@ public class PageController {
     @GetMapping("/address")
     public ResponseEntity<Message> addressList() {
         return new ResponseEntity<>(new Message("주소 목록", addressRepository.findAll()), HttpStatus.OK);
+    }
+
+    @GetMapping("/health")
+    public ResponseEntity<Message> healthCheck() {
+        return new ResponseEntity<>(new Message(null), HttpStatus.OK);
     }
 }
 

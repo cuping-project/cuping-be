@@ -21,12 +21,12 @@ public class CustomBeanRepositoryImpl implements CustomBeanRepository {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Bean> findBeanByRequestDto(BeanRequestDto beanRequestDto) {
+    public List<Bean> findBeanByRequestDto(String keyword, String sort, String [] filter) {
 
         return jpaQueryFactory.selectFrom(bean)
-                .where(keyword(beanRequestDto.getKeyword()),
-                        filter(beanRequestDto.getFilterList()))
-                .orderBy(sort(beanRequestDto.getSort()))
+                .where(keyword(keyword),
+                        filter(filter))
+                .orderBy(sort(sort))
                 .fetch();
     }
 
