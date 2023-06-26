@@ -69,8 +69,13 @@ public class PageService {
     }
 
     public List<CafeResponseDto> setDetailPageCafe(Bean bean, String address) {
-        String [] splitAddress = address.split(" ");
-        return cafeRepository.findByBeanAndCafeAddressContaining(bean, splitAddress[1]);
+        if (!address.isEmpty()) {
+            String[] splitAddress = address.split(" ");
+            return cafeRepository.findByBeanAndCafeAddressContaining(bean, splitAddress[1]);
+        } else {
+            return cafeRepository.findByBeanAndCafeAddressContaining(bean, "");
+        }
+
     }
 
     public List<Comment> setDetailPageComment(Bean bean, int pageNumber) {
