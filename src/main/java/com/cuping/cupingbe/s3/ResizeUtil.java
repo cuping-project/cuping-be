@@ -63,5 +63,6 @@ public class ResizeUtil {
         s3Uploader.upload(resizeImage(multipartFile.getOriginalFilename()
                 , multipartFile.getContentType().substring(multipartFile.getContentType().lastIndexOf("/") + 1), multipartFile));
         return new ResponseEntity<>(new Message(null), HttpStatus.OK);
+        
     }
 }
