@@ -44,17 +44,11 @@ public class OwnerPageService {
     public ResponseEntity<Message> createCafe(OwnerPageRequestDto ownerPageRequestDto, User user) throws Exception {
         checkCreateCafe(user, ownerPageRequestDto.getStoreAddress());
         JsonNode documents = setCreateCafe(ownerPageRequestDto);
-        MultipartFile authFile = ownerPageRequestDto.getAuthImage();
-        MultipartFile cafeFile = ownerPageRequestDto.getCafeImage();
         //사업자 등록증 SC저장
-        String businessImage = s3Uploader.upload(resizeUtil.resizeImage(authFile.getOriginalFilename(),
-                authFile.getContentType().substring(authFile.getContentType().lastIndexOf("/") + 1),
-                authFile));
+        String businessImage = s3Uploader.upload(resizeUtil.resizeImage(ownerPageRequestDto.getAuthImage()));
         String cafeImage;
         if (ownerPageRequestDto.getCafeImage() != null) {
-            cafeImage = s3Uploader.upload(resizeUtil.resizeImage(cafeFile.getOriginalFilename(),
-                    cafeFile.getContentType().substring(cafeFile.getContentType().lastIndexOf("/") + 1),
-                    cafeFile));
+            cafeImage = s3Uploader.upload(resizeUtil.resizeImage(ownerPageRequestDto.getCafeImage()));
         } else { cafeImage = "";}
         cafeRepository.save(new Cafe(user, ownerPageRequestDto, documents, businessImage, cafeImage));
         return new ResponseEntity<>(new Message("가게 등록 성공", null), HttpStatus.OK);

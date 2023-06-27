@@ -31,5 +31,5 @@ public class MemberSignupRequestDto {
 
 	private MultipartFile authImage;
 
-	private MultipartFile[] cafeImage;
+	private MultipartFile cafeImage;
 }
