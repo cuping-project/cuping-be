@@ -17,12 +17,14 @@ public class CustomCafeRepositoryImpl implements CustomCafeRepository {
 
     @Override
     public List<CafeResponseDto> findByBeanAndCafeAddressContaining(Bean bean, String address) {
+        String [] splitAddress = address.split(" ");
         return jpaQueryFactory.select(Projections.constructor(CafeResponseDto.class
                 ,cafe.Id, cafe.cafeAddress,  cafe.cafePhoneNumber, cafe.cafeName
                 , cafe.x, cafe.y, cafe.cafeImage, cafe.city, cafe.district, cafe.detailLink, cafe.bean))
                 .from(cafe)
                 .where(cafe.bean.eq(bean)
-                        .and(cafe.district.eq(address)))
+                        .and(cafe.city.eq(splitAddress[0]))
+                        .and(cafe.district.eq(splitAddress[1])))
                 .fetch();
     }
 }

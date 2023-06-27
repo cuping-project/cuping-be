@@ -70,10 +70,9 @@ public class PageService {
 
     public List<CafeResponseDto> setDetailPageCafe(Bean bean, String address) {
         if (!address.isEmpty()) {
-            String[] splitAddress = address.split(" ");
-            return cafeRepository.findByBeanAndCafeAddressContaining(bean, splitAddress[1]);
+            return cafeRepository.findByBeanAndCafeAddressContaining(bean, address);
         } else {
-            return cafeRepository.findByBeanAndCafeAddressContaining(bean, "");
+            return cafeRepository.findByBeanAndCafeAddressContaining(bean, "no address");
         }
 
     }

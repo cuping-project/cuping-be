@@ -67,20 +67,3 @@ public class CustomBeanRepositoryImpl implements CustomBeanRepository {
             return null;
     }
 }
-
-//    private BooleanExpression buildCondition(String[] hashTagkey) {
-//        BooleanExpression condition = null;
-//
-//        for (int i = 0; i < hashTagkey.length; i++) {
-//            String tag = "%" + hashTagkey[i] + "%";
-//            BooleanExpression tagCondition = bean.hashTag.like(tag);
-//            condition.or(bean.hashTag.contains(tag));
-//            condition = mergeCondition(condition, tagCondition);
-//        }
-//
-//        return condition;
-//    }
-//
-//    private BooleanExpression mergeCondition(BooleanExpression condition, BooleanExpression tagCondition) {
-//        return (condition == null) ? tagCondition : condition.or(tagCondition);
-//    }
