@@ -4,11 +4,14 @@ import com.cuping.cupingbe.dto.BeanRequestDto;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.AddressRepository;
 import com.cuping.cupingbe.service.PageService;
+import com.cuping.cupingbe.s3.ResizeUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +23,7 @@ public class PageController {
 
     private final PageService pageService;
     private final AddressRepository addressRepository;
+    private final ResizeUtil resizeUtil;
 
 //    @GetMapping("/beans")
 //    public ResponseEntity<Message> mainPage(@RequestParam Map<String, String> searchValue) {
@@ -30,7 +34,7 @@ public class PageController {
     public ResponseEntity<Message> searchPage(@RequestParam String keyword, String sort, String [] filter) {
         return pageService.getSearchPage(keyword, sort, filter);
     }
-    
+
 //    @GetMapping("beans/search")
 //    public ResponseEntity<Message> searchPage(@RequestBody BeanRequestDto beanRequestDto) {
 //        return pageService.getSearchPage(beanRequestDto);
@@ -50,6 +54,11 @@ public class PageController {
     @GetMapping("/health")
     public ResponseEntity<Message> healthCheck() {
         return new ResponseEntity<>(new Message(null), HttpStatus.OK);
+    }
+
+    @PostMapping("/test")
+    public ResponseEntity<Message> resizeTest(@ModelAttribute MultipartFile multipartFile) throws IOException {
+        return resizeUtil.upload(multipartFile);
     }
 }
 
