@@ -9,6 +9,7 @@ import com.cuping.cupingbe.global.exception.CustomException;
 import com.cuping.cupingbe.global.exception.ErrorCode;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.CafeRepository;
+import com.cuping.cupingbe.s3.ResizeUtil;
 import com.cuping.cupingbe.s3.S3Uploader;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -35,17 +37,24 @@ public class OwnerPageService {
     private final UtilService utilService;
     private final ObjectMapper objectMapper;
     private final S3Uploader s3Uploader;
+    private final ResizeUtil resizeUtil;
 
     //카페 등록 요청
     @Transactional
     public ResponseEntity<Message> createCafe(OwnerPageRequestDto ownerPageRequestDto, User user) throws Exception {
         checkCreateCafe(user, ownerPageRequestDto.getStoreAddress());
         JsonNode documents = setCreateCafe(ownerPageRequestDto);
+        MultipartFile authFile = ownerPageRequestDto.getAuthImage();
+        MultipartFile cafeFile = ownerPageRequestDto.getCafeImage();
         //사업자 등록증 SC저장
-        String businessImage = s3Uploader.upload(ownerPageRequestDto.getAuthImage());
+        String businessImage = s3Uploader.upload(resizeUtil.resizeImage(authFile.getOriginalFilename(),
+                authFile.getContentType().substring(authFile.getContentType().lastIndexOf("/") + 1),
+                authFile));
         String cafeImage;
         if (ownerPageRequestDto.getCafeImage() != null) {
-            cafeImage = s3Uploader.upload(ownerPageRequestDto.getCafeImage());
+            cafeImage = s3Uploader.upload(resizeUtil.resizeImage(cafeFile.getOriginalFilename(),
+                    cafeFile.getContentType().substring(cafeFile.getContentType().lastIndexOf("/") + 1),
+                    cafeFile));
         } else { cafeImage = "";}
         cafeRepository.save(new Cafe(user, ownerPageRequestDto, documents, businessImage, cafeImage));
         return new ResponseEntity<>(new Message("가게 등록 성공", null), HttpStatus.OK);
@@ -93,29 +102,6 @@ public class OwnerPageService {
         return searchAddress.toString();
     }
 
-    // test
-    public JsonNode initCafe(String keyword, int page) throws Exception {
-        URI uri = UriComponentsBuilder
-                .fromUriString("https://dapi.kakao.com")
-                .path("/v2/local/search/keyword.json")
-                .queryParam("query", keyword)
-                .queryParam("category_group_code", "CE7")
-                .queryParam("page", page)
-                .queryParam("size", 15)
-                .encode()
-                .build()
-                .toUri();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "KakaoAK " + "49244bfa76b071b6bad74b2441b968d7");
-        RequestEntity<Void> req = RequestEntity
-                .get(uri)
-                .headers(headers)
-                .build();
-
-        return objectMapper.readTree(new RestTemplate()
-                .exchange(req, String.class).getBody()).path("documents");
-    }
     //카페 삭제
     @Transactional
     public ResponseEntity<Message> deleteCafe(Long cafeId, User user) {
