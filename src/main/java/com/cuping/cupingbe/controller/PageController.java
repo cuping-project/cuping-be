@@ -55,10 +55,5 @@ public class PageController {
     public ResponseEntity<Message> healthCheck() {
         return new ResponseEntity<>(new Message(null), HttpStatus.OK);
     }
-
-    @PostMapping("/test")
-    public ResponseEntity<Message> resizeTest(@ModelAttribute MultipartFile multipartFile) throws IOException {
-        return resizeUtil.upload(multipartFile);
-    }
 }
 
