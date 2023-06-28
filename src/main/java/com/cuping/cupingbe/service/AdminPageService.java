@@ -12,6 +12,7 @@ import com.cuping.cupingbe.global.security.UserDetailsImpl;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.BeanRepository;
 import com.cuping.cupingbe.repository.CafeRepository;
+import com.cuping.cupingbe.s3.ResizeUtil;
 import com.cuping.cupingbe.s3.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,7 @@ public class AdminPageService {
     private final BeanRepository beanRepository;
     private final CafeRepository cafeRepository;
     private final UtilService utilService;
+    private final ResizeUtil resizeUtil;
 
     //(관리자페이지) 원두 등록하기
     @Transactional

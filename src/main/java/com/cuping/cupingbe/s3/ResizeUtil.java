@@ -13,56 +13,55 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
+import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class ResizeUtil {
 
-    private final ObjectMapper objectMapper;
     private final S3Uploader s3Uploader;
 
-    public MultipartFile resizeImage(String fileName, String fileFormatName, MultipartFile originalImage) {
+    public MultipartFile resizeImage(MultipartFile multipartFile) {
         try {
+            String fileFormat = multipartFile.getOriginalFilename().substring(
+                    multipartFile.getOriginalFilename().lastIndexOf(".") + 1);
             // MultipartFile -> BufferedImage Convert
-            BufferedImage image = ImageIO.read(originalImage.getInputStream());
+            BufferedImage image = ImageIO.read(multipartFile.getInputStream());
             // newWidth : newHeight = originWidth : originHeight
-            int originWidth = image.getWidth();
-            int originHeight = image.getHeight();
+            int newWidth = (int) (image.getWidth() * 0.6d);
+            int newHeight = (int) (image.getHeight() * 0.6d);
 
-            // origin 이미지가 resizing될 사이즈보다 작을 경우 resizing 작업 안 함
-            if(originWidth < 800 && originHeight < 600)
-                return originalImage;
+            if (newWidth < 600 && newHeight < 400)
+                return multipartFile;
 
             MarvinImage imageMarvin = new MarvinImage(image);
 
             Scale scale = new Scale();
             scale.load();
-            scale.setAttribute("newWidth", 800);
-            scale.setAttribute("newHeight", 600);
+            scale.setAttribute("newWidth", newWidth);
+            scale.setAttribute("newHeight", newHeight);
             scale.process(imageMarvin.clone(), imageMarvin, null, null, false);
 
             BufferedImage imageNoAlpha = imageMarvin.getBufferedImageNoAlpha();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            ImageIO.write(imageNoAlpha, fileFormatName, out);
+            ImageIO.write(imageNoAlpha, fileFormat, out);
             out.flush();
 
-//            return new MockMultipartFile(fileName, fileName, fileFormatName, out);
-            return new CustomMultipartFile(fileName, fileName, fileFormatName, out.toByteArray());
+            return new CustomMultipartFile(multipartFile.getName(), multipartFile.getOriginalFilename(),
+                    fileFormat, out.toByteArray());
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 리사이즈에 실패했습니다.");
         }
-    }
-
-    public ResponseEntity<Message> upload(MultipartFile multipartFile) throws IOException{
-        s3Uploader.upload(resizeImage(multipartFile.getOriginalFilename()
-                , multipartFile.getContentType().substring(multipartFile.getContentType().lastIndexOf("/") + 1), multipartFile));
-        return new ResponseEntity<>(new Message(null), HttpStatus.OK);
-        
     }
 }
