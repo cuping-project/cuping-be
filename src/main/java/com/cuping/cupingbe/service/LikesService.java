@@ -6,8 +6,10 @@ import com.cuping.cupingbe.entity.Likes;
 import com.cuping.cupingbe.entity.User;
 import com.cuping.cupingbe.global.util.Message;
 import com.cuping.cupingbe.repository.LikesRepository;
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class LikesService {
     private final UtilService utilService;
 
     @Transactional
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     public ResponseEntity<Message> toggleLikeStatus(Long beanId, String userId) {
         Bean bean = utilService.checkBean(beanId);
         User user = utilService.checkUserId(userId);
