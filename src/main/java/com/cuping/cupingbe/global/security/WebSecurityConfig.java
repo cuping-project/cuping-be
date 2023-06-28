@@ -58,7 +58,6 @@ public class WebSecurityConfig {
             "/main/bean",
             "/oauth/kakao",
             "/main/health",
-            "/main/test",
             "/main/address"
     };
 
